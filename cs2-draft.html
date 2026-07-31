@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسابقات کانتر استرایک کارن</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b0d0f;
+    --panel: #14181b;
+    --panel-2: #1b2124;
+    --line: #262d31;
+    --orange: #de9b35;
+    --orange-bright: #f2b348;
+    --text: #e9e7e2;
+    --muted: #8b9298;
+    --danger: #c23a2e;
+    --good: #4ad98a;
+    --gold: #f0c94a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(222,155,53,0.06), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Vazirmatn', Tahoma, sans-serif;
+    min-height:100vh;
+    padding:24px 16px 80px;
+  }
+  .oswald{font-family:'Oswald','Vazirmatn',sans-serif; letter-spacing:0.5px;}
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  header.top{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding-bottom:18px; margin-bottom:22px; border-bottom:2px solid var(--orange);
+    flex-wrap:wrap;
+  }
+  header.top h1{
+    font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; margin:0;
+    color:var(--orange-bright); text-transform:uppercase; letter-spacing:1px;
+  }
+  header.top .sub{color:var(--muted); font-size:13px; margin-top:4px;}
+  header.top .tag{
+    background:var(--orange); color:#1a1300; font-weight:700; font-size:12px;
+    padding:6px 12px; border-radius:3px; font-family:'Oswald',sans-serif; white-space:nowrap;
+  }
+
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    padding:20px; margin-bottom:20px;
+  }
+  .card h2{
+    font-family:'Oswald',sans-serif; font-size:16px; text-transform:uppercase;
+    color:var(--orange-bright); margin:0 0 4px; letter-spacing:0.5px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .card h2 .n{
+    background:var(--orange); color:#1a1300; width:24px; height:24px; border-radius:4px;
+    display:inline-flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;
+  }
+  .card .hint{color:var(--muted); font-size:12.5px; margin:0 0 16px; line-height:1.9;}
+
+  .settings-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .settings-row label{font-size:13.5px; color:var(--text);}
+  .settings-row input[type=number]{
+    width:70px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px;
+    color:var(--text); font-family:'Oswald'; font-size:15px; text-align:center; padding:6px 4px;
+  }
+  .settings-row .calc{color:var(--muted); font-size:12.5px;}
+  .locked-note{
+    display:flex; align-items:center; gap:8px; color:var(--good); font-size:13px; margin-top:10px;
+  }
+
+  .reg-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px 14px;
+  }
+  @media(max-width:900px){.reg-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.reg-grid{grid-template-columns:1fr;}}
+  .reg-row{
+    display:flex; align-items:center; gap:6px; background:var(--panel-2);
+    border:1px solid var(--line); border-radius:6px; padding:6px 8px;
+  }
+  .reg-row .num{
+    font-family:'Oswald',sans-serif; color:var(--orange-bright); font-weight:600;
+    width:20px; text-align:center; font-size:13px; flex-shrink:0;
+  }
+  .reg-row input{
+    background:transparent; border:none; border-bottom:1px solid var(--line);
+    color:var(--text); font-family:'Vazirmatn'; font-size:13px; padding:4px 2px;
+    width:0; flex:1; min-width:0;
+  }
+  .reg-row input::placeholder{color:#565d62;}
+  .reg-row input:focus{outline:none; border-bottom-color:var(--orange);}
+  .reg-row input.id-input{flex:0.75; color:var(--muted); direction:ltr; text-align:right;}
+
+  .leader-pool{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .leader-chip{
+    display:flex; align-items:center; gap:6px; background:var(--panel-2);
+    border:1px solid var(--line); border-radius:20px; padding:6px 12px;
+    font-size:13px; cursor:pointer; user-select:none; transition:.15s;
+  }
+  .leader-chip:hover{border-color:var(--orange);}
+  .leader-chip.picked{background:var(--orange); color:#1a1300; border-color:var(--orange); font-weight:600;}
+  .leader-chip.disabled{opacity:.35; cursor:not-allowed;}
+  .empty-note{color:var(--muted); font-size:13px;}
+
+  .btn{
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.5px;
+    background:var(--orange); color:#1a1300; border:none; border-radius:6px;
+    padding:10px 22px; font-size:14px; font-weight:600; cursor:pointer; transition:.15s;
+  }
+  .btn:hover{background:var(--orange-bright);}
+  .btn:disabled{background:#3a3a3a; color:#777; cursor:not-allowed;}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--muted);}
+  .btn.ghost:hover{border-color:var(--danger); color:var(--danger);}
+  .btn.gold{background:var(--gold); color:#241c00;}
+  .btn.gold:hover{background:#f7db6f;}
+  .btn.small{padding:6px 14px; font-size:12px;}
+  .actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+
+  .turn-banner{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--panel-2); border:1px solid var(--orange); border-radius:8px;
+    padding:14px 18px; margin-bottom:18px; flex-wrap:wrap;
+  }
+  .turn-banner .who{
+    font-family:'Oswald',sans-serif; font-size:19px; font-weight:600;
+    display:flex; align-items:center; gap:10px;
+  }
+  .dot{width:14px; height:14px; border-radius:3px; display:inline-block; box-shadow:0 0 10px 1px currentColor;}
+  .turn-banner .round{color:var(--muted); font-size:12.5px;}
+  .turn-banner.done{border-color:var(--good);}
+  .turn-banner.done .who{color:var(--good);}
+
+  .draft-layout{display:grid; grid-template-columns:1.15fr 0.85fr; gap:18px;}
+  @media(max-width:860px){.draft-layout{grid-template-columns:1fr;}}
+
+  .teams-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+  @media(max-width:560px){.teams-grid{grid-template-columns:1fr;}}
+  .team-card{
+    background:var(--panel-2); border-radius:8px; overflow:hidden;
+    border:1px solid var(--line); border-top:3px solid var(--tc, var(--orange));
+    position:relative;
+  }
+  .team-card.champion{box-shadow:0 0 0 2px var(--gold);}
+  .team-card .th{
+    padding:8px 12px; display:flex; justify-content:space-between; align-items:center;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:13.5px;
+    color:var(--tc, var(--orange)); border-bottom:1px solid var(--line);
+  }
+  .team-card .th .trophy{color:var(--gold); margin-left:4px;}
+  .team-card ul{list-style:none; margin:0; padding:8px 10px; min-height:120px;}
+  .team-card li{
+    display:flex; gap:8px; align-items:baseline; padding:5px 0; font-size:13.5px;
+    border-bottom:1px dashed #23282b;
+  }
+  .team-card li:last-child{border-bottom:none;}
+  .team-card li .slot{color:var(--muted); font-size:11px; width:16px; flex-shrink:0;}
+  .team-card li.leader-line .name{font-weight:700;}
+  .team-card li.leader-line .badge{
+    font-size:10px; background:var(--tc,var(--orange)); color:#12100a; padding:1px 6px;
+    border-radius:3px; margin-right:4px;
+  }
+  .team-card li .pid{color:var(--muted); font-size:11px; direction:ltr;}
+  .team-card li .name{flex:1;}
+  .team-card li.empty-slot{color:#4a5054; font-style:italic;}
+  .rm-btn{
+    background:transparent; border:1px solid var(--line); color:var(--muted);
+    border-radius:4px; width:20px; height:20px; line-height:1; cursor:pointer;
+    flex-shrink:0; font-size:13px; transition:.15s;
+  }
+  .rm-btn:hover{border-color:var(--danger); color:var(--danger);}
+
+  .pool-box{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px;}
+  .pool-box h3{margin:0 0 10px; font-family:'Oswald',sans-serif; font-size:13.5px; color:var(--muted); text-transform:uppercase;}
+  .pool-list{display:flex; flex-direction:column; gap:6px; max-height:520px; overflow-y:auto;}
+  .pool-item{
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:9px 12px; cursor:pointer; transition:.12s; text-align:right;
+  }
+  .pool-item:hover{border-color:var(--orange); background:#20191080;}
+  .pool-item .pname{font-size:13.5px;}
+  .pool-item .ppid{color:var(--muted); font-size:11px; direction:ltr;}
+  .pool-empty{color:var(--muted); font-size:13px; text-align:center; padding:20px 0;}
+
+  .champion-row{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background:var(--panel-2); border:1px solid var(--gold); border-radius:8px;
+    padding:12px 16px; margin-bottom:16px;
+  }
+  .champion-row label{font-family:'Oswald'; font-size:13px; color:var(--gold); text-transform:uppercase;}
+  .champion-row select{
+    background:var(--panel); border:1px solid var(--line); color:var(--text);
+    border-radius:6px; padding:7px 10px; font-family:'Vazirmatn'; font-size:13.5px;
+  }
+
+  /* history */
+  .history-note{color:var(--muted); font-size:12px; margin:-6px 0 14px; line-height:1.9;}
+  .history-item{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:10px 14px; margin-bottom:8px;
+  }
+  .history-head{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; flex-wrap:wrap;}
+  .history-head .d{font-family:'Oswald'; font-size:13px; color:var(--text);}
+  .history-head .c{font-size:12.5px; color:var(--gold);}
+  .history-head .del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 6px;}
+  .history-head .del:hover{color:var(--danger);}
+  .history-body{display:none; margin-top:10px; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; font-size:12.5px;}
+  .history-body.open{display:grid;}
+  .history-team{background:var(--panel); border-radius:6px; padding:8px 10px; border-right:3px solid var(--line);}
+  .history-team.champ{border-right-color:var(--gold);}
+  .history-team .tname{font-weight:700; margin-bottom:4px; display:flex; gap:4px; align-items:center;}
+  .history-empty{color:var(--muted); font-size:13px; text-align:center; padding:14px 0;}
+  input[type=file]{color:var(--muted); font-size:12.5px;}
+
+  footer{text-align:center; color:#565d62; font-size:11.5px; margin-top:30px;}
+
+  /* print */
+  #printArea{display:none;}
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{
+      display:block; position:absolute; top:0; left:0; width:100%;
+      padding:20px; color:#000; background:#fff; direction:rtl;
+    }
+    #printArea h1{font-size:20px; margin:0 0 2px;}
+    #printArea .pdate{color:#444; font-size:12px; margin:0 0 16px;}
+    #printArea .pteams{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+    #printArea .pteam{border:1px solid #999; border-radius:6px; padding:8px 10px;}
+    #printArea .pteam.champ{border:2px solid #b8860b; background:#fff8e6;}
+    #printArea .pteam h3{margin:0 0 6px; font-size:14px;}
+    #printArea .pteam ul{margin:0; padding:0 18px 0 0; font-size:12.5px; line-height:1.7;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>مسابقات کانتر استرایک کارن</h1>
+      <div class="sub">کارن گیم سنتر &middot; جمعه‌ها &middot; تیم‌های ۵ نفره</div>
+    </div>
+    <div class="tag">KAREN GAME CENTER</div>
+  </header>
+
+  <!-- STEP 0: SETTINGS -->
+  <div class="card" id="settingsCard">
+    <h2><span class="n">۰</span> تنظیمات مسابقه</h2>
+    <p class="hint">تعداد تیم‌های این هفته رو مشخص کن (هر تیم ۵ نفره‌ست). با تغییر تعداد تیم، تعداد اسلات‌های ثبت‌نام هم به‌روز می‌شه.</p>
+    <div class="settings-row">
+      <label for="teamCountInput">تعداد تیم‌ها</label>
+      <input type="number" id="teamCountInput" min="2" max="10" value="6">
+      <span class="calc" id="calcNote"></span>
+      <button class="btn small" id="applySettingsBtn">اعمال</button>
+    </div>
+    <div class="locked-note" id="settingsLockNote" style="display:none;">تنظیمات قفل شد (درفت شروع شده)</div>
+  </div>
+
+  <!-- STEP 1: REGISTRATION -->
+  <div class="card" id="regCard">
+    <h2><span class="n">۱</span> ثبت شرکت‌کنندگان</h2>
+    <p class="hint">اسم و آی‌دی شرکت‌کننده‌ها رو وارد کن. نیازی نیست همه‌ی خونه‌ها پر بشه.</p>
+    <div class="reg-grid" id="regGrid"></div>
+  </div>
+
+  <!-- STEP 2: LEADER DRAW -->
+  <div class="card" id="leaderCard">
+    <h2><span class="n">۲</span> قرعه‌کشی لیدرها</h2>
+    <p class="hint" id="leaderHint"></p>
+    <div class="leader-pool" id="leaderPool"></div>
+    <div class="actions">
+      <button class="btn" id="drawBtn" disabled>قرعه‌کشی و شروع درفت</button>
+      <span class="empty-note" id="leaderCount"></span>
+    </div>
+  </div>
+
+  <!-- STEP 3: DRAFT BOARD -->
+  <div class="card" id="draftCard" style="display:none;">
+    <h2><span class="n">۳</span> درفت تیم‌ها</h2>
+    <p class="hint">روی اسم بازیکن‌ها توی لیست سمت راست کلیک کن تا به تیمی که نوبتشه اضافه بشه. اگه اشتباه کلیک کردی، روی × کنار اسم توی تیم بزن تا برگرده به لیست.</p>
+
+    <div class="turn-banner" id="turnBanner">
+      <div class="who" id="turnWho"></div>
+      <div class="round" id="turnRound"></div>
+    </div>
+
+    <div class="draft-layout">
+      <div class="teams-grid" id="teamsGrid"></div>
+      <div class="pool-box">
+        <h3>بازیکنان باقی‌مانده</h3>
+        <div class="pool-list" id="poolList"></div>
+      </div>
+    </div>
+
+    <div class="champion-row" style="margin-top:18px;">
+      <label for="championSelect">🏆 قهرمان این هفته:</label>
+      <select id="championSelect"><option value="">-- بعد از بازی‌ها انتخاب کن --</option></select>
+    </div>
+
+    <div class="actions">
+      <button class="btn gold small" id="pdfBtn">دانلود PDF این هفته</button>
+      <button class="btn ghost small" id="resetBtn">شروع مجدد کامل</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: HISTORY -->
+  <div class="card" id="historyCard">
+    <h2><span class="n">۴</span> تاریخچه هفته‌های قبل</h2>
+    <p class="history-note">این تاریخچه فقط توی همین مرورگر/دستگاه ذخیره می‌مونه. برای انتقال به گوشی یا سیستم دیگه، از «خروجی گرفتن» و «وارد کردن» فایل استفاده کن.</p>
+    <div class="actions" style="margin-bottom:14px;">
+      <button class="btn small" id="saveWeekBtn">ذخیره نتیجه این هفته در تاریخچه</button>
+      <button class="btn ghost small" id="exportHistBtn">خروجی گرفتن (JSON)</button>
+      <label class="btn ghost small" style="cursor:pointer;">
+        وارد کردن (JSON)
+        <input type="file" id="importHistInput" accept="application/json" style="display:none;">
+      </label>
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+  <footer>ساخته شده برای تورنمنت‌های کارن گیم سنتر</footer>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+const PALETTE = ['#de9b35','#4a90d9','#d9524a','#4ad98a','#b24ad9','#3fd0d9','#e0c23c','#e0729c','#7d8a99','#8a5a2c'];
+const TEAM_SIZE = 5;
+const HISTORY_KEY = 'karen_cs2_history_v1';
+
+let TEAM_COUNT = 6;
+let participants = [];
+let leaderSelection = [];
+let draftStarted = false;
+let teams = [];
+let pickOrder = [];
+let pickPointer = 0;
+let champion = null; // team index
+let history = [];
+
+function colorFor(idx){ return PALETTE[idx % PALETTE.length]; }
+
+function buildParticipants(){
+  const total = TEAM_COUNT * TEAM_SIZE;
+  participants = Array.from({length: total}, (_,i)=>({
+    num: i+1, name:'', pid:'', team:null, isLeader:false
+  }));
+}
+
+// ---------- STEP 0: settings ----------
+const teamCountInput = document.getElementById('teamCountInput');
+const calcNote = document.getElementById('calcNote');
+const applySettingsBtn = document.getElementById('applySettingsBtn');
+const settingsLockNote = document.getElementById('settingsLockNote');
+
+function updateCalcNote(){
+  const n = Math.max(2, Math.min(10, parseInt(teamCountInput.value)||6));
+  calcNote.textContent = `= ${n} تیم × ۵ نفر = ${n*5} شرکت‌کننده`;
+}
+teamCountInput.addEventListener('input', updateCalcNote);
+
+applySettingsBtn.addEventListener('click', ()=>{
+  if(draftStarted) return;
+  const hasData = participants.some(p=>p.name);
+  if(hasData && !confirm('با تغییر تعداد تیم‌ها، اسم و آی‌دی‌های ثبت‌شده پاک می‌شن. ادامه بدم؟')) return;
+  TEAM_COUNT = Math.max(2, Math.min(10, parseInt(teamCountInput.value)||6));
+  teamCountInput.value = TEAM_COUNT;
+  updateCalcNote();
+  buildParticipants();
+  buildRegistration();
+  leaderSelection = [];
+  renderLeaderPool();
+});
+
+// ---------- STEP 1: registration ----------
+const regGrid = document.getElementById('regGrid');
+
+function buildRegistration(){
+  regGrid.innerHTML = '';
+  participants.forEach(p=>{
+    const row = document.createElement('div');
+    row.className = 'reg-row';
+    row.innerHTML = `
+      <span class="num oswald">${p.num}</span>
+      <input type="text" placeholder="اسم بازیکن" data-num="${p.num}" data-field="name" value="${p.name}">
+      <input type="text" class="id-input" placeholder="آی‌دی" data-num="${p.num}" data-field="pid" value="${p.pid}">
+    `;
+    regGrid.appendChild(row);
+  });
+}
+regGrid.addEventListener('input', (e)=>{
+  const t = e.target;
+  if(!t.dataset.num) return;
+  const p = participants[+t.dataset.num - 1];
+  p[t.dataset.field] = t.value.trim();
+  renderLeaderPool();
+});
+
+// ---------- STEP 2: leader pool ----------
+const leaderPool = document.getElementById('leaderPool');
+const drawBtn = document.getElementById('drawBtn');
+const leaderCount = document.getElementById('leaderCount');
+const leaderHint = document.getElementById('leaderHint');
+
+function renderLeaderPool(){
+  leaderHint.textContent = `${TEAM_COUNT} نفر رو به عنوان لیدر انتخاب کن، بعد دکمه‌ی قرعه‌کشی رو بزن تا به‌صورت رندم ترتیبشون از تیم ۱ تا ${TEAM_COUNT} مشخص بشه.`;
+  const named = participants.filter(p=>p.name);
+  leaderSelection = leaderSelection.filter(n => named.some(p=>p.num===n));
+
+  leaderPool.innerHTML = '';
+  if(named.length === 0){
+    leaderPool.innerHTML = '<span class="empty-note">اول توی بخش بالا حداقل چند اسم وارد کن</span>';
+  }
+  named.forEach(p=>{
+    const picked = leaderSelection.includes(p.num);
+    const atLimit = leaderSelection.length >= TEAM_COUNT && !picked;
+    const chip = document.createElement('div');
+    chip.className = 'leader-chip' + (picked?' picked':'') + (atLimit?' disabled':'');
+    chip.textContent = p.name;
+    chip.addEventListener('click', ()=>{
+      if(draftStarted) return;
+      if(picked){
+        leaderSelection = leaderSelection.filter(n=>n!==p.num);
+      } else if(leaderSelection.length < TEAM_COUNT){
+        leaderSelection.push(p.num);
+      }
+      renderLeaderPool();
+    });
+    leaderPool.appendChild(chip);
+  });
+  leaderCount.textContent = `${leaderSelection.length} از ${TEAM_COUNT} نفر انتخاب شده`;
+  drawBtn.disabled = leaderSelection.length !== TEAM_COUNT || draftStarted;
+}
+
+drawBtn.addEventListener('click', ()=>{
+  if(leaderSelection.length !== TEAM_COUNT) return;
+  const shuffled = [...leaderSelection];
+  for(let i=shuffled.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [shuffled[i],shuffled[j]] = [shuffled[j],shuffled[i]];
+  }
+  teams = shuffled.map(num=>({leaderNum:num, members:[num]}));
+  shuffled.forEach((num,idx)=>{
+    const p = participants.find(pp=>pp.num===num);
+    p.isLeader = true;
+    p.team = idx;
+  });
+
+  const forward = [...Array(TEAM_COUNT).keys()];
+  const reverse = [...forward].reverse();
+  pickOrder = [];
+  for(let r=2; r<=TEAM_SIZE; r++){
+    pickOrder.push(...(r % 2 === 0 ? forward : reverse));
+  }
+  pickPointer = 0;
+  champion = null;
+  draftStarted = true;
+
+  document.getElementById('draftCard').style.display = 'block';
+  settingsLockNote.style.display = 'flex';
+  applySettingsBtn.disabled = true;
+  teamCountInput.disabled = true;
+  renderLeaderPool();
+  renderChampionSelect();
+  renderDraftBoard();
+  document.getElementById('draftCard').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+// ---------- STEP 3: draft board ----------
+const teamsGrid = document.getElementById('teamsGrid');
+const poolList = document.getElementById('poolList');
+const turnBanner = document.getElementById('turnBanner');
+const turnWho = document.getElementById('turnWho');
+const turnRound = document.getElementById('turnRound');
+const championSelect = document.getElementById('championSelect');
+
+function currentTeamIndex(){
+  if(pickPointer >= pickOrder.length) return null;
+  return pickOrder[pickPointer];
+}
+
+function renderChampionSelect(){
+  championSelect.innerHTML = '<option value="">-- بعد از بازی‌ها انتخاب کن --</option>';
+  teams.forEach((t,idx)=>{
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `تیم ${idx+1}`;
+    if(champion===idx) opt.selected = true;
+    championSelect.appendChild(opt);
+  });
+}
+championSelect.addEventListener('change', ()=>{
+  champion = championSelect.value === '' ? null : +championSelect.value;
+  renderDraftBoard();
+});
+
+function renderDraftBoard(){
+  teamsGrid.innerHTML = '';
+  teams.forEach((team, idx)=>{
+    const color = colorFor(idx);
+    const card = document.createElement('div');
+    card.className = 'team-card' + (champion===idx ? ' champion':'');
+    card.style.setProperty('--tc', color);
+    let rows = '';
+    for(let slot=0; slot<TEAM_SIZE; slot++){
+      const num = team.members[slot];
+      if(num === undefined){
+        rows += `<li class="empty-slot"><span class="slot">${slot+1}</span> در انتظار انتخاب...</li>`;
+      } else {
+        const p = participants.find(pp=>pp.num===num);
+        const isLeader = slot===0;
+        rows += `<li class="${isLeader?'leader-line':''}">
+          <span class="slot">${slot+1}</span>
+          <span class="name">${isLeader?'<span class="badge">لیدر</span>':''}${p.name}</span>
+          <span class="pid">${p.pid || ''}</span>
+          ${isLeader ? '' : `<button class="rm-btn" data-team="${idx}" data-num="${num}" title="حذف">×</button>`}
+        </li>`;
+      }
+    }
+    card.innerHTML = `<div class="th"><span>${champion===idx?'<span class="trophy">🏆</span>':''}تیم ${idx+1}</span><span>${team.members.length}/${TEAM_SIZE}</span></div><ul>${rows}</ul>`;
+    teamsGrid.appendChild(card);
+  });
+
+  teamsGrid.querySelectorAll('.rm-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      removeMember(+btn.dataset.team, +btn.dataset.num);
+    });
+  });
+
+  const pool = participants.filter(p=>p.name && p.team===null);
+  poolList.innerHTML = '';
+  if(pool.length === 0){
+    poolList.innerHTML = '<div class="pool-empty">بازیکن باقی‌مانده‌ای نیست</div>';
+  } else {
+    pool.forEach(p=>{
+      const item = document.createElement('div');
+      item.className = 'pool-item';
+      item.innerHTML = `<span class="pname">${p.name}</span><span class="ppid">${p.pid||''}</span>`;
+      item.addEventListener('click', ()=>assignPick(p.num));
+      poolList.appendChild(item);
+    });
+  }
+
+  const ct = currentTeamIndex();
+  if(ct === null || pool.length === 0){
+    turnBanner.classList.add('done');
+    turnWho.innerHTML = 'درفت به پایان رسید ✔';
+    turnRound.textContent = '';
+  } else {
+    turnBanner.classList.remove('done');
+    const round = Math.floor(pickPointer / TEAM_COUNT) + 2;
+    turnWho.innerHTML = `<span class="dot" style="background:${colorFor(ct)}; color:${colorFor(ct)}"></span> نوبت انتخاب: تیم ${ct+1}`;
+    turnRound.textContent = `دور ${round} از ${TEAM_SIZE}`;
+  }
+}
+
+function assignPick(num){
+  const ct = currentTeamIndex();
+  if(ct === null) return;
+  const p = participants.find(pp=>pp.num===num);
+  if(!p || p.team !== null) return;
+  p.team = ct;
+  teams[ct].members.push(num);
+  pickPointer++;
+  renderDraftBoard();
+}
+
+function removeMember(teamIdx, num){
+  const p = participants.find(pp=>pp.num===num);
+  if(!p || p.isLeader) return;
+  p.team = null;
+  teams[teamIdx].members = teams[teamIdx].members.filter(n=>n!==num);
+  pickPointer = Math.max(0, pickPointer - 1);
+  renderDraftBoard();
+}
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('کل درفت و لیدرها پاک بشه؟ اسم و آی‌دی‌های ثبت‌شده باقی می‌مونن.')) return;
+  participants.forEach(p=>{p.team=null; p.isLeader=false;});
+  leaderSelection = [];
+  teams = [];
+  pickOrder = [];
+  pickPointer = 0;
+  champion = null;
+  draftStarted = false;
+  document.getElementById('draftCard').style.display = 'none';
+  settingsLockNote.style.display = 'none';
+  applySettingsBtn.disabled = false;
+  teamCountInput.disabled = false;
+  renderLeaderPool();
+});
+
+// ---------- PDF (print) ----------
+function buildPrintArea(){
+  const dateStr = new Date().toLocaleDateString('fa-IR', {year:'numeric', month:'long', day:'numeric'});
+  let teamsHtml = '';
+  teams.forEach((team, idx)=>{
+    const isChamp = champion===idx;
+    let membersHtml = '';
+    team.members.forEach((num,slot)=>{
+      const p = participants.find(pp=>pp.num===num);
+      const tag = slot===0 ? ' (لیدر)' : '';
+      membersHtml += `<li>${p.name}${tag}${p.pid?' — '+p.pid:''}</li>`;
+    });
+    teamsHtml += `<div class="pteam${isChamp?' champ':''}"><h3>${isChamp?'🏆 ':''}تیم ${idx+1}</h3><ul>${membersHtml}</ul></div>`;
+  });
+  document.getElementById('printArea').innerHTML = `
+    <h1>مسابقات کانتر استرایک کارن</h1>
+    <div class="pdate">کارن گیم سنتر — ${dateStr}</div>
+    <div class="pteams">${teamsHtml}</div>
+  `;
+}
+document.getElementById('pdfBtn').addEventListener('click', ()=>{
+  buildPrintArea();
+  window.print();
+});
+
+// ---------- HISTORY ----------
+const historyList = document.getElementById('historyList');
+
+function loadHistory(){
+  try{ history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+  catch(e){ history = []; }
+}
+function persistHistory(){
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
+  catch(e){ /* storage unavailable, ignore */ }
+}
+function renderHistory(){
+  historyList.innerHTML = '';
+  if(history.length === 0){
+    historyList.innerHTML = '<div class="history-empty">هنوز هفته‌ای ذخیره نشده</div>';
+    return;
+  }
+  history.forEach(entry=>{
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const champTeam = entry.championIndex!==null && entry.championIndex!==undefined && entry.teams[entry.championIndex]
+      ? `تیم ${entry.championIndex+1}` : 'مشخص نشده';
+    let bodyHtml = '';
+    entry.teams.forEach((t,idx)=>{
+      const isChamp = entry.championIndex===idx;
+      let membersHtml = '';
+      t.members.forEach((m,slot)=>{
+        membersHtml += `<li>${m.name}${slot===0?' (لیدر)':''}</li>`;
+      });
+      bodyHtml += `<div class="history-team${isChamp?' champ':''}"><div class="tname">${isChamp?'🏆 ':''}تیم ${idx+1}</div><ul style="margin:0;padding:0 16px 0 0;">${membersHtml}</ul></div>`;
+    });
+    item.innerHTML = `
+      <div class="history-head">
+        <span class="d">${entry.date}</span>
+        <span class="c">🏆 ${champTeam}</span>
+        <button class="del" title="حذف">×</button>
+      </div>
+      <div class="history-body">${bodyHtml}</div>
+    `;
+    const head = item.querySelector('.history-head');
+    const body = item.querySelector('.history-body');
+    head.addEventListener('click', (e)=>{
+      if(e.target.classList.contains('del')) return;
+      body.classList.toggle('open');
+    });
+    item.querySelector('.del').addEventListener('click', ()=>{
+      if(!confirm('این هفته از تاریخچه حذف بشه؟')) return;
+      history = history.filter(h=>h.id !== entry.id);
+      persistHistory();
+      renderHistory();
+    });
+    historyList.appendChild(item);
+  });
+}
+
+document.getElementById('saveWeekBtn').addEventListener('click', ()=>{
+  if(teams.length === 0){
+    alert('اول لیدرها رو قرعه‌کشی کن و تیم‌ها رو بچین.');
+    return;
+  }
+  const entry = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('fa-IR', {year:'numeric', month:'long', day:'numeric'}),
+    dateISO: new Date().toISOString(),
+    teamCount: TEAM_COUNT,
+    championIndex: champion,
+    teams: teams.map(t=>({
+      members: t.members.map(num=>{
+        const p = participants.find(pp=>pp.num===num);
+        return {name:p.name, pid:p.pid};
+      })
+    }))
+  };
+  history.unshift(entry);
+  persistHistory();
+  renderHistory();
+  alert('نتیجه این هفته ذخیره شد.');
+});
+
+document.getElementById('exportHistBtn').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(history, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'karen-cs2-history.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importHistInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const imported = JSON.parse(reader.result);
+      if(!Array.isArray(imported)) throw new Error('bad format');
+      const existingIds = new Set(history.map(h=>h.id));
+      imported.forEach(entry=>{
+        if(!existingIds.has(entry.id)){
+          history.push(entry);
+          existingIds.add(entry.id);
+        }
+      });
+      history.sort((a,b)=> new Date(b.dateISO||0) - new Date(a.dateISO||0));
+      persistHistory();
+      renderHistory();
+      alert('تاریخچه با موفقیت اضافه شد.');
+    }catch(err){
+      alert('فایل معتبر نیست.');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+// init
+updateCalcNote();
+buildParticipants();
+buildRegistration();
+renderLeaderPool();
+loadHistory();
+renderHistory();
+</script>
+</body>
+</html>
