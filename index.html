@@ -8,103 +8,45 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0b0d0f;
-    --panel: #14181b;
-    --panel-2: #1b2124;
-    --line: #262d31;
-    --orange: #de9b35;
-    --orange-bright: #f2b348;
-    --text: #e9e7e2;
-    --muted: #8b9298;
-    --danger: #c23a2e;
-    --good: #4ad98a;
-    --gold: #f0c94a;
+    --bg:#0b0d0f; --panel:#14181b; --panel-2:#1b2124; --line:#262d31;
+    --orange:#de9b35; --orange-bright:#f2b348; --text:#e9e7e2; --muted:#8b9298;
+    --danger:#c23a2e; --good:#4ad98a; --gold:#f0c94a;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background:
-      radial-gradient(circle at 15% 0%, rgba(222,155,53,0.06), transparent 40%),
-      var(--bg);
-    color:var(--text);
-    font-family:'Vazirmatn', Tahoma, sans-serif;
-    min-height:100vh;
-    padding:24px 16px 80px;
+    background:radial-gradient(circle at 15% 0%, rgba(222,155,53,0.06), transparent 40%), var(--bg);
+    color:var(--text); font-family:'Vazirmatn', Tahoma, sans-serif; min-height:100vh; padding:24px 16px 80px;
   }
   .oswald{font-family:'Oswald','Vazirmatn',sans-serif; letter-spacing:0.5px;}
   .wrap{max-width:1180px;margin:0 auto;}
-
-  header.top{
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    padding-bottom:18px; margin-bottom:22px; border-bottom:2px solid var(--orange);
-    flex-wrap:wrap;
-  }
-  header.top h1{
-    font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; margin:0;
-    color:var(--orange-bright); text-transform:uppercase; letter-spacing:1px;
-  }
+  header.top{display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:18px; margin-bottom:22px; border-bottom:2px solid var(--orange); flex-wrap:wrap;}
+  header.top h1{font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; margin:0; color:var(--orange-bright); text-transform:uppercase; letter-spacing:1px;}
   header.top .sub{color:var(--muted); font-size:13px; margin-top:4px;}
-  header.top .tag{
-    background:var(--orange); color:#1a1300; font-weight:700; font-size:12px;
-    padding:6px 12px; border-radius:3px; font-family:'Oswald',sans-serif; white-space:nowrap;
-  }
-
-  .card{
-    background:var(--panel); border:1px solid var(--line); border-radius:8px;
-    padding:20px; margin-bottom:20px;
-  }
-  .card h2{
-    font-family:'Oswald',sans-serif; font-size:16px; text-transform:uppercase;
-    color:var(--orange-bright); margin:0 0 4px; letter-spacing:0.5px;
-  }
+  header.top .tag{background:var(--orange); color:#1a1300; font-weight:700; font-size:12px; padding:6px 12px; border-radius:3px; font-family:'Oswald',sans-serif; white-space:nowrap;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px; margin-bottom:20px;}
+  .card h2{font-family:'Oswald',sans-serif; font-size:16px; text-transform:uppercase; color:var(--orange-bright); margin:0 0 4px; letter-spacing:0.5px;}
   .card .hint{color:var(--muted); font-size:12.5px; margin:0 0 16px; line-height:1.9;}
-
   .settings-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
-  .settings-row label{font-size:13.5px; color:var(--text);}
-  .settings-row input[type=number]{
-    width:70px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px;
-    color:var(--text); font-family:'Oswald'; font-size:15px; text-align:center; padding:6px 4px;
-  }
+  .settings-row label{font-size:13.5px; color:var(--text); display:flex; align-items:center; gap:5px;}
+  .settings-row input[type=number]{width:70px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px; color:var(--text); font-family:'Oswald'; font-size:15px; text-align:center; padding:6px 4px;}
   .settings-row .calc{color:var(--muted); font-size:12.5px;}
-
-  .reg-grid{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:8px 14px;
-  }
+  .reg-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px 14px;}
   @media(max-width:900px){.reg-grid{grid-template-columns:repeat(2,1fr);}}
   @media(max-width:560px){.reg-grid{grid-template-columns:1fr;}}
-  .reg-row{
-    display:flex; align-items:center; gap:6px; background:var(--panel-2);
-    border:1px solid var(--line); border-radius:6px; padding:6px 8px;
-  }
-  .reg-row .num{
-    font-family:'Oswald',sans-serif; color:var(--orange-bright); font-weight:600;
-    width:20px; text-align:center; font-size:13px; flex-shrink:0;
-  }
-  .reg-row input{
-    background:transparent; border:none; border-bottom:1px solid var(--line);
-    color:var(--text); font-family:'Vazirmatn'; font-size:13px; padding:4px 2px;
-    width:0; flex:1; min-width:0;
-  }
+  .reg-row{display:flex; align-items:center; gap:6px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:6px 8px;}
+  .reg-row .num{font-family:'Oswald',sans-serif; color:var(--orange-bright); font-weight:600; width:20px; text-align:center; font-size:13px; flex-shrink:0;}
+  .reg-row input{background:transparent; border:none; border-bottom:1px solid var(--line); color:var(--text); font-family:'Vazirmatn'; font-size:13px; padding:4px 2px; width:0; flex:1; min-width:0;}
   .reg-row input::placeholder{color:#565d62;}
   .reg-row input:focus{outline:none; border-bottom-color:var(--orange);}
-  .reg-row input.id-input{flex:0.75; color:var(--muted); direction:ltr; text-align:right;}
-
+  .reg-row input.id-input{flex:0.9; color:var(--muted); direction:ltr; text-align:right;}
   .leader-pool{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
-  .leader-chip{
-    display:flex; align-items:center; gap:6px; background:var(--panel-2);
-    border:1px solid var(--line); border-radius:20px; padding:6px 12px;
-    font-size:13px; cursor:pointer; user-select:none; transition:.15s;
-  }
+  .leader-chip{display:flex; align-items:center; gap:6px; background:var(--panel-2); border:1px solid var(--line); border-radius:20px; padding:6px 12px; font-size:13px; cursor:pointer; user-select:none; transition:.15s;}
   .leader-chip:hover{border-color:var(--orange);}
   .leader-chip.picked{background:var(--orange); color:#1a1300; border-color:var(--orange); font-weight:600;}
   .leader-chip.disabled{opacity:.35; cursor:not-allowed;}
   .empty-note{color:var(--muted); font-size:13px;}
-
-  .btn{
-    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.5px;
-    background:var(--orange); color:#1a1300; border:none; border-radius:6px;
-    padding:10px 22px; font-size:14px; font-weight:600; cursor:pointer; transition:.15s;
-  }
+  .btn{font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.5px; background:var(--orange); color:#1a1300; border:none; border-radius:6px; padding:10px 22px; font-size:14px; font-weight:600; cursor:pointer; transition:.15s;}
   .btn:hover{background:var(--orange-bright);}
   .btn:disabled{background:#3a3a3a; color:#777; cursor:not-allowed;}
   .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--muted);}
@@ -113,89 +55,43 @@
   .btn.gold:hover{background:#f7db6f;}
   .btn.small{padding:6px 14px; font-size:12px;}
   .actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-
-  .turn-banner{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    background:var(--panel-2); border:1px solid var(--orange); border-radius:8px;
-    padding:14px 18px; margin-bottom:18px; flex-wrap:wrap;
-  }
-  .turn-banner .who{
-    font-family:'Oswald',sans-serif; font-size:19px; font-weight:600;
-    display:flex; align-items:center; gap:10px;
-  }
+  .turn-banner{display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--panel-2); border:1px solid var(--orange); border-radius:8px; padding:14px 18px; margin-bottom:18px; flex-wrap:wrap;}
+  .turn-banner .who{font-family:'Oswald',sans-serif; font-size:19px; font-weight:600; display:flex; align-items:center; gap:10px;}
   .dot{width:14px; height:14px; border-radius:3px; display:inline-block; box-shadow:0 0 10px 1px currentColor;}
   .turn-banner .round{color:var(--muted); font-size:12.5px;}
   .turn-banner.done{border-color:var(--good);}
   .turn-banner.done .who{color:var(--good);}
-
   .draft-layout{display:grid; grid-template-columns:1.15fr 0.85fr; gap:18px;}
   @media(max-width:860px){.draft-layout{grid-template-columns:1fr;}}
-
   .teams-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
   @media(max-width:560px){.teams-grid{grid-template-columns:1fr;}}
-  .team-card{
-    background:var(--panel-2); border-radius:8px; overflow:hidden;
-    border:1px solid var(--line); border-top:3px solid var(--tc, var(--orange));
-    position:relative;
-  }
+  .team-card{background:var(--panel-2); border-radius:8px; overflow:hidden; border:1px solid var(--line); border-top:3px solid var(--tc, var(--orange)); position:relative;}
   .team-card.champion{box-shadow:0 0 0 2px var(--gold);}
-  .team-card .th{
-    padding:8px 12px; display:flex; justify-content:space-between; align-items:center;
-    font-family:'Oswald',sans-serif; font-weight:600; font-size:13.5px;
-    color:var(--tc, var(--orange)); border-bottom:1px solid var(--line);
-  }
+  .team-card .th{padding:8px 12px; display:flex; justify-content:space-between; align-items:center; font-family:'Oswald',sans-serif; font-weight:600; font-size:13.5px; color:var(--tc, var(--orange)); border-bottom:1px solid var(--line);}
   .team-card .th .trophy{color:var(--gold); margin-left:4px;}
   .team-card ul{list-style:none; margin:0; padding:8px 10px; min-height:120px;}
-  .team-card li{
-    display:flex; gap:8px; align-items:baseline; padding:5px 0; font-size:13.5px;
-    border-bottom:1px dashed #23282b;
-  }
+  .team-card li{display:flex; gap:8px; align-items:baseline; padding:5px 0; font-size:13.5px; border-bottom:1px dashed #23282b;}
   .team-card li:last-child{border-bottom:none;}
   .team-card li .slot{color:var(--muted); font-size:11px; width:16px; flex-shrink:0;}
   .team-card li.leader-line .name{font-weight:700;}
-  .team-card li.leader-line .badge{
-    font-size:10px; background:var(--tc,var(--orange)); color:#12100a; padding:1px 6px;
-    border-radius:3px; margin-right:4px;
-  }
+  .team-card li.leader-line .badge{font-size:10px; background:var(--tc,var(--orange)); color:#12100a; padding:1px 6px; border-radius:3px; margin-right:4px;}
   .team-card li .pid{color:var(--muted); font-size:11px; direction:ltr;}
   .team-card li .name{flex:1;}
   .team-card li.empty-slot{color:#4a5054; font-style:italic;}
-  .rm-btn{
-    background:transparent; border:1px solid var(--line); color:var(--muted);
-    border-radius:4px; width:20px; height:20px; line-height:1; cursor:pointer;
-    flex-shrink:0; font-size:13px; transition:.15s;
-  }
+  .rm-btn{background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:4px; width:20px; height:20px; line-height:1; cursor:pointer; flex-shrink:0; font-size:13px; transition:.15s;}
   .rm-btn:hover{border-color:var(--danger); color:var(--danger);}
-
+  .rm-btn.edit:hover{border-color:var(--orange); color:var(--orange-bright);}
   .pool-box{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px;}
   .pool-box h3{margin:0 0 10px; font-family:'Oswald',sans-serif; font-size:13.5px; color:var(--muted); text-transform:uppercase;}
-  .pool-list{
-    display:flex; flex-wrap:wrap; gap:6px;
-  }
-  .pool-item{
-    display:flex; align-items:center; gap:6px;
-    background:var(--panel); border:1px solid var(--line); border-radius:6px;
-    padding:7px 12px; cursor:pointer; transition:.12s; text-align:right; font-size:13px;
-  }
+  .pool-list{display:flex; flex-wrap:wrap; gap:6px;}
+  .pool-item{display:flex; align-items:center; gap:6px; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:7px 12px; cursor:pointer; transition:.12s; text-align:right; font-size:13px;}
   .pool-item:hover{border-color:var(--orange); background:#20191080;}
   .pool-empty{color:var(--muted); font-size:13px; text-align:center; padding:20px 0; width:100%;}
-
-  .champion-row{
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    background:var(--panel-2); border:1px solid var(--gold); border-radius:8px;
-    padding:12px 16px; margin-bottom:16px;
-  }
+  .champion-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--panel-2); border:1px solid var(--gold); border-radius:8px; padding:12px 16px; margin-bottom:16px;}
   .champion-row label{font-family:'Oswald'; font-size:13px; color:var(--gold); text-transform:uppercase;}
-  .champion-row select{
-    background:var(--panel); border:1px solid var(--line); color:var(--text);
-    border-radius:6px; padding:7px 10px; font-family:'Vazirmatn'; font-size:13.5px;
-  }
-
+  .champion-row select{background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:7px 10px; font-family:'Vazirmatn'; font-size:13.5px;}
   .history-note{color:var(--muted); font-size:12px; margin:-6px 0 14px; line-height:1.9;}
-  .history-item{
-    background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
-    padding:10px 14px; margin-bottom:8px;
-  }
+  .history-item{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin-bottom:8px;}
   .history-head{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; flex-wrap:wrap;}
   .history-head .d{font-family:'Oswald'; font-size:13px; color:var(--text);}
   .history-head .c{font-size:12.5px; color:var(--gold);}
@@ -208,17 +104,35 @@
   .history-team .tname{font-weight:700; margin-bottom:4px; display:flex; gap:4px; align-items:center;}
   .history-empty{color:var(--muted); font-size:13px; text-align:center; padding:14px 0;}
   input[type=file]{color:var(--muted); font-size:12.5px;}
-
   footer{text-align:center; color:#565d62; font-size:11.5px; margin-top:30px;}
+
+  /* bracket */
+  .bracket-rounds{display:flex; gap:16px; overflow-x:auto; padding-bottom:8px;}
+  .bracket-col{min-width:180px; display:flex; flex-direction:column; gap:14px; justify-content:space-around;}
+  .bracket-col-title{font-family:'Oswald'; color:var(--orange-bright); font-size:13px; text-transform:uppercase; text-align:center;}
+  .match-card{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:8px 10px;}
+  .match-row{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:3px 0; font-size:13px;}
+  .match-row.win{color:var(--good); font-weight:700;}
+  .score-input{width:48px; background:var(--panel); border:1px solid var(--line); border-radius:4px; color:var(--text); text-align:center; padding:3px; font-family:'Oswald';}
+  .league-matches{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-bottom:16px;}
+  .tbl-title{font-family:'Oswald'; color:var(--orange-bright); font-size:14px; margin:16px 0 8px;}
+  table.standings{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.standings th, table.standings td{border:1px solid var(--line); padding:6px 8px; text-align:center;}
+  table.standings th{background:var(--panel-2); color:var(--muted); font-family:'Oswald'; font-weight:500;}
+  .final-card{border-color:var(--gold);}
+
+  /* modal */
+  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:50; padding:16px;}
+  .modal-box{background:var(--panel); border:1px solid var(--orange); border-radius:10px; padding:20px; max-width:380px; width:100%;}
+  .modal-box h3{margin:0 0 12px; font-family:'Oswald'; color:var(--orange-bright); font-size:15px;}
+  .modal-box select{width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:8px; margin-bottom:12px; font-family:'Vazirmatn'; font-size:13.5px;}
+  .modal-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:8px;}
 
   #printArea{display:none;}
   @media print{
     body *{visibility:hidden;}
     #printArea, #printArea *{visibility:visible;}
-    #printArea{
-      display:block; position:absolute; top:0; left:0; width:100%;
-      padding:20px; color:#000; background:#fff; direction:rtl;
-    }
+    #printArea{display:block; position:absolute; top:0; left:0; width:100%; padding:20px; color:#000; background:#fff; direction:rtl;}
     #printArea h1{font-size:20px; margin:0 0 2px;}
     #printArea .pdate{color:#444; font-size:12px; margin:0 0 16px;}
     #printArea .pteams{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
@@ -242,7 +156,7 @@
 
   <div class="card" id="settingsCard">
     <h2>تنظیمات مسابقه</h2>
-    <p class="hint">تعداد تیم‌های این هفته رو مشخص کن (هر تیم ۵ نفره‌ست). با تغییر تعداد تیم، اسم و آی‌دی‌هایی که وارد کردی پاک نمی‌شن؛ فقط اسلات اضافه یا کم می‌شه.</p>
+    <p class="hint">تعداد تیم‌های این هفته رو مشخص کن (هر تیم ۵ نفره‌ست). با تغییر تعداد تیم، اسم و یوزر آیدی‌هایی که وارد کردی پاک نمی‌شن؛ فقط اسلات اضافه یا کم می‌شه.</p>
     <div class="settings-row">
       <label for="teamCountInput">تعداد تیم‌ها</label>
       <input type="number" id="teamCountInput" min="2" max="10" value="6">
@@ -253,7 +167,7 @@
 
   <div class="card" id="regCard">
     <h2>ثبت شرکت‌کنندگان</h2>
-    <p class="hint">اسم و آی‌دی شرکت‌کننده‌ها رو وارد کن. نیازی نیست همه‌ی خونه‌ها پر بشه.</p>
+    <p class="hint">اسم و یوزر آیدی شرکت‌کننده‌ها رو وارد کن. نیازی نیست همه‌ی خونه‌ها پر بشه؛ هر وقت اسمی اضافه کنی خودش توی لیست لیدرها و لیست انتخاب هم میاد.</p>
     <div class="reg-grid" id="regGrid"></div>
   </div>
 
@@ -269,7 +183,7 @@
 
   <div class="card" id="draftCard" style="display:none;">
     <h2>درفت تیم‌ها</h2>
-    <p class="hint">روی اسم بازیکن‌ها توی لیست سمت راست کلیک کن تا به تیمی که نوبتشه اضافه بشه. اگه اشتباه کلیک کردی، روی × کنار اسم توی تیم بزن تا برگرده به لیست.</p>
+    <p class="hint">روی اسم بازیکن‌ها توی لیست سمت راست کلیک کن تا به تیمی که نوبتشه اضافه بشه. روی × کنار اسم توی تیم بزن تا برگرده به لیست. روی ✎ کنار لیدر بزن تا لیدر عوض بشه.</p>
 
     <div class="turn-banner" id="turnBanner">
       <div class="who" id="turnWho"></div>
@@ -295,6 +209,17 @@
     </div>
   </div>
 
+  <div class="card" id="bracketCard" style="display:none;">
+    <h2>براکت و جدول مسابقات</h2>
+    <p class="hint" id="bracketFormatNote"></p>
+    <div class="settings-row" style="margin-bottom:16px;">
+      <label><input type="radio" name="fmt" value="knockout"> حذفی</label>
+      <label><input type="radio" name="fmt" value="league"> لیگی</label>
+      <button class="btn small" id="buildBracketBtn">ایجاد / بازسازی جدول</button>
+    </div>
+    <div id="bracketArea"></div>
+  </div>
+
   <div class="card" id="historyCard">
     <h2>تاریخچه هفته‌های قبل</h2>
     <p class="history-note">این تاریخچه فقط توی همین مرورگر/دستگاه ذخیره می‌مونه. برای انتقال به گوشی یا سیستم دیگه، از «خروجی گرفتن» و «وارد کردن» فایل استفاده کن.</p>
@@ -314,6 +239,10 @@
 
 <div id="printArea"></div>
 
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
 <script>
 const PALETTE = ['#de9b35','#4a90d9','#d9524a','#4ad98a','#b24ad9','#3fd0d9','#e0c23c','#e0729c','#7d8a99','#8a5a2c'];
 const TEAM_SIZE = 5;
@@ -329,20 +258,20 @@ let pickOrder = [];
 let pickPointer = 0;
 let champion = null;
 let history = [];
+let bracket = {format:null, knockout:null, league:null};
 
 function colorFor(idx){ return PALETTE[idx % PALETTE.length]; }
 function clampTeamCount(n){ return Math.max(2, Math.min(10, n||6)); }
+function teamName(idx){ return `تیم ${idx+1}`; }
 
 function buildParticipants(){
   const total = TEAM_COUNT * TEAM_SIZE;
-  participants = Array.from({length: total}, (_,i)=>({
-    num: i+1, name:'', pid:'', team:null, isLeader:false
-  }));
+  participants = Array.from({length: total}, (_,i)=>({num:i+1, name:'', pid:'', team:null, isLeader:false}));
 }
 
 // ---------- persistence ----------
 function saveState(){
-  const state = {TEAM_COUNT, participants, leaderSelection, draftStarted, teams, pickOrder, pickPointer, champion};
+  const state = {TEAM_COUNT, participants, leaderSelection, draftStarted, teams, pickOrder, pickPointer, champion, bracket};
   try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){}
 }
 function loadState(){
@@ -359,6 +288,7 @@ function loadState(){
     pickOrder = s.pickOrder || [];
     pickPointer = s.pickPointer || 0;
     champion = (s.champion===undefined) ? null : s.champion;
+    bracket = s.bracket || {format:null, knockout:null, league:null};
     return true;
   }catch(e){ return false; }
 }
@@ -374,6 +304,16 @@ function updateCalcNote(){
 }
 teamCountInput.addEventListener('input', updateCalcNote);
 
+function refreshBracketNote(){
+  const note = document.getElementById('bracketFormatNote');
+  if(!note) return;
+  note.textContent = `با ${TEAM_COUNT} تیم — حذفی: دوبه‌دو مسابقه می‌دن (در صورت فرد بودن، یک تیم استراحت می‌کنه) تا قهرمان مشخص بشه. لیگی: همه با همه بازی می‌کنن، برد ۳ امتیاز و مساوی ۱ امتیاز داره، در تساوی امتیاز تعداد راند برد ملاکه، و دو تیم برتر جدول فینال رو برگزار می‌کنن.`;
+}
+
+function updateBracketVisibility(){
+  document.getElementById('bracketCard').style.display = teams.length>0 ? 'block' : 'none';
+}
+
 applySettingsBtn.addEventListener('click', ()=>{
   const newCount = clampTeamCount(parseInt(teamCountInput.value));
   teamCountInput.value = newCount;
@@ -383,25 +323,23 @@ applySettingsBtn.addEventListener('click', ()=>{
   const newTotal = newCount * TEAM_SIZE;
   const oldTotal = participants.length;
   if(newTotal > oldTotal){
-    for(let i=oldTotal;i<newTotal;i++){
-      participants.push({num:i+1, name:'', pid:'', team:null, isLeader:false});
-    }
+    for(let i=oldTotal;i<newTotal;i++) participants.push({num:i+1, name:'', pid:'', team:null, isLeader:false});
   } else if(newTotal < oldTotal){
     const removed = participants.slice(newTotal);
     const hasData = removed.some(p=>p.name);
     if(hasData && !confirm('بعضی از اسلات‌هایی که با کم کردن تعداد تیم حذف می‌شن اسم دارن. حذف بشن؟')){
-      teamCountInput.value = TEAM_COUNT;
-      updateCalcNote();
-      return;
+      teamCountInput.value = TEAM_COUNT; updateCalcNote(); return;
     }
     participants = participants.slice(0, newTotal);
   }
   TEAM_COUNT = newCount;
   buildRegistration();
-  // team count changed -> reset team-formation state, keep registered names
   participants.forEach(p=>{p.team=null; p.isLeader=false;});
   teams = []; pickOrder = []; pickPointer = 0; champion = null; draftStarted = false;
+  bracket = {format:null, knockout:null, league:null};
   document.getElementById('draftCard').style.display = 'none';
+  updateBracketVisibility();
+  refreshBracketNote();
   renderLeaderPool();
   saveState();
 });
@@ -417,7 +355,7 @@ function buildRegistration(){
     row.innerHTML = `
       <span class="num oswald">${p.num}</span>
       <input type="text" placeholder="اسم بازیکن" data-num="${p.num}" data-field="name" value="${p.name}">
-      <input type="text" class="id-input" placeholder="آی‌دی" data-num="${p.num}" data-field="pid" value="${p.pid}">
+      <input type="text" class="id-input" placeholder="یوزر آیدی" data-num="${p.num}" data-field="pid" value="${p.pid}">
     `;
     regGrid.appendChild(row);
   });
@@ -428,6 +366,7 @@ regGrid.addEventListener('input', (e)=>{
   const p = participants[+t.dataset.num - 1];
   p[t.dataset.field] = t.value.trim();
   renderLeaderPool();
+  if(draftStarted) renderDraftBoard();
   saveState();
 });
 
@@ -453,11 +392,8 @@ function renderLeaderPool(){
     chip.className = 'leader-chip' + (picked?' picked':'') + (atLimit?' disabled':'');
     chip.textContent = p.name;
     chip.addEventListener('click', ()=>{
-      if(picked){
-        leaderSelection = leaderSelection.filter(n=>n!==p.num);
-      } else if(leaderSelection.length < TEAM_COUNT){
-        leaderSelection.push(p.num);
-      }
+      if(picked){ leaderSelection = leaderSelection.filter(n=>n!==p.num); }
+      else if(leaderSelection.length < TEAM_COUNT){ leaderSelection.push(p.num); }
       renderLeaderPool();
       saveState();
     });
@@ -467,13 +403,8 @@ function renderLeaderPool(){
   drawBtn.disabled = leaderSelection.length !== TEAM_COUNT;
 }
 
-drawBtn.addEventListener('click', ()=>{
-  if(leaderSelection.length !== TEAM_COUNT) return;
-  if(draftStarted && !confirm('با قرعه‌کشی دوباره، انتخاب‌های فعلی تیم‌ها پاک می‌شن و از اول شروع می‌شه. ادامه بدم؟')) return;
-
-  // clear any previous team assignments (registration names/ids stay untouched)
+function performFullRedraw(){
   participants.forEach(p=>{p.team=null; p.isLeader=false;});
-
   const shuffled = [...leaderSelection];
   for(let i=shuffled.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
@@ -482,25 +413,32 @@ drawBtn.addEventListener('click', ()=>{
   teams = shuffled.map(num=>({leaderNum:num, members:[num]}));
   shuffled.forEach((num,idx)=>{
     const p = participants.find(pp=>pp.num===num);
-    p.isLeader = true;
-    p.team = idx;
+    p.isLeader = true; p.team = idx;
   });
-
   const forward = [...Array(TEAM_COUNT).keys()];
   const reverse = [...forward].reverse();
   pickOrder = [];
-  for(let r=2; r<=TEAM_SIZE; r++){
-    pickOrder.push(...(r % 2 === 0 ? forward : reverse));
-  }
+  for(let r=2; r<=TEAM_SIZE; r++) pickOrder.push(...(r % 2 === 0 ? forward : reverse));
   pickPointer = 0;
   champion = null;
   draftStarted = true;
+  bracket = {format:null, knockout:null, league:null};
 
   document.getElementById('draftCard').style.display = 'block';
+  updateBracketVisibility();
+  refreshBracketNote();
   renderLeaderPool();
   renderChampionSelect();
   renderDraftBoard();
+  renderBracketArea();
+  document.querySelectorAll('input[name="fmt"]').forEach(r=>r.checked=false);
   saveState();
+}
+
+drawBtn.addEventListener('click', ()=>{
+  if(leaderSelection.length !== TEAM_COUNT) return;
+  if(draftStarted && !confirm('با قرعه‌کشی دوباره، تیم‌بندی فعلی پاک می‌شه و از اول شروع می‌شه. اسم و یوزر آیدی‌های ثبت‌شده دست نمی‌خوره. ادامه بدم؟')) return;
+  performFullRedraw();
   document.getElementById('draftCard').scrollIntoView({behavior:'smooth', block:'start'});
 });
 
@@ -522,7 +460,7 @@ function renderChampionSelect(){
   teams.forEach((t,idx)=>{
     const opt = document.createElement('option');
     opt.value = idx;
-    opt.textContent = `تیم ${idx+1}`;
+    opt.textContent = teamName(idx);
     if(champion===idx) opt.selected = true;
     championSelect.appendChild(opt);
   });
@@ -548,22 +486,26 @@ function renderDraftBoard(){
       } else {
         const p = participants.find(pp=>pp.num===num);
         const isLeader = slot===0;
+        const actionBtn = isLeader
+          ? `<button class="rm-btn edit" data-changeleader="${idx}" title="تغییر لیدر">✎</button>`
+          : `<button class="rm-btn" data-team="${idx}" data-num="${num}" title="حذف">×</button>`;
         rows += `<li class="${isLeader?'leader-line':''}">
           <span class="slot">${slot+1}</span>
           <span class="name">${isLeader?'<span class="badge">لیدر</span>':''}${p.name}</span>
           <span class="pid">${p.pid || ''}</span>
-          ${isLeader ? '' : `<button class="rm-btn" data-team="${idx}" data-num="${num}" title="حذف">×</button>`}
+          ${actionBtn}
         </li>`;
       }
     }
-    card.innerHTML = `<div class="th"><span>${champion===idx?'<span class="trophy">🏆</span>':''}تیم ${idx+1}</span><span>${team.members.length}/${TEAM_SIZE}</span></div><ul>${rows}</ul>`;
+    card.innerHTML = `<div class="th"><span>${champion===idx?'<span class="trophy">🏆</span>':''}${teamName(idx)}</span><span>${team.members.length}/${TEAM_SIZE}</span></div><ul>${rows}</ul>`;
     teamsGrid.appendChild(card);
   });
 
-  teamsGrid.querySelectorAll('.rm-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      removeMember(+btn.dataset.team, +btn.dataset.num);
-    });
+  teamsGrid.querySelectorAll('[data-team]').forEach(btn=>{
+    btn.addEventListener('click', ()=> removeMember(+btn.dataset.team, +btn.dataset.num));
+  });
+  teamsGrid.querySelectorAll('[data-changeleader]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openLeaderModal(+btn.dataset.changeleader));
   });
 
   const pool = participants.filter(p=>p.name && p.team===null);
@@ -588,7 +530,7 @@ function renderDraftBoard(){
   } else {
     turnBanner.classList.remove('done');
     const round = Math.floor(pickPointer / TEAM_COUNT) + 2;
-    turnWho.innerHTML = `<span class="dot" style="background:${colorFor(ct)}; color:${colorFor(ct)}"></span> نوبت انتخاب: تیم ${ct+1}`;
+    turnWho.innerHTML = `<span class="dot" style="background:${colorFor(ct)}; color:${colorFor(ct)}"></span> نوبت انتخاب: ${teamName(ct)}`;
     turnRound.textContent = `دور ${round} از ${TEAM_SIZE}`;
   }
 }
@@ -616,18 +558,80 @@ function removeMember(teamIdx, num){
 }
 
 document.getElementById('resetBtn').addEventListener('click', ()=>{
-  if(!confirm('کل درفت و لیدرها پاک بشه؟ اسم و آی‌دی‌های ثبت‌شده باقی می‌مونن.')) return;
+  if(!confirm('کل درفت، لیدرها و جدول مسابقات پاک بشه؟ اسم و یوزر آیدی‌های ثبت‌شده باقی می‌مونن.')) return;
   participants.forEach(p=>{p.team=null; p.isLeader=false;});
   leaderSelection = [];
-  teams = [];
-  pickOrder = [];
-  pickPointer = 0;
-  champion = null;
-  draftStarted = false;
+  teams = []; pickOrder = []; pickPointer = 0; champion = null; draftStarted = false;
+  bracket = {format:null, knockout:null, league:null};
   document.getElementById('draftCard').style.display = 'none';
+  updateBracketVisibility();
   renderLeaderPool();
   saveState();
 });
+
+// ---------- leader change modal ----------
+const modalOverlay = document.getElementById('modalOverlay');
+const modalBox = document.getElementById('modalBox');
+function closeModal(){ modalOverlay.style.display = 'none'; }
+
+function openLeaderModal(teamIdx){
+  modalBox.innerHTML = `
+    <h3>تغییر لیدر ${teamName(teamIdx)}</h3>
+    <p class="hint" style="margin-bottom:10px;">می‌خوای قرعه‌کشی جدید برای کل تیم‌ها انجام بشه یا فقط لیدر همین تیم عوض بشه؟</p>
+    <div class="modal-actions">
+      <button class="btn ghost small" id="modalCancel">انصراف</button>
+      <button class="btn small" id="modalSwapOnly">فقط این لیدر عوض بشه</button>
+      <button class="btn small" id="modalFullRedraw">قرعه‌کشی جدید کل تیم‌ها</button>
+    </div>
+  `;
+  modalOverlay.style.display = 'flex';
+  document.getElementById('modalCancel').onclick = closeModal;
+  document.getElementById('modalFullRedraw').onclick = ()=>{
+    closeModal();
+    if(!confirm('با قرعه‌کشی جدید، تیم‌بندی فعلی پاک می‌شه و از اول شروع می‌شه. ادامه بدم؟')) return;
+    performFullRedraw();
+  };
+  document.getElementById('modalSwapOnly').onclick = ()=> showSwapSelect(teamIdx);
+}
+
+function showSwapSelect(teamIdx){
+  const candidates = participants.filter(p=>p.name && p.team===null);
+  if(candidates.length===0){
+    modalBox.innerHTML = `
+      <h3>تغییر لیدر ${teamName(teamIdx)}</h3>
+      <p class="hint">فعلاً کسی توی لیست بازیکنان آزاد نیست که جایگزین بشه.</p>
+      <div class="modal-actions"><button class="btn ghost small" id="modalCancel2">بستن</button></div>
+    `;
+    document.getElementById('modalCancel2').onclick = closeModal;
+    return;
+  }
+  modalBox.innerHTML = `
+    <h3>انتخاب لیدر جدید برای ${teamName(teamIdx)}</h3>
+    <select id="swapSelect">${candidates.map(p=>`<option value="${p.num}">${p.name}</option>`).join('')}</select>
+    <div class="modal-actions">
+      <button class="btn ghost small" id="modalCancel3">انصراف</button>
+      <button class="btn small" id="modalConfirmSwap">تایید تغییر</button>
+    </div>
+  `;
+  document.getElementById('modalCancel3').onclick = closeModal;
+  document.getElementById('modalConfirmSwap').onclick = ()=>{
+    swapLeader(teamIdx, +document.getElementById('swapSelect').value);
+    closeModal();
+  };
+}
+
+function swapLeader(teamIdx, newNum){
+  const oldNum = teams[teamIdx].leaderNum;
+  const oldP = participants.find(p=>p.num===oldNum);
+  const newP = participants.find(p=>p.num===newNum);
+  if(!newP) return;
+  if(oldP){ oldP.team = null; oldP.isLeader = false; }
+  newP.team = teamIdx; newP.isLeader = true;
+  teams[teamIdx].leaderNum = newNum;
+  teams[teamIdx].members[0] = newNum;
+  renderDraftBoard();
+  saveState();
+}
 
 // ---------- PDF (print) ----------
 function buildPrintArea(){
@@ -641,7 +645,7 @@ function buildPrintArea(){
       const tag = slot===0 ? ' (لیدر)' : '';
       membersHtml += `<li>${p.name}${tag}${p.pid?' — '+p.pid:''}</li>`;
     });
-    teamsHtml += `<div class="pteam${isChamp?' champ':''}"><h3>${isChamp?'🏆 ':''}تیم ${idx+1}</h3><ul>${membersHtml}</ul></div>`;
+    teamsHtml += `<div class="pteam${isChamp?' champ':''}"><h3>${isChamp?'🏆 ':''}${teamName(idx)}</h3><ul>${membersHtml}</ul></div>`;
   });
   document.getElementById('printArea').innerHTML = `
     <h1>مسابقات کانتر استرایک کارن</h1>
@@ -649,100 +653,262 @@ function buildPrintArea(){
     <div class="pteams">${teamsHtml}</div>
   `;
 }
-document.getElementById('pdfBtn').addEventListener('click', ()=>{
-  buildPrintArea();
-  window.print();
+document.getElementById('pdfBtn').addEventListener('click', ()=>{ buildPrintArea(); window.print(); });
+
+// ---------- bracket / league ----------
+function nextPow2(n){ let p=1; while(p<n) p*=2; return p; }
+
+function generateKnockout(){
+  const n = TEAM_COUNT;
+  const size = nextPow2(n);
+  let slots = Array.from({length:n},(_,i)=>i);
+  while(slots.length<size) slots.push(null);
+  const rounds = [];
+  const round0 = [];
+  for(let i=0;i<size/2;i++) round0.push({a:slots[2*i], b:slots[2*i+1], scoreA:null, scoreB:null, winner:null});
+  rounds.push(round0);
+  let count = size/2;
+  while(count>1){
+    count = count/2;
+    const r = [];
+    for(let i=0;i<count;i++) r.push({a:null,b:null,scoreA:null,scoreB:null,winner:null});
+    rounds.push(r);
+  }
+  bracket.knockout = {rounds};
+  recalcKnockout();
+}
+
+function recalcKnockout(){
+  const rounds = bracket.knockout.rounds;
+  for(let r=0;r<rounds.length;r++){
+    rounds[r].forEach(m=>{
+      let winner = null;
+      if(m.a!==null && m.b===null) winner = m.a;
+      else if(m.b!==null && m.a===null) winner = m.b;
+      else if(m.a!==null && m.b!==null && m.scoreA!==null && m.scoreB!==null && m.scoreA!=='' && m.scoreB!=='' && +m.scoreA !== +m.scoreB){
+        winner = (+m.scoreA > +m.scoreB) ? m.a : m.b;
+      }
+      m.winner = winner;
+    });
+    if(r+1 < rounds.length){
+      rounds[r].forEach((m,i)=>{
+        const next = rounds[r+1][Math.floor(i/2)];
+        if(i%2===0) next.a = m.winner; else next.b = m.winner;
+      });
+    }
+  }
+  const finalMatch = rounds[rounds.length-1][0];
+  if(finalMatch.winner !== null) champion = finalMatch.winner;
+}
+
+function onKnockoutScoreChange(r,i,side,val){
+  bracket.knockout.rounds[r][i][side] = val;
+  recalcKnockout();
+  renderBracketArea();
+  renderChampionSelect();
+  renderDraftBoard();
+  saveState();
+}
+
+function renderKnockout(){
+  const rounds = bracket.knockout.rounds;
+  let html = '<div class="bracket-rounds">';
+  rounds.forEach((round,r)=>{
+    const isFirst = r===0;
+    const isFinal = r===rounds.length-1;
+    html += `<div class="bracket-col"><div class="bracket-col-title">${isFinal?'فینال':'دور '+(r+1)}</div>`;
+    round.forEach((m,i)=>{
+      const aLabel = m.a===null ? (isFirst?'استراحت':'در انتظار برنده...') : teamName(m.a);
+      const bLabel = m.b===null ? (isFirst?'استراحت':'در انتظار برنده...') : teamName(m.b);
+      const disabled = (m.a===null || m.b===null) ? 'disabled' : '';
+      html += `<div class="match-card">
+        <div class="match-row ${(m.winner!==null && m.winner===m.a)?'win':''}"><span>${aLabel}</span><input type="number" min="0" ${disabled} value="${m.scoreA??''}" data-r="${r}" data-i="${i}" data-side="scoreA" class="score-input"></div>
+        <div class="match-row ${(m.winner!==null && m.winner===m.b)?'win':''}"><span>${bLabel}</span><input type="number" min="0" ${disabled} value="${m.scoreB??''}" data-r="${r}" data-i="${i}" data-side="scoreB" class="score-input"></div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  document.getElementById('bracketArea').innerHTML = html;
+  document.querySelectorAll('#bracketArea .score-input').forEach(inp=>{
+    inp.addEventListener('input', ()=> onKnockoutScoreChange(+inp.dataset.r, +inp.dataset.i, inp.dataset.side, inp.value===''?null:inp.value));
+  });
+}
+
+function generateLeague(){
+  const matches = [];
+  for(let i=0;i<TEAM_COUNT;i++) for(let j=i+1;j<TEAM_COUNT;j++) matches.push({a:i,b:j,scoreA:null,scoreB:null});
+  bracket.league = {matches, finalScores:{}};
+}
+
+function computeStandings(){
+  const stats = teams.map((_,idx)=>({idx,played:0,wins:0,draws:0,losses:0,points:0,roundWins:0}));
+  bracket.league.matches.forEach(m=>{
+    if(m.scoreA===null||m.scoreB===null||m.scoreA===''||m.scoreB==='') return;
+    const sa=+m.scoreA, sb=+m.scoreB;
+    const A=stats[m.a], B=stats[m.b];
+    A.played++; B.played++; A.roundWins+=sa; B.roundWins+=sb;
+    if(sa>sb){A.wins++;B.losses++;A.points+=3;}
+    else if(sb>sa){B.wins++;A.losses++;B.points+=3;}
+    else {A.draws++;B.draws++;A.points+=1;B.points+=1;}
+  });
+  stats.sort((x,y)=> y.points-x.points || y.roundWins-x.roundWins);
+  return stats;
+}
+
+function updateChampionFromLeague(){
+  const stats = computeStandings();
+  if(stats.length<2) return;
+  const f0=stats[0].idx, f1=stats[1].idx;
+  const minIdx=Math.min(f0,f1), maxIdx=Math.max(f0,f1);
+  const key = minIdx+'-'+maxIdx;
+  const fs = bracket.league.finalScores[key];
+  if(fs && fs.scoreA!==null && fs.scoreB!==null && fs.scoreA!=='' && fs.scoreB!=='' && +fs.scoreA !== +fs.scoreB){
+    champion = (+fs.scoreA > +fs.scoreB) ? minIdx : maxIdx;
+  }
+}
+
+function onLeagueScoreChange(idx,side,val){
+  bracket.league.matches[idx][side] = val;
+  updateChampionFromLeague();
+  renderBracketArea();
+  renderChampionSelect();
+  renderDraftBoard();
+  saveState();
+}
+function onFinalScoreChange(minIdx,maxIdx,side,val){
+  const key = minIdx+'-'+maxIdx;
+  if(!bracket.league.finalScores[key]) bracket.league.finalScores[key] = {scoreA:null,scoreB:null};
+  bracket.league.finalScores[key][side] = val;
+  updateChampionFromLeague();
+  renderBracketArea();
+  renderChampionSelect();
+  renderDraftBoard();
+  saveState();
+}
+
+function renderLeague(){
+  let html = '<div class="league-matches">';
+  bracket.league.matches.forEach((m,idx)=>{
+    html += `<div class="match-card">
+      <div class="match-row"><span>${teamName(m.a)}</span><input type="number" min="0" value="${m.scoreA??''}" data-idx="${idx}" data-side="scoreA" class="score-input league-score"></div>
+      <div class="match-row"><span>${teamName(m.b)}</span><input type="number" min="0" value="${m.scoreB??''}" data-idx="${idx}" data-side="scoreB" class="score-input league-score"></div>
+    </div>`;
+  });
+  html += '</div>';
+
+  const stats = computeStandings();
+  html += `<h3 class="tbl-title">جدول رده‌بندی</h3><table class="standings"><thead><tr><th>تیم</th><th>بازی</th><th>برد</th><th>مساوی</th><th>باخت</th><th>راند برد</th><th>امتیاز</th></tr></thead><tbody>`;
+  stats.forEach(s=>{
+    html += `<tr><td>${teamName(s.idx)}</td><td>${s.played}</td><td>${s.wins}</td><td>${s.draws}</td><td>${s.losses}</td><td>${s.roundWins}</td><td>${s.points}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+
+  if(stats.length>=2){
+    const f0=stats[0].idx, f1=stats[1].idx;
+    const minIdx=Math.min(f0,f1), maxIdx=Math.max(f0,f1);
+    const key = minIdx+'-'+maxIdx;
+    const fs = bracket.league.finalScores[key] || {scoreA:null,scoreB:null};
+    html += `<h3 class="tbl-title">🏆 فینال: ${teamName(f0)} در برابر ${teamName(f1)}</h3>
+    <div class="match-card final-card">
+      <div class="match-row"><span>${teamName(minIdx)}</span><input type="number" min="0" value="${fs.scoreA??''}" data-final="1" data-min="${minIdx}" data-max="${maxIdx}" data-side="scoreA" class="score-input"></div>
+      <div class="match-row"><span>${teamName(maxIdx)}</span><input type="number" min="0" value="${fs.scoreB??''}" data-final="1" data-min="${minIdx}" data-max="${maxIdx}" data-side="scoreB" class="score-input"></div>
+    </div>
+    <p class="hint">فینالیست‌ها بر اساس نتایج ثبت‌شده تا این لحظه محاسبه شدن و ممکنه با ورود نتایج بیشتر تغییر کنن.</p>`;
+  }
+
+  document.getElementById('bracketArea').innerHTML = html;
+  document.querySelectorAll('.league-score').forEach(inp=>{
+    inp.addEventListener('input', ()=> onLeagueScoreChange(+inp.dataset.idx, inp.dataset.side, inp.value===''?null:inp.value));
+  });
+  document.querySelectorAll('[data-final="1"]').forEach(inp=>{
+    inp.addEventListener('input', ()=> onFinalScoreChange(+inp.dataset.min, +inp.dataset.max, inp.dataset.side, inp.value===''?null:inp.value));
+  });
+}
+
+function renderBracketArea(){
+  const area = document.getElementById('bracketArea');
+  if(!area) return;
+  document.querySelectorAll('input[name="fmt"]').forEach(r=>{ r.checked = (r.value===bracket.format); });
+  if(bracket.format==='knockout' && bracket.knockout) renderKnockout();
+  else if(bracket.format==='league' && bracket.league) renderLeague();
+  else area.innerHTML = '<p class="empty-note">نوع مسابقات رو انتخاب کن و دکمه‌ی ایجاد جدول رو بزن.</p>';
+}
+
+document.getElementById('buildBracketBtn').addEventListener('click', ()=>{
+  const sel = document.querySelector('input[name="fmt"]:checked');
+  if(!sel){ alert('اول نوع مسابقات رو انتخاب کن.'); return; }
+  const hasExisting = bracket.knockout || bracket.league;
+  if(hasExisting && !confirm('با ساخت جدول جدید، نتایج قبلی این بخش پاک می‌شن. ادامه بدم؟')) return;
+  bracket.format = sel.value;
+  if(sel.value==='knockout'){ bracket.league=null; generateKnockout(); }
+  else { bracket.knockout=null; generateLeague(); }
+  renderBracketArea();
+  renderChampionSelect();
+  renderDraftBoard();
+  saveState();
 });
 
 // ---------- history ----------
 const historyList = document.getElementById('historyList');
-
 function loadHistory(){
   try{ history = JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
   catch(e){ history = []; }
 }
 function persistHistory(){
-  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
-  catch(e){}
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }catch(e){}
 }
 function renderHistory(){
   historyList.innerHTML = '';
-  if(history.length === 0){
-    historyList.innerHTML = '<div class="history-empty">هنوز هفته‌ای ذخیره نشده</div>';
-    return;
-  }
+  if(history.length === 0){ historyList.innerHTML = '<div class="history-empty">هنوز هفته‌ای ذخیره نشده</div>'; return; }
   history.forEach(entry=>{
     const item = document.createElement('div');
     item.className = 'history-item';
     const champTeam = entry.championIndex!==null && entry.championIndex!==undefined && entry.teams[entry.championIndex]
-      ? `تیم ${entry.championIndex+1}` : 'مشخص نشده';
+      ? teamName(entry.championIndex) : 'مشخص نشده';
     let bodyHtml = '';
     entry.teams.forEach((t,idx)=>{
       const isChamp = entry.championIndex===idx;
       let membersHtml = '';
-      t.members.forEach((m,slot)=>{
-        membersHtml += `<li>${m.name}${slot===0?' (لیدر)':''}</li>`;
-      });
-      bodyHtml += `<div class="history-team${isChamp?' champ':''}"><div class="tname">${isChamp?'🏆 ':''}تیم ${idx+1}</div><ul style="margin:0;padding:0 16px 0 0;">${membersHtml}</ul></div>`;
+      t.members.forEach((m,slot)=>{ membersHtml += `<li>${m.name}${slot===0?' (لیدر)':''}</li>`; });
+      bodyHtml += `<div class="history-team${isChamp?' champ':''}"><div class="tname">${isChamp?'🏆 ':''}${teamName(idx)}</div><ul style="margin:0;padding:0 16px 0 0;">${membersHtml}</ul></div>`;
     });
     item.innerHTML = `
-      <div class="history-head">
-        <span class="d">${entry.date}</span>
-        <span class="c">🏆 ${champTeam}</span>
-        <button class="del" title="حذف">×</button>
-      </div>
+      <div class="history-head"><span class="d">${entry.date}</span><span class="c">🏆 ${champTeam}</span><button class="del" title="حذف">×</button></div>
       <div class="history-body">${bodyHtml}</div>
     `;
     const head = item.querySelector('.history-head');
     const body = item.querySelector('.history-body');
-    head.addEventListener('click', (e)=>{
-      if(e.target.classList.contains('del')) return;
-      body.classList.toggle('open');
-    });
+    head.addEventListener('click', (e)=>{ if(e.target.classList.contains('del')) return; body.classList.toggle('open'); });
     item.querySelector('.del').addEventListener('click', ()=>{
       if(!confirm('این هفته از تاریخچه حذف بشه؟')) return;
       history = history.filter(h=>h.id !== entry.id);
-      persistHistory();
-      renderHistory();
+      persistHistory(); renderHistory();
     });
     historyList.appendChild(item);
   });
 }
-
 document.getElementById('saveWeekBtn').addEventListener('click', ()=>{
-  if(teams.length === 0){
-    alert('اول لیدرها رو قرعه‌کشی کن و تیم‌ها رو بچین.');
-    return;
-  }
+  if(teams.length === 0){ alert('اول لیدرها رو قرعه‌کشی کن و تیم‌ها رو بچین.'); return; }
   const entry = {
     id: Date.now(),
     date: new Date().toLocaleDateString('fa-IR', {year:'numeric', month:'long', day:'numeric'}),
     dateISO: new Date().toISOString(),
     teamCount: TEAM_COUNT,
     championIndex: champion,
-    teams: teams.map(t=>({
-      members: t.members.map(num=>{
-        const p = participants.find(pp=>pp.num===num);
-        return {name:p.name, pid:p.pid};
-      })
-    }))
+    teams: teams.map(t=>({ members: t.members.map(num=>{ const p = participants.find(pp=>pp.num===num); return {name:p.name, pid:p.pid}; }) }))
   };
   history.unshift(entry);
-  persistHistory();
-  renderHistory();
+  persistHistory(); renderHistory();
   alert('نتیجه این هفته ذخیره شد.');
 });
-
 document.getElementById('exportHistBtn').addEventListener('click', ()=>{
   const blob = new Blob([JSON.stringify(history, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = 'karen-cs2-history.json';
-  a.click();
+  a.href = url; a.download = 'karen-cs2-history.json'; a.click();
   URL.revokeObjectURL(url);
 });
-
 document.getElementById('importHistInput').addEventListener('change', (e)=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -752,19 +918,11 @@ document.getElementById('importHistInput').addEventListener('change', (e)=>{
       const imported = JSON.parse(reader.result);
       if(!Array.isArray(imported)) throw new Error('bad format');
       const existingIds = new Set(history.map(h=>h.id));
-      imported.forEach(entry=>{
-        if(!existingIds.has(entry.id)){
-          history.push(entry);
-          existingIds.add(entry.id);
-        }
-      });
+      imported.forEach(entry=>{ if(!existingIds.has(entry.id)){ history.push(entry); existingIds.add(entry.id); } });
       history.sort((a,b)=> new Date(b.dateISO||0) - new Date(a.dateISO||0));
-      persistHistory();
-      renderHistory();
+      persistHistory(); renderHistory();
       alert('تاریخچه با موفقیت اضافه شد.');
-    }catch(err){
-      alert('فایل معتبر نیست.');
-    }
+    }catch(err){ alert('فایل معتبر نیست.'); }
     e.target.value = '';
   };
   reader.readAsText(file);
@@ -777,10 +935,13 @@ teamCountInput.value = TEAM_COUNT;
 updateCalcNote();
 buildRegistration();
 renderLeaderPool();
+refreshBracketNote();
+updateBracketVisibility();
 if(draftStarted){
   document.getElementById('draftCard').style.display = 'block';
   renderChampionSelect();
   renderDraftBoard();
+  renderBracketArea();
 }
 loadHistory();
 renderHistory();
