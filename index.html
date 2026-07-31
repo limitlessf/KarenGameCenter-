@@ -56,11 +56,6 @@
   .card h2{
     font-family:'Oswald',sans-serif; font-size:16px; text-transform:uppercase;
     color:var(--orange-bright); margin:0 0 4px; letter-spacing:0.5px;
-    display:flex; align-items:center; gap:8px;
-  }
-  .card h2 .n{
-    background:var(--orange); color:#1a1300; width:24px; height:24px; border-radius:4px;
-    display:inline-flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;
   }
   .card .hint{color:var(--muted); font-size:12.5px; margin:0 0 16px; line-height:1.9;}
 
@@ -71,9 +66,6 @@
     color:var(--text); font-family:'Oswald'; font-size:15px; text-align:center; padding:6px 4px;
   }
   .settings-row .calc{color:var(--muted); font-size:12.5px;}
-  .locked-note{
-    display:flex; align-items:center; gap:8px; color:var(--good); font-size:13px; margin-top:10px;
-  }
 
   .reg-grid{
     display:grid; grid-template-columns:repeat(3,1fr); gap:8px 14px;
@@ -177,16 +169,16 @@
 
   .pool-box{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px;}
   .pool-box h3{margin:0 0 10px; font-family:'Oswald',sans-serif; font-size:13.5px; color:var(--muted); text-transform:uppercase;}
-  .pool-list{display:flex; flex-direction:column; gap:6px; max-height:520px; overflow-y:auto;}
+  .pool-list{
+    display:flex; flex-wrap:wrap; gap:6px;
+  }
   .pool-item{
-    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    display:flex; align-items:center; gap:6px;
     background:var(--panel); border:1px solid var(--line); border-radius:6px;
-    padding:9px 12px; cursor:pointer; transition:.12s; text-align:right;
+    padding:7px 12px; cursor:pointer; transition:.12s; text-align:right; font-size:13px;
   }
   .pool-item:hover{border-color:var(--orange); background:#20191080;}
-  .pool-item .pname{font-size:13.5px;}
-  .pool-item .ppid{color:var(--muted); font-size:11px; direction:ltr;}
-  .pool-empty{color:var(--muted); font-size:13px; text-align:center; padding:20px 0;}
+  .pool-empty{color:var(--muted); font-size:13px; text-align:center; padding:20px 0; width:100%;}
 
   .champion-row{
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
@@ -199,7 +191,6 @@
     border-radius:6px; padding:7px 10px; font-family:'Vazirmatn'; font-size:13.5px;
   }
 
-  /* history */
   .history-note{color:var(--muted); font-size:12px; margin:-6px 0 14px; line-height:1.9;}
   .history-item{
     background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
@@ -220,7 +211,6 @@
 
   footer{text-align:center; color:#565d62; font-size:11.5px; margin-top:30px;}
 
-  /* print */
   #printArea{display:none;}
   @media print{
     body *{visibility:hidden;}
@@ -245,45 +235,40 @@
   <header class="top">
     <div>
       <h1>مسابقات کانتر استرایک کارن</h1>
-      <div class="sub">کارن گیم سنتر &middot; جمعه‌ها &middot; تیم‌های ۵ نفره</div>
+      <div class="sub">کارن گیم سنتر &middot; سه‌شنبه‌ها و جمعه‌ها &middot; تیم‌های ۵ نفره</div>
     </div>
     <div class="tag">KAREN GAME CENTER</div>
   </header>
 
-  <!-- STEP 0: SETTINGS -->
   <div class="card" id="settingsCard">
-    <h2><span class="n">۰</span> تنظیمات مسابقه</h2>
-    <p class="hint">تعداد تیم‌های این هفته رو مشخص کن (هر تیم ۵ نفره‌ست). با تغییر تعداد تیم، تعداد اسلات‌های ثبت‌نام هم به‌روز می‌شه.</p>
+    <h2>تنظیمات مسابقه</h2>
+    <p class="hint">تعداد تیم‌های این هفته رو مشخص کن (هر تیم ۵ نفره‌ست). با تغییر تعداد تیم، اسم و آی‌دی‌هایی که وارد کردی پاک نمی‌شن؛ فقط اسلات اضافه یا کم می‌شه.</p>
     <div class="settings-row">
       <label for="teamCountInput">تعداد تیم‌ها</label>
       <input type="number" id="teamCountInput" min="2" max="10" value="6">
       <span class="calc" id="calcNote"></span>
       <button class="btn small" id="applySettingsBtn">اعمال</button>
     </div>
-    <div class="locked-note" id="settingsLockNote" style="display:none;">تنظیمات قفل شد (درفت شروع شده)</div>
   </div>
 
-  <!-- STEP 1: REGISTRATION -->
   <div class="card" id="regCard">
-    <h2><span class="n">۱</span> ثبت شرکت‌کنندگان</h2>
+    <h2>ثبت شرکت‌کنندگان</h2>
     <p class="hint">اسم و آی‌دی شرکت‌کننده‌ها رو وارد کن. نیازی نیست همه‌ی خونه‌ها پر بشه.</p>
     <div class="reg-grid" id="regGrid"></div>
   </div>
 
-  <!-- STEP 2: LEADER DRAW -->
   <div class="card" id="leaderCard">
-    <h2><span class="n">۲</span> قرعه‌کشی لیدرها</h2>
+    <h2>قرعه‌کشی لیدرها</h2>
     <p class="hint" id="leaderHint"></p>
     <div class="leader-pool" id="leaderPool"></div>
     <div class="actions">
-      <button class="btn" id="drawBtn" disabled>قرعه‌کشی و شروع درفت</button>
+      <button class="btn" id="drawBtn" disabled>قرعه‌کشی و چیدن تیم‌ها</button>
       <span class="empty-note" id="leaderCount"></span>
     </div>
   </div>
 
-  <!-- STEP 3: DRAFT BOARD -->
   <div class="card" id="draftCard" style="display:none;">
-    <h2><span class="n">۳</span> درفت تیم‌ها</h2>
+    <h2>درفت تیم‌ها</h2>
     <p class="hint">روی اسم بازیکن‌ها توی لیست سمت راست کلیک کن تا به تیمی که نوبتشه اضافه بشه. اگه اشتباه کلیک کردی، روی × کنار اسم توی تیم بزن تا برگرده به لیست.</p>
 
     <div class="turn-banner" id="turnBanner">
@@ -310,9 +295,8 @@
     </div>
   </div>
 
-  <!-- STEP 4: HISTORY -->
   <div class="card" id="historyCard">
-    <h2><span class="n">۴</span> تاریخچه هفته‌های قبل</h2>
+    <h2>تاریخچه هفته‌های قبل</h2>
     <p class="history-note">این تاریخچه فقط توی همین مرورگر/دستگاه ذخیره می‌مونه. برای انتقال به گوشی یا سیستم دیگه، از «خروجی گرفتن» و «وارد کردن» فایل استفاده کن.</p>
     <div class="actions" style="margin-bottom:14px;">
       <button class="btn small" id="saveWeekBtn">ذخیره نتیجه این هفته در تاریخچه</button>
@@ -334,6 +318,7 @@
 const PALETTE = ['#de9b35','#4a90d9','#d9524a','#4ad98a','#b24ad9','#3fd0d9','#e0c23c','#e0729c','#7d8a99','#8a5a2c'];
 const TEAM_SIZE = 5;
 const HISTORY_KEY = 'karen_cs2_history_v1';
+const STATE_KEY = 'karen_cs2_state_v1';
 
 let TEAM_COUNT = 6;
 let participants = [];
@@ -342,10 +327,11 @@ let draftStarted = false;
 let teams = [];
 let pickOrder = [];
 let pickPointer = 0;
-let champion = null; // team index
+let champion = null;
 let history = [];
 
 function colorFor(idx){ return PALETTE[idx % PALETTE.length]; }
+function clampTeamCount(n){ return Math.max(2, Math.min(10, n||6)); }
 
 function buildParticipants(){
   const total = TEAM_COUNT * TEAM_SIZE;
@@ -354,32 +340,73 @@ function buildParticipants(){
   }));
 }
 
-// ---------- STEP 0: settings ----------
+// ---------- persistence ----------
+function saveState(){
+  const state = {TEAM_COUNT, participants, leaderSelection, draftStarted, teams, pickOrder, pickPointer, champion};
+  try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STATE_KEY);
+    if(!raw) return false;
+    const s = JSON.parse(raw);
+    if(!s || !Array.isArray(s.participants)) return false;
+    TEAM_COUNT = clampTeamCount(s.TEAM_COUNT);
+    participants = s.participants;
+    leaderSelection = s.leaderSelection || [];
+    draftStarted = !!s.draftStarted;
+    teams = s.teams || [];
+    pickOrder = s.pickOrder || [];
+    pickPointer = s.pickPointer || 0;
+    champion = (s.champion===undefined) ? null : s.champion;
+    return true;
+  }catch(e){ return false; }
+}
+
+// ---------- settings ----------
 const teamCountInput = document.getElementById('teamCountInput');
 const calcNote = document.getElementById('calcNote');
 const applySettingsBtn = document.getElementById('applySettingsBtn');
-const settingsLockNote = document.getElementById('settingsLockNote');
 
 function updateCalcNote(){
-  const n = Math.max(2, Math.min(10, parseInt(teamCountInput.value)||6));
+  const n = clampTeamCount(parseInt(teamCountInput.value));
   calcNote.textContent = `= ${n} تیم × ۵ نفر = ${n*5} شرکت‌کننده`;
 }
 teamCountInput.addEventListener('input', updateCalcNote);
 
 applySettingsBtn.addEventListener('click', ()=>{
-  if(draftStarted) return;
-  const hasData = participants.some(p=>p.name);
-  if(hasData && !confirm('با تغییر تعداد تیم‌ها، اسم و آی‌دی‌های ثبت‌شده پاک می‌شن. ادامه بدم؟')) return;
-  TEAM_COUNT = Math.max(2, Math.min(10, parseInt(teamCountInput.value)||6));
-  teamCountInput.value = TEAM_COUNT;
+  const newCount = clampTeamCount(parseInt(teamCountInput.value));
+  teamCountInput.value = newCount;
   updateCalcNote();
-  buildParticipants();
+  if(newCount === TEAM_COUNT) return;
+
+  const newTotal = newCount * TEAM_SIZE;
+  const oldTotal = participants.length;
+  if(newTotal > oldTotal){
+    for(let i=oldTotal;i<newTotal;i++){
+      participants.push({num:i+1, name:'', pid:'', team:null, isLeader:false});
+    }
+  } else if(newTotal < oldTotal){
+    const removed = participants.slice(newTotal);
+    const hasData = removed.some(p=>p.name);
+    if(hasData && !confirm('بعضی از اسلات‌هایی که با کم کردن تعداد تیم حذف می‌شن اسم دارن. حذف بشن؟')){
+      teamCountInput.value = TEAM_COUNT;
+      updateCalcNote();
+      return;
+    }
+    participants = participants.slice(0, newTotal);
+  }
+  TEAM_COUNT = newCount;
   buildRegistration();
-  leaderSelection = [];
+  // team count changed -> reset team-formation state, keep registered names
+  participants.forEach(p=>{p.team=null; p.isLeader=false;});
+  teams = []; pickOrder = []; pickPointer = 0; champion = null; draftStarted = false;
+  document.getElementById('draftCard').style.display = 'none';
   renderLeaderPool();
+  saveState();
 });
 
-// ---------- STEP 1: registration ----------
+// ---------- registration ----------
 const regGrid = document.getElementById('regGrid');
 
 function buildRegistration(){
@@ -401,16 +428,17 @@ regGrid.addEventListener('input', (e)=>{
   const p = participants[+t.dataset.num - 1];
   p[t.dataset.field] = t.value.trim();
   renderLeaderPool();
+  saveState();
 });
 
-// ---------- STEP 2: leader pool ----------
+// ---------- leader pool ----------
 const leaderPool = document.getElementById('leaderPool');
 const drawBtn = document.getElementById('drawBtn');
 const leaderCount = document.getElementById('leaderCount');
 const leaderHint = document.getElementById('leaderHint');
 
 function renderLeaderPool(){
-  leaderHint.textContent = `${TEAM_COUNT} نفر رو به عنوان لیدر انتخاب کن، بعد دکمه‌ی قرعه‌کشی رو بزن تا به‌صورت رندم ترتیبشون از تیم ۱ تا ${TEAM_COUNT} مشخص بشه.`;
+  leaderHint.textContent = `${TEAM_COUNT} نفر رو به عنوان لیدر انتخاب کن، بعد دکمه‌ی قرعه‌کشی رو بزن تا به‌صورت رندم ترتیبشون از تیم ۱ تا ${TEAM_COUNT} مشخص بشه. هر وقت خواستی می‌تونی دوباره انتخاب یا قرعه‌کشی کنی.`;
   const named = participants.filter(p=>p.name);
   leaderSelection = leaderSelection.filter(n => named.some(p=>p.num===n));
 
@@ -425,22 +453,27 @@ function renderLeaderPool(){
     chip.className = 'leader-chip' + (picked?' picked':'') + (atLimit?' disabled':'');
     chip.textContent = p.name;
     chip.addEventListener('click', ()=>{
-      if(draftStarted) return;
       if(picked){
         leaderSelection = leaderSelection.filter(n=>n!==p.num);
       } else if(leaderSelection.length < TEAM_COUNT){
         leaderSelection.push(p.num);
       }
       renderLeaderPool();
+      saveState();
     });
     leaderPool.appendChild(chip);
   });
   leaderCount.textContent = `${leaderSelection.length} از ${TEAM_COUNT} نفر انتخاب شده`;
-  drawBtn.disabled = leaderSelection.length !== TEAM_COUNT || draftStarted;
+  drawBtn.disabled = leaderSelection.length !== TEAM_COUNT;
 }
 
 drawBtn.addEventListener('click', ()=>{
   if(leaderSelection.length !== TEAM_COUNT) return;
+  if(draftStarted && !confirm('با قرعه‌کشی دوباره، انتخاب‌های فعلی تیم‌ها پاک می‌شن و از اول شروع می‌شه. ادامه بدم؟')) return;
+
+  // clear any previous team assignments (registration names/ids stay untouched)
+  participants.forEach(p=>{p.team=null; p.isLeader=false;});
+
   const shuffled = [...leaderSelection];
   for(let i=shuffled.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
@@ -464,16 +497,14 @@ drawBtn.addEventListener('click', ()=>{
   draftStarted = true;
 
   document.getElementById('draftCard').style.display = 'block';
-  settingsLockNote.style.display = 'flex';
-  applySettingsBtn.disabled = true;
-  teamCountInput.disabled = true;
   renderLeaderPool();
   renderChampionSelect();
   renderDraftBoard();
+  saveState();
   document.getElementById('draftCard').scrollIntoView({behavior:'smooth', block:'start'});
 });
 
-// ---------- STEP 3: draft board ----------
+// ---------- draft board ----------
 const teamsGrid = document.getElementById('teamsGrid');
 const poolList = document.getElementById('poolList');
 const turnBanner = document.getElementById('turnBanner');
@@ -499,6 +530,7 @@ function renderChampionSelect(){
 championSelect.addEventListener('change', ()=>{
   champion = championSelect.value === '' ? null : +championSelect.value;
   renderDraftBoard();
+  saveState();
 });
 
 function renderDraftBoard(){
@@ -542,7 +574,7 @@ function renderDraftBoard(){
     pool.forEach(p=>{
       const item = document.createElement('div');
       item.className = 'pool-item';
-      item.innerHTML = `<span class="pname">${p.name}</span><span class="ppid">${p.pid||''}</span>`;
+      item.innerHTML = `<span class="pname">${p.name}</span>`;
       item.addEventListener('click', ()=>assignPick(p.num));
       poolList.appendChild(item);
     });
@@ -570,6 +602,7 @@ function assignPick(num){
   teams[ct].members.push(num);
   pickPointer++;
   renderDraftBoard();
+  saveState();
 }
 
 function removeMember(teamIdx, num){
@@ -579,6 +612,7 @@ function removeMember(teamIdx, num){
   teams[teamIdx].members = teams[teamIdx].members.filter(n=>n!==num);
   pickPointer = Math.max(0, pickPointer - 1);
   renderDraftBoard();
+  saveState();
 }
 
 document.getElementById('resetBtn').addEventListener('click', ()=>{
@@ -591,10 +625,8 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
   champion = null;
   draftStarted = false;
   document.getElementById('draftCard').style.display = 'none';
-  settingsLockNote.style.display = 'none';
-  applySettingsBtn.disabled = false;
-  teamCountInput.disabled = false;
   renderLeaderPool();
+  saveState();
 });
 
 // ---------- PDF (print) ----------
@@ -622,7 +654,7 @@ document.getElementById('pdfBtn').addEventListener('click', ()=>{
   window.print();
 });
 
-// ---------- HISTORY ----------
+// ---------- history ----------
 const historyList = document.getElementById('historyList');
 
 function loadHistory(){
@@ -631,7 +663,7 @@ function loadHistory(){
 }
 function persistHistory(){
   try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
-  catch(e){ /* storage unavailable, ignore */ }
+  catch(e){}
 }
 function renderHistory(){
   historyList.innerHTML = '';
@@ -738,11 +770,18 @@ document.getElementById('importHistInput').addEventListener('change', (e)=>{
   reader.readAsText(file);
 });
 
-// init
+// ---------- init ----------
+const restored = loadState();
+if(!restored){ buildParticipants(); }
+teamCountInput.value = TEAM_COUNT;
 updateCalcNote();
-buildParticipants();
 buildRegistration();
 renderLeaderPool();
+if(draftStarted){
+  document.getElementById('draftCard').style.display = 'block';
+  renderChampionSelect();
+  renderDraftBoard();
+}
 loadHistory();
 renderHistory();
 </script>
