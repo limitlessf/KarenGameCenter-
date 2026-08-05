@@ -14,10 +14,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
-  body{
-    background:radial-gradient(circle at 15% 0%, rgba(222,155,53,0.06), transparent 40%), var(--bg);
-    color:var(--text); font-family:'Vazirmatn', Tahoma, sans-serif; min-height:100vh; padding:24px 16px 80px;
-  }
+  body{background:radial-gradient(circle at 15% 0%, rgba(222,155,53,0.06), transparent 40%), var(--bg); color:var(--text); font-family:'Vazirmatn', Tahoma, sans-serif; min-height:100vh; padding:24px 16px 80px;}
   .oswald{font-family:'Oswald','Vazirmatn',sans-serif; letter-spacing:0.5px;}
   .wrap{max-width:1180px;margin:0 auto;}
   header.top{display:flex; align-items:center; justify-content:space-between; gap:16px; padding-bottom:18px; margin-bottom:22px; border-bottom:2px solid var(--orange); flex-wrap:wrap;}
@@ -27,25 +24,35 @@
   .card{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px; margin-bottom:20px;}
   .card h2{font-family:'Oswald',sans-serif; font-size:16px; text-transform:uppercase; color:var(--orange-bright); margin:0 0 4px; letter-spacing:0.5px;}
   .card .hint{color:var(--muted); font-size:12.5px; margin:0 0 16px; line-height:1.9;}
-  .settings-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
-  .settings-row label{font-size:13.5px; color:var(--text); display:flex; align-items:center; gap:5px;}
-  .settings-row input[type=number]{width:70px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px; color:var(--text); font-family:'Oswald'; font-size:15px; text-align:center; padding:6px 4px;}
-  .settings-row .calc{color:var(--muted); font-size:12.5px;}
   .reg-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px 14px;}
   @media(max-width:900px){.reg-grid{grid-template-columns:repeat(2,1fr);}}
   @media(max-width:560px){.reg-grid{grid-template-columns:1fr;}}
   .reg-row{display:flex; align-items:center; gap:6px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:6px 8px;}
-  .reg-row .num{font-family:'Oswald',sans-serif; color:var(--orange-bright); font-weight:600; width:20px; text-align:center; font-size:13px; flex-shrink:0;}
+  .reg-row .num{font-family:'Oswald',sans-serif; color:var(--orange-bright); font-weight:600; width:22px; text-align:center; font-size:13px; flex-shrink:0;}
   .reg-row input{background:transparent; border:none; border-bottom:1px solid var(--line); color:var(--text); font-family:'Vazirmatn'; font-size:13px; padding:4px 2px; width:0; flex:1; min-width:0;}
   .reg-row input::placeholder{color:#565d62;}
   .reg-row input:focus{outline:none; border-bottom-color:var(--orange);}
   .reg-row input.id-input{flex:0.9; color:var(--muted); direction:ltr; text-align:right;}
-  .leader-pool{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
-  .leader-chip{display:flex; align-items:center; gap:6px; background:var(--panel-2); border:1px solid var(--line); border-radius:20px; padding:6px 12px; font-size:13px; cursor:pointer; user-select:none; transition:.15s;}
-  .leader-chip:hover{border-color:var(--orange);}
-  .leader-chip.picked{background:var(--orange); color:#1a1300; border-color:var(--orange); font-weight:600;}
-  .leader-chip.disabled{opacity:.35; cursor:not-allowed;}
+  .add-slot-btn{display:flex; align-items:center; justify-content:center; gap:8px; background:transparent; border:1.5px dashed var(--line); border-radius:6px; padding:10px; color:var(--muted); font-family:'Oswald'; font-size:13px; cursor:pointer; transition:.15s;}
+  .add-slot-btn:hover{border-color:var(--orange); color:var(--orange-bright);}
+  .add-slot-btn .plus{font-size:18px; line-height:1;}
+
+  .names-toolbar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+  .names-toolbar label{font-size:13.5px;}
+  .names-toolbar input[type=number]{width:60px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px; color:var(--text); font-family:'Oswald'; font-size:15px; text-align:center; padding:6px 4px;}
+  .names-list{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; padding:10px; background:var(--panel-2); border:1px solid var(--line); border-radius:8px; min-height:44px; transition:.15s;}
+  .names-list.drop-active{border-color:var(--danger); box-shadow:0 0 0 2px rgba(194,58,46,.25);}
+  .name-chip{display:flex; align-items:center; gap:6px; background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:6px 12px; font-size:13px; cursor:pointer; user-select:none; transition:.15s;}
+  .name-chip:hover{border-color:var(--orange);}
+  .name-chip.picked{background:var(--orange); color:#1a1300; border-color:var(--orange); font-weight:600;}
+  .name-chip.cap-disabled{opacity:.35; cursor:not-allowed;}
+  .name-chip.disabled{opacity:.3; cursor:not-allowed; background:var(--panel-2);}
+  .name-chip.leader-chip{font-weight:700; border-width:2px;}
+  .name-chip.leader-swap-selected{outline:2px solid var(--gold); outline-offset:1px;}
   .empty-note{color:var(--muted); font-size:13px;}
+  .drag-hint{display:none; align-items:center; gap:8px; background:var(--panel-2); border:1px solid var(--gold); color:var(--gold); border-radius:8px; padding:8px 14px; font-size:12.5px; margin-bottom:14px;}
+  .drag-hint.show{display:flex;}
+
   .btn{font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.5px; background:var(--orange); color:#1a1300; border:none; border-radius:6px; padding:10px 22px; font-size:14px; font-weight:600; cursor:pointer; transition:.15s;}
   .btn:hover{background:var(--orange-bright);}
   .btn:disabled{background:#3a3a3a; color:#777; cursor:not-allowed;}
@@ -55,14 +62,14 @@
   .btn.gold:hover{background:#f7db6f;}
   .btn.small{padding:6px 14px; font-size:12px;}
   .actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-  .turn-banner{display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--panel-2); border:1px solid var(--orange); border-radius:8px; padding:14px 18px; margin-bottom:18px; flex-wrap:wrap;}
+
+  .turn-banner{display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--panel-2); border:1px solid var(--orange); border-radius:8px; padding:14px 18px; margin-bottom:6px; flex-wrap:wrap;}
   .turn-banner .who{font-family:'Oswald',sans-serif; font-size:19px; font-weight:600; display:flex; align-items:center; gap:10px;}
   .dot{width:14px; height:14px; border-radius:3px; display:inline-block; box-shadow:0 0 10px 1px currentColor;}
   .turn-banner .round{color:var(--muted); font-size:12.5px;}
   .turn-banner.done{border-color:var(--good);}
   .turn-banner.done .who{color:var(--good);}
-  .draft-layout{display:grid; grid-template-columns:1.15fr 0.85fr; gap:18px;}
-  @media(max-width:860px){.draft-layout{grid-template-columns:1fr;}}
+
   .teams-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
   @media(max-width:560px){.teams-grid{grid-template-columns:1fr;}}
   .team-card{background:var(--panel-2); border-radius:8px; overflow:hidden; border:1px solid var(--line); border-top:3px solid var(--tc, var(--orange)); position:relative;}
@@ -70,26 +77,23 @@
   .team-card .th{padding:8px 12px; display:flex; justify-content:space-between; align-items:center; font-family:'Oswald',sans-serif; font-weight:600; font-size:13.5px; color:var(--tc, var(--orange)); border-bottom:1px solid var(--line);}
   .team-card .th .trophy{color:var(--gold); margin-left:4px;}
   .team-card ul{list-style:none; margin:0; padding:8px 10px; min-height:120px;}
-  .team-card li{display:flex; gap:8px; align-items:baseline; padding:5px 0; font-size:13.5px; border-bottom:1px dashed #23282b;}
+  .team-card li{display:flex; gap:8px; align-items:baseline; padding:6px 4px; font-size:13.5px; border-bottom:1px dashed #23282b; border-radius:5px;}
   .team-card li:last-child{border-bottom:none;}
+  .team-card li[data-num]{cursor:grab;}
+  .team-card li[data-num]:active{cursor:grabbing;}
+  .team-card li.selected{background:rgba(240,201,74,.12); outline:2px dashed var(--gold);}
   .team-card li .slot{color:var(--muted); font-size:11px; width:16px; flex-shrink:0;}
   .team-card li.leader-line .name{font-weight:700;}
+  .team-card li.leader-line{cursor:default;}
   .team-card li.leader-line .badge{font-size:10px; background:var(--tc,var(--orange)); color:#12100a; padding:1px 6px; border-radius:3px; margin-right:4px;}
   .team-card li .pid{color:var(--muted); font-size:11px; direction:ltr;}
   .team-card li .name{flex:1;}
   .team-card li.empty-slot{color:#4a5054; font-style:italic;}
-  .rm-btn{background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:4px; width:20px; height:20px; line-height:1; cursor:pointer; flex-shrink:0; font-size:13px; transition:.15s;}
-  .rm-btn:hover{border-color:var(--danger); color:var(--danger);}
-  .rm-btn.edit:hover{border-color:var(--orange); color:var(--orange-bright);}
-  .pool-box{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px;}
-  .pool-box h3{margin:0 0 10px; font-family:'Oswald',sans-serif; font-size:13.5px; color:var(--muted); text-transform:uppercase;}
-  .pool-list{display:flex; flex-wrap:wrap; gap:6px;}
-  .pool-item{display:flex; align-items:center; gap:6px; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:7px 12px; cursor:pointer; transition:.12s; text-align:right; font-size:13px;}
-  .pool-item:hover{border-color:var(--orange); background:#20191080;}
-  .pool-empty{color:var(--muted); font-size:13px; text-align:center; padding:20px 0; width:100%;}
+
   .champion-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--panel-2); border:1px solid var(--gold); border-radius:8px; padding:12px 16px; margin-bottom:16px;}
   .champion-row label{font-family:'Oswald'; font-size:13px; color:var(--gold); text-transform:uppercase;}
   .champion-row select{background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:7px 10px; font-family:'Vazirmatn'; font-size:13.5px;}
+
   .history-note{color:var(--muted); font-size:12px; margin:-6px 0 14px; line-height:1.9;}
   .history-item{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin-bottom:8px;}
   .history-head{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; flex-wrap:wrap;}
@@ -105,28 +109,6 @@
   .history-empty{color:var(--muted); font-size:13px; text-align:center; padding:14px 0;}
   input[type=file]{color:var(--muted); font-size:12.5px;}
   footer{text-align:center; color:#565d62; font-size:11.5px; margin-top:30px;}
-
-  /* bracket */
-  .bracket-rounds{display:flex; gap:16px; overflow-x:auto; padding-bottom:8px;}
-  .bracket-col{min-width:180px; display:flex; flex-direction:column; gap:14px; justify-content:space-around;}
-  .bracket-col-title{font-family:'Oswald'; color:var(--orange-bright); font-size:13px; text-transform:uppercase; text-align:center;}
-  .match-card{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:8px 10px;}
-  .match-row{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:3px 0; font-size:13px;}
-  .match-row.win{color:var(--good); font-weight:700;}
-  .score-input{width:48px; background:var(--panel); border:1px solid var(--line); border-radius:4px; color:var(--text); text-align:center; padding:3px; font-family:'Oswald';}
-  .league-matches{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-bottom:16px;}
-  .tbl-title{font-family:'Oswald'; color:var(--orange-bright); font-size:14px; margin:16px 0 8px;}
-  table.standings{width:100%; border-collapse:collapse; font-size:12.5px;}
-  table.standings th, table.standings td{border:1px solid var(--line); padding:6px 8px; text-align:center;}
-  table.standings th{background:var(--panel-2); color:var(--muted); font-family:'Oswald'; font-weight:500;}
-  .final-card{border-color:var(--gold);}
-
-  /* modal */
-  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:50; padding:16px;}
-  .modal-box{background:var(--panel); border:1px solid var(--orange); border-radius:10px; padding:20px; max-width:380px; width:100%;}
-  .modal-box h3{margin:0 0 12px; font-family:'Oswald'; color:var(--orange-bright); font-size:15px;}
-  .modal-box select{width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:6px; padding:8px; margin-bottom:12px; font-family:'Vazirmatn'; font-size:13.5px;}
-  .modal-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:8px;}
 
   #printArea{display:none;}
   @media print{
@@ -154,27 +136,24 @@
     <div class="tag">KAREN GAME CENTER</div>
   </header>
 
-  <div class="card" id="settingsCard">
-    <h2>تنظیمات مسابقه</h2>
-    <p class="hint">تعداد تیم‌های این هفته رو مشخص کن (هر تیم ۵ نفره‌ست). با تغییر تعداد تیم، اسم و یوزر آیدی‌هایی که وارد کردی پاک نمی‌شن؛ فقط اسلات اضافه یا کم می‌شه.</p>
-    <div class="settings-row">
-      <label for="teamCountInput">تعداد تیم‌ها</label>
-      <input type="number" id="teamCountInput" min="2" max="10" value="6">
-      <span class="calc" id="calcNote"></span>
-      <button class="btn small" id="applySettingsBtn">اعمال</button>
-    </div>
-  </div>
-
   <div class="card" id="regCard">
     <h2>ثبت شرکت‌کنندگان</h2>
-    <p class="hint">اسم و یوزر آیدی شرکت‌کننده‌ها رو وارد کن. نیازی نیست همه‌ی خونه‌ها پر بشه؛ هر وقت اسمی اضافه کنی خودش توی لیست لیدرها و لیست انتخاب هم میاد.</p>
+    <p class="hint">اسم و یوزر آیدی شرکت‌کننده‌ها رو وارد کن. هر اسمی که بنویسی خودش توی لیست پایین (برای انتخاب لیدر و بعداً چیدن تیم‌ها) هم میاد. اگه به اسلات بیشتر نیاز داشتی، از دکمه‌ی + استفاده کن.</p>
     <div class="reg-grid" id="regGrid"></div>
+    <div style="margin-top:10px;">
+      <button class="add-slot-btn" id="addSlotBtn" style="width:100%;"><span class="plus">+</span> افزودن اسلات</button>
+    </div>
   </div>
 
   <div class="card" id="leaderCard">
     <h2>قرعه‌کشی لیدرها</h2>
     <p class="hint" id="leaderHint"></p>
-    <div class="leader-pool" id="leaderPool"></div>
+    <div class="names-toolbar">
+      <label for="leaderCountInput">تعداد لیدر (= تعداد تیم)</label>
+      <input type="number" id="leaderCountInput" min="2" max="12" value="6">
+    </div>
+    <div class="drag-hint" id="dragHint">🖐 یه بازیکن انتخاب شده — روی جای خالی یا اسم دیگه توی یه تیم بزن تا جابه‌جا بشه، یا همین‌جا روی لیست بزن تا برگرده به لیست.</div>
+    <div class="names-list" id="namesList"></div>
     <div class="actions">
       <button class="btn" id="drawBtn" disabled>قرعه‌کشی و چیدن تیم‌ها</button>
       <span class="empty-note" id="leaderCount"></span>
@@ -182,21 +161,15 @@
   </div>
 
   <div class="card" id="draftCard" style="display:none;">
-    <h2>درفت تیم‌ها</h2>
-    <p class="hint">روی اسم بازیکن‌ها توی لیست سمت راست کلیک کن تا به تیمی که نوبتشه اضافه بشه. روی × کنار اسم توی تیم بزن تا برگرده به لیست. روی ✎ کنار لیدر بزن تا لیدر عوض بشه.</p>
+    <h2>تیم‌ها</h2>
+    <p class="hint">توی لیست بالا روی اسم بازیکن‌ها بزن تا به تیمی که نوبتشه اضافه بشه. برای جابه‌جا کردن یا حذف بازیکن از تیم، اون اسم رو بکش (یا لمس کن) و روی مقصد ولش کن.</p>
 
     <div class="turn-banner" id="turnBanner">
       <div class="who" id="turnWho"></div>
       <div class="round" id="turnRound"></div>
     </div>
 
-    <div class="draft-layout">
-      <div class="teams-grid" id="teamsGrid"></div>
-      <div class="pool-box">
-        <h3>بازیکنان باقی‌مانده</h3>
-        <div class="pool-list" id="poolList"></div>
-      </div>
-    </div>
+    <div class="teams-grid" id="teamsGrid"></div>
 
     <div class="champion-row" style="margin-top:18px;">
       <label for="championSelect">🏆 قهرمان این هفته:</label>
@@ -207,17 +180,6 @@
       <button class="btn gold small" id="pdfBtn">دانلود PDF این هفته</button>
       <button class="btn ghost small" id="resetBtn">شروع مجدد کامل</button>
     </div>
-  </div>
-
-  <div class="card" id="bracketCard" style="display:none;">
-    <h2>براکت و جدول مسابقات</h2>
-    <p class="hint" id="bracketFormatNote"></p>
-    <div class="settings-row" style="margin-bottom:16px;">
-      <label><input type="radio" name="fmt" value="knockout"> حذفی</label>
-      <label><input type="radio" name="fmt" value="league"> لیگی</label>
-      <button class="btn small" id="buildBracketBtn">ایجاد / بازسازی جدول</button>
-    </div>
-    <div id="bracketArea"></div>
   </div>
 
   <div class="card" id="historyCard">
@@ -239,39 +201,37 @@
 
 <div id="printArea"></div>
 
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-box" id="modalBox"></div>
-</div>
-
 <script>
 const PALETTE = ['#de9b35','#4a90d9','#d9524a','#4ad98a','#b24ad9','#3fd0d9','#e0c23c','#e0729c','#7d8a99','#8a5a2c'];
 const TEAM_SIZE = 5;
+const DEFAULT_SLOTS = 20;
 const HISTORY_KEY = 'karen_cs2_history_v1';
-const STATE_KEY = 'karen_cs2_state_v1';
+const STATE_KEY = 'karen_cs2_state_v2';
 
-let TEAM_COUNT = 6;
 let participants = [];
+let leaderCountWanted = 6;
 let leaderSelection = [];
 let draftStarted = false;
 let teams = [];
 let pickOrder = [];
 let pickPointer = 0;
 let champion = null;
+let TEAM_COUNT = 0;
 let history = [];
-let bracket = {format:null, knockout:null, league:null};
+
+let dragNum = null;        // player being moved/removed within team cards (drag or tap-select)
+let leaderSwapNum = null;  // leader selected in names list for a leader<->leader or leader<->free swap
 
 function colorFor(idx){ return PALETTE[idx % PALETTE.length]; }
-function clampTeamCount(n){ return Math.max(2, Math.min(10, n||6)); }
 function teamName(idx){ return `تیم ${idx+1}`; }
 
 function buildParticipants(){
-  const total = TEAM_COUNT * TEAM_SIZE;
-  participants = Array.from({length: total}, (_,i)=>({num:i+1, name:'', pid:'', team:null, isLeader:false}));
+  participants = Array.from({length: DEFAULT_SLOTS}, (_,i)=>({num:i+1, name:'', pid:'', team:null, isLeader:false}));
 }
 
 // ---------- persistence ----------
 function saveState(){
-  const state = {TEAM_COUNT, participants, leaderSelection, draftStarted, teams, pickOrder, pickPointer, champion, bracket};
+  const state = {participants, leaderCountWanted, leaderSelection, draftStarted, teams, pickOrder, pickPointer, champion, TEAM_COUNT};
   try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){}
 }
 function loadState(){
@@ -280,73 +240,21 @@ function loadState(){
     if(!raw) return false;
     const s = JSON.parse(raw);
     if(!s || !Array.isArray(s.participants)) return false;
-    TEAM_COUNT = clampTeamCount(s.TEAM_COUNT);
     participants = s.participants;
+    leaderCountWanted = s.leaderCountWanted || 6;
     leaderSelection = s.leaderSelection || [];
     draftStarted = !!s.draftStarted;
     teams = s.teams || [];
     pickOrder = s.pickOrder || [];
     pickPointer = s.pickPointer || 0;
     champion = (s.champion===undefined) ? null : s.champion;
-    bracket = s.bracket || {format:null, knockout:null, league:null};
+    TEAM_COUNT = s.TEAM_COUNT || 0;
     return true;
   }catch(e){ return false; }
 }
 
-// ---------- settings ----------
-const teamCountInput = document.getElementById('teamCountInput');
-const calcNote = document.getElementById('calcNote');
-const applySettingsBtn = document.getElementById('applySettingsBtn');
-
-function updateCalcNote(){
-  const n = clampTeamCount(parseInt(teamCountInput.value));
-  calcNote.textContent = `= ${n} تیم × ۵ نفر = ${n*5} شرکت‌کننده`;
-}
-teamCountInput.addEventListener('input', updateCalcNote);
-
-function refreshBracketNote(){
-  const note = document.getElementById('bracketFormatNote');
-  if(!note) return;
-  note.textContent = `با ${TEAM_COUNT} تیم — حذفی: دوبه‌دو مسابقه می‌دن (در صورت فرد بودن، یک تیم استراحت می‌کنه) تا قهرمان مشخص بشه. لیگی: همه با همه بازی می‌کنن، برد ۳ امتیاز و مساوی ۱ امتیاز داره، در تساوی امتیاز تعداد راند برد ملاکه، و دو تیم برتر جدول فینال رو برگزار می‌کنن.`;
-}
-
-function updateBracketVisibility(){
-  document.getElementById('bracketCard').style.display = teams.length>0 ? 'block' : 'none';
-}
-
-applySettingsBtn.addEventListener('click', ()=>{
-  const newCount = clampTeamCount(parseInt(teamCountInput.value));
-  teamCountInput.value = newCount;
-  updateCalcNote();
-  if(newCount === TEAM_COUNT) return;
-
-  const newTotal = newCount * TEAM_SIZE;
-  const oldTotal = participants.length;
-  if(newTotal > oldTotal){
-    for(let i=oldTotal;i<newTotal;i++) participants.push({num:i+1, name:'', pid:'', team:null, isLeader:false});
-  } else if(newTotal < oldTotal){
-    const removed = participants.slice(newTotal);
-    const hasData = removed.some(p=>p.name);
-    if(hasData && !confirm('بعضی از اسلات‌هایی که با کم کردن تعداد تیم حذف می‌شن اسم دارن. حذف بشن؟')){
-      teamCountInput.value = TEAM_COUNT; updateCalcNote(); return;
-    }
-    participants = participants.slice(0, newTotal);
-  }
-  TEAM_COUNT = newCount;
-  buildRegistration();
-  participants.forEach(p=>{p.team=null; p.isLeader=false;});
-  teams = []; pickOrder = []; pickPointer = 0; champion = null; draftStarted = false;
-  bracket = {format:null, knockout:null, league:null};
-  document.getElementById('draftCard').style.display = 'none';
-  updateBracketVisibility();
-  refreshBracketNote();
-  renderLeaderPool();
-  saveState();
-});
-
 // ---------- registration ----------
 const regGrid = document.getElementById('regGrid');
-
 function buildRegistration(){
   regGrid.innerHTML = '';
   participants.forEach(p=>{
@@ -365,43 +273,127 @@ regGrid.addEventListener('input', (e)=>{
   if(!t.dataset.num) return;
   const p = participants[+t.dataset.num - 1];
   p[t.dataset.field] = t.value.trim();
-  renderLeaderPool();
+  renderNamesList();
   if(draftStarted) renderDraftBoard();
   saveState();
 });
+document.getElementById('addSlotBtn').addEventListener('click', ()=>{
+  participants.push({num: participants.length+1, name:'', pid:'', team:null, isLeader:false});
+  buildRegistration();
+  saveState();
+});
 
-// ---------- leader pool ----------
-const leaderPool = document.getElementById('leaderPool');
-const drawBtn = document.getElementById('drawBtn');
-const leaderCount = document.getElementById('leaderCount');
+// ---------- names list / leader draw ----------
+const leaderCountInput = document.getElementById('leaderCountInput');
+const namesList = document.getElementById('namesList');
 const leaderHint = document.getElementById('leaderHint');
+const leaderCountLabel = document.getElementById('leaderCount');
+const drawBtn = document.getElementById('drawBtn');
+const dragHintEl = document.getElementById('dragHint');
 
-function renderLeaderPool(){
-  leaderHint.textContent = `${TEAM_COUNT} نفر رو به عنوان لیدر انتخاب کن، بعد دکمه‌ی قرعه‌کشی رو بزن تا به‌صورت رندم ترتیبشون از تیم ۱ تا ${TEAM_COUNT} مشخص بشه. هر وقت خواستی می‌تونی دوباره انتخاب یا قرعه‌کشی کنی.`;
+leaderCountInput.value = leaderCountWanted;
+leaderCountInput.addEventListener('input', ()=>{
+  leaderCountWanted = Math.max(2, Math.min(12, parseInt(leaderCountInput.value)||6));
+  renderNamesList();
+  saveState();
+});
+
+function updateDragHint(){
+  dragHintEl.classList.toggle('show', dragNum !== null);
+}
+
+function renderNamesList(){
   const named = participants.filter(p=>p.name);
   leaderSelection = leaderSelection.filter(n => named.some(p=>p.num===n));
 
-  leaderPool.innerHTML = '';
+  if(!draftStarted){
+    leaderHint.textContent = `تعداد لیدر رو بالا مشخص کن، بعد روی اسم‌ها بزن تا به همون تعداد لیدر انتخاب بشه؛ در آخر دکمه‌ی قرعه‌کشی رو بزن.`;
+    leaderCountLabel.textContent = `${leaderSelection.length} از ${leaderCountWanted} نفر انتخاب شده`;
+    drawBtn.disabled = leaderSelection.length !== leaderCountWanted || leaderCountWanted < 2;
+  } else {
+    leaderHint.textContent = `لیدرها با رنگ تیمشون مشخص شدن — روی دو لیدر بزن تا جاشون عوض بشه، یا روی یه لیدر و بعد یه اسم آزاد بزن تا جایگزینش بشه. اسم‌های آزاد رو هم بزن تا به تیمی که نوبتشه اضافه بشن.`;
+    leaderCountLabel.textContent = '';
+    drawBtn.disabled = leaderSelection.length !== leaderCountWanted || leaderCountWanted < 2;
+  }
+
+  namesList.innerHTML = '';
   if(named.length === 0){
-    leaderPool.innerHTML = '<span class="empty-note">اول توی بخش بالا حداقل چند اسم وارد کن</span>';
+    namesList.innerHTML = '<span class="empty-note">اول توی بخش بالا حداقل چند اسم وارد کن</span>';
+    return;
   }
   named.forEach(p=>{
-    const picked = leaderSelection.includes(p.num);
-    const atLimit = leaderSelection.length >= TEAM_COUNT && !picked;
     const chip = document.createElement('div');
-    chip.className = 'leader-chip' + (picked?' picked':'') + (atLimit?' disabled':'');
-    chip.textContent = p.name;
-    chip.addEventListener('click', ()=>{
-      if(picked){ leaderSelection = leaderSelection.filter(n=>n!==p.num); }
-      else if(leaderSelection.length < TEAM_COUNT){ leaderSelection.push(p.num); }
-      renderLeaderPool();
-      saveState();
-    });
-    leaderPool.appendChild(chip);
+    chip.className = 'name-chip';
+    chip.dataset.num = p.num;
+
+    if(!draftStarted){
+      const picked = leaderSelection.includes(p.num);
+      const atCap = leaderSelection.length >= leaderCountWanted && !picked;
+      chip.className += (picked?' picked':'') + (atCap?' cap-disabled':'');
+      chip.textContent = p.name;
+    } else if(p.isLeader){
+      chip.className += ' leader-chip' + (leaderSwapNum===p.num ? ' leader-swap-selected':'');
+      chip.style.background = colorFor(p.team);
+      chip.style.borderColor = colorFor(p.team);
+      chip.style.color = '#161200';
+      chip.textContent = `🏳 ${p.name} (${teamName(p.team)})`;
+    } else if(p.team !== null){
+      chip.className += ' disabled';
+      chip.textContent = p.name;
+    } else {
+      chip.textContent = p.name;
+    }
+    namesList.appendChild(chip);
   });
-  leaderCount.textContent = `${leaderSelection.length} از ${TEAM_COUNT} نفر انتخاب شده`;
-  drawBtn.disabled = leaderSelection.length !== TEAM_COUNT;
 }
+
+namesList.addEventListener('click', (e)=>{
+  if(dragNum !== null){
+    removeToPool(dragNum);
+    dragNum = null;
+    updateDragHint();
+    return;
+  }
+  const chip = e.target.closest('.name-chip');
+  if(!chip) return;
+  const num = +chip.dataset.num;
+  const p = participants.find(pp=>pp.num===num);
+  if(!p) return;
+
+  if(!draftStarted){
+    const picked = leaderSelection.includes(num);
+    if(picked){ leaderSelection = leaderSelection.filter(n=>n!==num); }
+    else if(leaderSelection.length < leaderCountWanted){ leaderSelection.push(num); }
+    renderNamesList();
+    saveState();
+    return;
+  }
+
+  if(p.isLeader){
+    if(leaderSwapNum === null){ leaderSwapNum = num; }
+    else if(leaderSwapNum === num){ leaderSwapNum = null; }
+    else {
+      const otherP = participants.find(pp=>pp.num===leaderSwapNum);
+      if(otherP && otherP.isLeader){ swapLeaders(otherP.num, num); }
+      leaderSwapNum = null;
+    }
+    renderNamesList();
+    saveState();
+  } else if(p.team === null){
+    if(leaderSwapNum !== null){
+      replaceLeader(leaderSwapNum, num);
+      leaderSwapNum = null;
+    } else {
+      assignPick(num);
+    }
+  }
+});
+namesList.addEventListener('dragover', (e)=>{ if(dragNum!==null) e.preventDefault(); });
+namesList.addEventListener('drop', (e)=>{
+  e.preventDefault();
+  const num = dragNum!==null ? dragNum : +e.dataTransfer.getData('text/plain');
+  if(num){ removeToPool(num); dragNum=null; updateDragHint(); }
+});
 
 function performFullRedraw(){
   participants.forEach(p=>{p.team=null; p.isLeader=false;});
@@ -410,6 +402,7 @@ function performFullRedraw(){
     const j = Math.floor(Math.random()*(i+1));
     [shuffled[i],shuffled[j]] = [shuffled[j],shuffled[i]];
   }
+  TEAM_COUNT = shuffled.length;
   teams = shuffled.map(num=>({leaderNum:num, members:[num]}));
   shuffled.forEach((num,idx)=>{
     const p = participants.find(pp=>pp.num===num);
@@ -422,29 +415,46 @@ function performFullRedraw(){
   pickPointer = 0;
   champion = null;
   draftStarted = true;
-  bracket = {format:null, knockout:null, league:null};
+  dragNum = null; leaderSwapNum = null;
 
   document.getElementById('draftCard').style.display = 'block';
-  updateBracketVisibility();
-  refreshBracketNote();
-  renderLeaderPool();
+  renderNamesList();
   renderChampionSelect();
   renderDraftBoard();
-  renderBracketArea();
-  document.querySelectorAll('input[name="fmt"]').forEach(r=>r.checked=false);
+  updateDragHint();
   saveState();
 }
-
 drawBtn.addEventListener('click', ()=>{
-  if(leaderSelection.length !== TEAM_COUNT) return;
+  if(leaderSelection.length !== leaderCountWanted) return;
   if(draftStarted && !confirm('با قرعه‌کشی دوباره، تیم‌بندی فعلی پاک می‌شه و از اول شروع می‌شه. اسم و یوزر آیدی‌های ثبت‌شده دست نمی‌خوره. ادامه بدم؟')) return;
   performFullRedraw();
   document.getElementById('draftCard').scrollIntoView({behavior:'smooth', block:'start'});
 });
 
+function swapLeaders(numA, numB){
+  const pA = participants.find(p=>p.num===numA);
+  const pB = participants.find(p=>p.num===numB);
+  const tA = pA.team, tB = pB.team;
+  pA.team = tB; pB.team = tA;
+  teams[tA].leaderNum = numB; teams[tA].members[0] = numB;
+  teams[tB].leaderNum = numA; teams[tB].members[0] = numA;
+  renderDraftBoard();
+}
+function replaceLeader(oldNum, newNum){
+  const oldP = participants.find(p=>p.num===oldNum);
+  const newP = participants.find(p=>p.num===newNum);
+  if(!oldP || !newP) return;
+  const t = oldP.team;
+  oldP.team = null; oldP.isLeader = false;
+  newP.team = t; newP.isLeader = true;
+  teams[t].leaderNum = newNum; teams[t].members[0] = newNum;
+  renderDraftBoard();
+  renderNamesList();
+  saveState();
+}
+
 // ---------- draft board ----------
 const teamsGrid = document.getElementById('teamsGrid');
-const poolList = document.getElementById('poolList');
 const turnBanner = document.getElementById('turnBanner');
 const turnWho = document.getElementById('turnWho');
 const turnRound = document.getElementById('turnRound');
@@ -454,13 +464,11 @@ function currentTeamIndex(){
   if(pickPointer >= pickOrder.length) return null;
   return pickOrder[pickPointer];
 }
-
 function renderChampionSelect(){
   championSelect.innerHTML = '<option value="">-- بعد از بازی‌ها انتخاب کن --</option>';
   teams.forEach((t,idx)=>{
     const opt = document.createElement('option');
-    opt.value = idx;
-    opt.textContent = teamName(idx);
+    opt.value = idx; opt.textContent = teamName(idx);
     if(champion===idx) opt.selected = true;
     championSelect.appendChild(opt);
   });
@@ -482,48 +490,31 @@ function renderDraftBoard(){
     for(let slot=0; slot<TEAM_SIZE; slot++){
       const num = team.members[slot];
       if(num === undefined){
-        rows += `<li class="empty-slot"><span class="slot">${slot+1}</span> در انتظار انتخاب...</li>`;
+        rows += `<li class="empty-slot" data-team="${idx}"><span class="slot">${slot+1}</span> در انتظار انتخاب...</li>`;
       } else {
         const p = participants.find(pp=>pp.num===num);
         const isLeader = slot===0;
-        const actionBtn = isLeader
-          ? `<button class="rm-btn edit" data-changeleader="${idx}" title="تغییر لیدر">✎</button>`
-          : `<button class="rm-btn" data-team="${idx}" data-num="${num}" title="حذف">×</button>`;
-        rows += `<li class="${isLeader?'leader-line':''}">
-          <span class="slot">${slot+1}</span>
-          <span class="name">${isLeader?'<span class="badge">لیدر</span>':''}${p.name}</span>
-          <span class="pid">${p.pid || ''}</span>
-          ${actionBtn}
-        </li>`;
+        if(isLeader){
+          rows += `<li class="leader-line" data-team="${idx}">
+            <span class="slot">${slot+1}</span>
+            <span class="name"><span class="badge">لیدر</span>${p.name}</span>
+            <span class="pid">${p.pid || ''}</span>
+          </li>`;
+        } else {
+          rows += `<li class="${dragNum===num?'selected':''}" draggable="true" data-num="${num}" data-team="${idx}">
+            <span class="slot">${slot+1}</span>
+            <span class="name">${p.name}</span>
+            <span class="pid">${p.pid || ''}</span>
+          </li>`;
+        }
       }
     }
     card.innerHTML = `<div class="th"><span>${champion===idx?'<span class="trophy">🏆</span>':''}${teamName(idx)}</span><span>${team.members.length}/${TEAM_SIZE}</span></div><ul>${rows}</ul>`;
     teamsGrid.appendChild(card);
   });
 
-  teamsGrid.querySelectorAll('[data-team]').forEach(btn=>{
-    btn.addEventListener('click', ()=> removeMember(+btn.dataset.team, +btn.dataset.num));
-  });
-  teamsGrid.querySelectorAll('[data-changeleader]').forEach(btn=>{
-    btn.addEventListener('click', ()=> openLeaderModal(+btn.dataset.changeleader));
-  });
-
-  const pool = participants.filter(p=>p.name && p.team===null);
-  poolList.innerHTML = '';
-  if(pool.length === 0){
-    poolList.innerHTML = '<div class="pool-empty">بازیکن باقی‌مانده‌ای نیست</div>';
-  } else {
-    pool.forEach(p=>{
-      const item = document.createElement('div');
-      item.className = 'pool-item';
-      item.innerHTML = `<span class="pname">${p.name}</span>`;
-      item.addEventListener('click', ()=>assignPick(p.num));
-      poolList.appendChild(item);
-    });
-  }
-
   const ct = currentTeamIndex();
-  if(ct === null || pool.length === 0){
+  if(ct === null){
     turnBanner.classList.add('done');
     turnWho.innerHTML = 'درفت به پایان رسید ✔';
     turnRound.textContent = '';
@@ -544,94 +535,96 @@ function assignPick(num){
   teams[ct].members.push(num);
   pickPointer++;
   renderDraftBoard();
+  renderNamesList();
   saveState();
 }
-
-function removeMember(teamIdx, num){
+function removeToPool(num){
   const p = participants.find(pp=>pp.num===num);
   if(!p || p.isLeader) return;
+  if(p.team !== null) teams[p.team].members = teams[p.team].members.filter(n=>n!==num);
   p.team = null;
-  teams[teamIdx].members = teams[teamIdx].members.filter(n=>n!==num);
-  pickPointer = Math.max(0, pickPointer - 1);
   renderDraftBoard();
+  renderNamesList();
+  saveState();
+}
+function handleDropOnTeams(li, num){
+  const p = participants.find(pp=>pp.num===num);
+  if(!p || p.isLeader) return;
+  if(li.classList.contains('empty-slot')){
+    const targetTeam = +li.dataset.team;
+    if(p.team === targetTeam) return;
+    if(p.team !== null) teams[p.team].members = teams[p.team].members.filter(n=>n!==num);
+    p.team = targetTeam;
+    teams[targetTeam].members.push(num);
+  } else if(li.dataset.num){
+    const targetNum = +li.dataset.num;
+    if(targetNum === num) return;
+    const targetP = participants.find(pp=>pp.num===targetNum);
+    if(!targetP || targetP.isLeader) return;
+    const tA = p.team, tB = targetP.team;
+    if(tA!==null) teams[tA].members = teams[tA].members.map(n=> n===num ? targetNum : n);
+    if(tB!==null) teams[tB].members = teams[tB].members.map(n=> n===targetNum ? num : n);
+    p.team = tB; targetP.team = tA;
+  }
+  renderDraftBoard();
+  renderNamesList();
   saveState();
 }
 
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  if(!confirm('کل درفت، لیدرها و جدول مسابقات پاک بشه؟ اسم و یوزر آیدی‌های ثبت‌شده باقی می‌مونن.')) return;
-  participants.forEach(p=>{p.team=null; p.isLeader=false;});
-  leaderSelection = [];
-  teams = []; pickOrder = []; pickPointer = 0; champion = null; draftStarted = false;
-  bracket = {format:null, knockout:null, league:null};
-  document.getElementById('draftCard').style.display = 'none';
-  updateBracketVisibility();
-  renderLeaderPool();
-  saveState();
+teamsGrid.addEventListener('dragstart', (e)=>{
+  const li = e.target.closest('li[data-num]');
+  if(!li){ e.preventDefault(); return; }
+  dragNum = +li.dataset.num;
+  e.dataTransfer.setData('text/plain', String(dragNum));
+  updateDragHint();
+});
+teamsGrid.addEventListener('dragend', ()=>{
+  setTimeout(()=>{ dragNum = null; updateDragHint(); renderDraftBoard(); }, 50);
+});
+teamsGrid.addEventListener('dragover', (e)=>{ if(e.target.closest('li')) e.preventDefault(); });
+teamsGrid.addEventListener('drop', (e)=>{
+  e.preventDefault();
+  const li = e.target.closest('li');
+  if(!li) return;
+  const num = dragNum!==null ? dragNum : +e.dataTransfer.getData('text/plain');
+  dragNum = null;
+  updateDragHint();
+  if(num) handleDropOnTeams(li, num);
+});
+teamsGrid.addEventListener('click', (e)=>{
+  const li = e.target.closest('li');
+  if(!li || li.classList.contains('leader-line')) return;
+  if(dragNum === null){
+    if(li.dataset.num){
+      dragNum = +li.dataset.num;
+      updateDragHint();
+      renderDraftBoard();
+    }
+  } else {
+    if(li.dataset.num && +li.dataset.num === dragNum){
+      dragNum = null;
+      updateDragHint();
+      renderDraftBoard();
+    } else {
+      const n = dragNum;
+      dragNum = null;
+      updateDragHint();
+      handleDropOnTeams(li, n);
+    }
+  }
 });
 
-// ---------- leader change modal ----------
-const modalOverlay = document.getElementById('modalOverlay');
-const modalBox = document.getElementById('modalBox');
-function closeModal(){ modalOverlay.style.display = 'none'; }
-
-function openLeaderModal(teamIdx){
-  modalBox.innerHTML = `
-    <h3>تغییر لیدر ${teamName(teamIdx)}</h3>
-    <p class="hint" style="margin-bottom:10px;">می‌خوای قرعه‌کشی جدید برای کل تیم‌ها انجام بشه یا فقط لیدر همین تیم عوض بشه؟</p>
-    <div class="modal-actions">
-      <button class="btn ghost small" id="modalCancel">انصراف</button>
-      <button class="btn small" id="modalSwapOnly">فقط این لیدر عوض بشه</button>
-      <button class="btn small" id="modalFullRedraw">قرعه‌کشی جدید کل تیم‌ها</button>
-    </div>
-  `;
-  modalOverlay.style.display = 'flex';
-  document.getElementById('modalCancel').onclick = closeModal;
-  document.getElementById('modalFullRedraw').onclick = ()=>{
-    closeModal();
-    if(!confirm('با قرعه‌کشی جدید، تیم‌بندی فعلی پاک می‌شه و از اول شروع می‌شه. ادامه بدم؟')) return;
-    performFullRedraw();
-  };
-  document.getElementById('modalSwapOnly').onclick = ()=> showSwapSelect(teamIdx);
-}
-
-function showSwapSelect(teamIdx){
-  const candidates = participants.filter(p=>p.name && p.team===null);
-  if(candidates.length===0){
-    modalBox.innerHTML = `
-      <h3>تغییر لیدر ${teamName(teamIdx)}</h3>
-      <p class="hint">فعلاً کسی توی لیست بازیکنان آزاد نیست که جایگزین بشه.</p>
-      <div class="modal-actions"><button class="btn ghost small" id="modalCancel2">بستن</button></div>
-    `;
-    document.getElementById('modalCancel2').onclick = closeModal;
-    return;
-  }
-  modalBox.innerHTML = `
-    <h3>انتخاب لیدر جدید برای ${teamName(teamIdx)}</h3>
-    <select id="swapSelect">${candidates.map(p=>`<option value="${p.num}">${p.name}</option>`).join('')}</select>
-    <div class="modal-actions">
-      <button class="btn ghost small" id="modalCancel3">انصراف</button>
-      <button class="btn small" id="modalConfirmSwap">تایید تغییر</button>
-    </div>
-  `;
-  document.getElementById('modalCancel3').onclick = closeModal;
-  document.getElementById('modalConfirmSwap').onclick = ()=>{
-    swapLeader(teamIdx, +document.getElementById('swapSelect').value);
-    closeModal();
-  };
-}
-
-function swapLeader(teamIdx, newNum){
-  const oldNum = teams[teamIdx].leaderNum;
-  const oldP = participants.find(p=>p.num===oldNum);
-  const newP = participants.find(p=>p.num===newNum);
-  if(!newP) return;
-  if(oldP){ oldP.team = null; oldP.isLeader = false; }
-  newP.team = teamIdx; newP.isLeader = true;
-  teams[teamIdx].leaderNum = newNum;
-  teams[teamIdx].members[0] = newNum;
-  renderDraftBoard();
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('کل درفت و لیدرها پاک بشه؟ اسم و یوزر آیدی‌های ثبت‌شده باقی می‌مونن.')) return;
+  participants.forEach(p=>{p.team=null; p.isLeader=false;});
+  leaderSelection = [];
+  teams = []; pickOrder = []; pickPointer = 0; champion = null; draftStarted = false; TEAM_COUNT = 0;
+  dragNum = null; leaderSwapNum = null;
+  document.getElementById('draftCard').style.display = 'none';
+  renderNamesList();
+  updateDragHint();
   saveState();
-}
+});
 
 // ---------- PDF (print) ----------
 function buildPrintArea(){
@@ -654,200 +647,6 @@ function buildPrintArea(){
   `;
 }
 document.getElementById('pdfBtn').addEventListener('click', ()=>{ buildPrintArea(); window.print(); });
-
-// ---------- bracket / league ----------
-function nextPow2(n){ let p=1; while(p<n) p*=2; return p; }
-
-function generateKnockout(){
-  const n = TEAM_COUNT;
-  const size = nextPow2(n);
-  let slots = Array.from({length:n},(_,i)=>i);
-  while(slots.length<size) slots.push(null);
-  const rounds = [];
-  const round0 = [];
-  for(let i=0;i<size/2;i++) round0.push({a:slots[2*i], b:slots[2*i+1], scoreA:null, scoreB:null, winner:null});
-  rounds.push(round0);
-  let count = size/2;
-  while(count>1){
-    count = count/2;
-    const r = [];
-    for(let i=0;i<count;i++) r.push({a:null,b:null,scoreA:null,scoreB:null,winner:null});
-    rounds.push(r);
-  }
-  bracket.knockout = {rounds};
-  recalcKnockout();
-}
-
-function recalcKnockout(){
-  const rounds = bracket.knockout.rounds;
-  for(let r=0;r<rounds.length;r++){
-    rounds[r].forEach(m=>{
-      let winner = null;
-      if(m.a!==null && m.b===null) winner = m.a;
-      else if(m.b!==null && m.a===null) winner = m.b;
-      else if(m.a!==null && m.b!==null && m.scoreA!==null && m.scoreB!==null && m.scoreA!=='' && m.scoreB!=='' && +m.scoreA !== +m.scoreB){
-        winner = (+m.scoreA > +m.scoreB) ? m.a : m.b;
-      }
-      m.winner = winner;
-    });
-    if(r+1 < rounds.length){
-      rounds[r].forEach((m,i)=>{
-        const next = rounds[r+1][Math.floor(i/2)];
-        if(i%2===0) next.a = m.winner; else next.b = m.winner;
-      });
-    }
-  }
-  const finalMatch = rounds[rounds.length-1][0];
-  if(finalMatch.winner !== null) champion = finalMatch.winner;
-}
-
-function onKnockoutScoreChange(r,i,side,val){
-  bracket.knockout.rounds[r][i][side] = val;
-  recalcKnockout();
-  renderBracketArea();
-  renderChampionSelect();
-  renderDraftBoard();
-  saveState();
-}
-
-function renderKnockout(){
-  const rounds = bracket.knockout.rounds;
-  let html = '<div class="bracket-rounds">';
-  rounds.forEach((round,r)=>{
-    const isFirst = r===0;
-    const isFinal = r===rounds.length-1;
-    html += `<div class="bracket-col"><div class="bracket-col-title">${isFinal?'فینال':'دور '+(r+1)}</div>`;
-    round.forEach((m,i)=>{
-      const aLabel = m.a===null ? (isFirst?'استراحت':'در انتظار برنده...') : teamName(m.a);
-      const bLabel = m.b===null ? (isFirst?'استراحت':'در انتظار برنده...') : teamName(m.b);
-      const disabled = (m.a===null || m.b===null) ? 'disabled' : '';
-      html += `<div class="match-card">
-        <div class="match-row ${(m.winner!==null && m.winner===m.a)?'win':''}"><span>${aLabel}</span><input type="number" min="0" ${disabled} value="${m.scoreA??''}" data-r="${r}" data-i="${i}" data-side="scoreA" class="score-input"></div>
-        <div class="match-row ${(m.winner!==null && m.winner===m.b)?'win':''}"><span>${bLabel}</span><input type="number" min="0" ${disabled} value="${m.scoreB??''}" data-r="${r}" data-i="${i}" data-side="scoreB" class="score-input"></div>
-      </div>`;
-    });
-    html += '</div>';
-  });
-  html += '</div>';
-  document.getElementById('bracketArea').innerHTML = html;
-  document.querySelectorAll('#bracketArea .score-input').forEach(inp=>{
-    inp.addEventListener('input', ()=> onKnockoutScoreChange(+inp.dataset.r, +inp.dataset.i, inp.dataset.side, inp.value===''?null:inp.value));
-  });
-}
-
-function generateLeague(){
-  const matches = [];
-  for(let i=0;i<TEAM_COUNT;i++) for(let j=i+1;j<TEAM_COUNT;j++) matches.push({a:i,b:j,scoreA:null,scoreB:null});
-  bracket.league = {matches, finalScores:{}};
-}
-
-function computeStandings(){
-  const stats = teams.map((_,idx)=>({idx,played:0,wins:0,draws:0,losses:0,points:0,roundWins:0}));
-  bracket.league.matches.forEach(m=>{
-    if(m.scoreA===null||m.scoreB===null||m.scoreA===''||m.scoreB==='') return;
-    const sa=+m.scoreA, sb=+m.scoreB;
-    const A=stats[m.a], B=stats[m.b];
-    A.played++; B.played++; A.roundWins+=sa; B.roundWins+=sb;
-    if(sa>sb){A.wins++;B.losses++;A.points+=3;}
-    else if(sb>sa){B.wins++;A.losses++;B.points+=3;}
-    else {A.draws++;B.draws++;A.points+=1;B.points+=1;}
-  });
-  stats.sort((x,y)=> y.points-x.points || y.roundWins-x.roundWins);
-  return stats;
-}
-
-function updateChampionFromLeague(){
-  const stats = computeStandings();
-  if(stats.length<2) return;
-  const f0=stats[0].idx, f1=stats[1].idx;
-  const minIdx=Math.min(f0,f1), maxIdx=Math.max(f0,f1);
-  const key = minIdx+'-'+maxIdx;
-  const fs = bracket.league.finalScores[key];
-  if(fs && fs.scoreA!==null && fs.scoreB!==null && fs.scoreA!=='' && fs.scoreB!=='' && +fs.scoreA !== +fs.scoreB){
-    champion = (+fs.scoreA > +fs.scoreB) ? minIdx : maxIdx;
-  }
-}
-
-function onLeagueScoreChange(idx,side,val){
-  bracket.league.matches[idx][side] = val;
-  updateChampionFromLeague();
-  renderBracketArea();
-  renderChampionSelect();
-  renderDraftBoard();
-  saveState();
-}
-function onFinalScoreChange(minIdx,maxIdx,side,val){
-  const key = minIdx+'-'+maxIdx;
-  if(!bracket.league.finalScores[key]) bracket.league.finalScores[key] = {scoreA:null,scoreB:null};
-  bracket.league.finalScores[key][side] = val;
-  updateChampionFromLeague();
-  renderBracketArea();
-  renderChampionSelect();
-  renderDraftBoard();
-  saveState();
-}
-
-function renderLeague(){
-  let html = '<div class="league-matches">';
-  bracket.league.matches.forEach((m,idx)=>{
-    html += `<div class="match-card">
-      <div class="match-row"><span>${teamName(m.a)}</span><input type="number" min="0" value="${m.scoreA??''}" data-idx="${idx}" data-side="scoreA" class="score-input league-score"></div>
-      <div class="match-row"><span>${teamName(m.b)}</span><input type="number" min="0" value="${m.scoreB??''}" data-idx="${idx}" data-side="scoreB" class="score-input league-score"></div>
-    </div>`;
-  });
-  html += '</div>';
-
-  const stats = computeStandings();
-  html += `<h3 class="tbl-title">جدول رده‌بندی</h3><table class="standings"><thead><tr><th>تیم</th><th>بازی</th><th>برد</th><th>مساوی</th><th>باخت</th><th>راند برد</th><th>امتیاز</th></tr></thead><tbody>`;
-  stats.forEach(s=>{
-    html += `<tr><td>${teamName(s.idx)}</td><td>${s.played}</td><td>${s.wins}</td><td>${s.draws}</td><td>${s.losses}</td><td>${s.roundWins}</td><td>${s.points}</td></tr>`;
-  });
-  html += `</tbody></table>`;
-
-  if(stats.length>=2){
-    const f0=stats[0].idx, f1=stats[1].idx;
-    const minIdx=Math.min(f0,f1), maxIdx=Math.max(f0,f1);
-    const key = minIdx+'-'+maxIdx;
-    const fs = bracket.league.finalScores[key] || {scoreA:null,scoreB:null};
-    html += `<h3 class="tbl-title">🏆 فینال: ${teamName(f0)} در برابر ${teamName(f1)}</h3>
-    <div class="match-card final-card">
-      <div class="match-row"><span>${teamName(minIdx)}</span><input type="number" min="0" value="${fs.scoreA??''}" data-final="1" data-min="${minIdx}" data-max="${maxIdx}" data-side="scoreA" class="score-input"></div>
-      <div class="match-row"><span>${teamName(maxIdx)}</span><input type="number" min="0" value="${fs.scoreB??''}" data-final="1" data-min="${minIdx}" data-max="${maxIdx}" data-side="scoreB" class="score-input"></div>
-    </div>
-    <p class="hint">فینالیست‌ها بر اساس نتایج ثبت‌شده تا این لحظه محاسبه شدن و ممکنه با ورود نتایج بیشتر تغییر کنن.</p>`;
-  }
-
-  document.getElementById('bracketArea').innerHTML = html;
-  document.querySelectorAll('.league-score').forEach(inp=>{
-    inp.addEventListener('input', ()=> onLeagueScoreChange(+inp.dataset.idx, inp.dataset.side, inp.value===''?null:inp.value));
-  });
-  document.querySelectorAll('[data-final="1"]').forEach(inp=>{
-    inp.addEventListener('input', ()=> onFinalScoreChange(+inp.dataset.min, +inp.dataset.max, inp.dataset.side, inp.value===''?null:inp.value));
-  });
-}
-
-function renderBracketArea(){
-  const area = document.getElementById('bracketArea');
-  if(!area) return;
-  document.querySelectorAll('input[name="fmt"]').forEach(r=>{ r.checked = (r.value===bracket.format); });
-  if(bracket.format==='knockout' && bracket.knockout) renderKnockout();
-  else if(bracket.format==='league' && bracket.league) renderLeague();
-  else area.innerHTML = '<p class="empty-note">نوع مسابقات رو انتخاب کن و دکمه‌ی ایجاد جدول رو بزن.</p>';
-}
-
-document.getElementById('buildBracketBtn').addEventListener('click', ()=>{
-  const sel = document.querySelector('input[name="fmt"]:checked');
-  if(!sel){ alert('اول نوع مسابقات رو انتخاب کن.'); return; }
-  const hasExisting = bracket.knockout || bracket.league;
-  if(hasExisting && !confirm('با ساخت جدول جدید، نتایج قبلی این بخش پاک می‌شن. ادامه بدم؟')) return;
-  bracket.format = sel.value;
-  if(sel.value==='knockout'){ bracket.league=null; generateKnockout(); }
-  else { bracket.knockout=null; generateLeague(); }
-  renderBracketArea();
-  renderChampionSelect();
-  renderDraftBoard();
-  saveState();
-});
 
 // ---------- history ----------
 const historyList = document.getElementById('historyList');
@@ -931,17 +730,14 @@ document.getElementById('importHistInput').addEventListener('change', (e)=>{
 // ---------- init ----------
 const restored = loadState();
 if(!restored){ buildParticipants(); }
-teamCountInput.value = TEAM_COUNT;
-updateCalcNote();
+leaderCountInput.value = leaderCountWanted;
 buildRegistration();
-renderLeaderPool();
-refreshBracketNote();
-updateBracketVisibility();
+renderNamesList();
+updateDragHint();
 if(draftStarted){
   document.getElementById('draftCard').style.display = 'block';
   renderChampionSelect();
   renderDraftBoard();
-  renderBracketArea();
 }
 loadHistory();
 renderHistory();
