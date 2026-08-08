@@ -131,7 +131,18 @@
     #printArea .pteam h3{margin:0 0 6px; font-size:14px;}
     #printArea .pteam ul{margin:0; padding:0 18px 0 0; font-size:12.5px; line-height:1.7;}
   }
+
+  #imageArea{position:absolute; left:-9999px; top:0; width:900px; background:var(--bg); padding:30px; font-family:'Vazirmatn',Tahoma,sans-serif; color:var(--text); direction:rtl;}
+  #imageArea h1{font-family:'Oswald'; color:var(--orange-bright); margin:0 0 4px; font-size:26px; text-transform:uppercase;}
+  #imageArea .idate{color:var(--muted); font-size:14px; margin-bottom:20px;}
+  #imageArea .iteams{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  #imageArea .iteam{background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:14px; border-top:4px solid var(--tc,var(--orange));}
+  #imageArea .iteam.champ{border-color:var(--gold); box-shadow:0 0 0 2px var(--gold);}
+  #imageArea .iteam h3{margin:0 0 8px; font-family:'Oswald'; font-size:16px;}
+  #imageArea .iteam ul{list-style:none; margin:0; padding:0; font-size:13px; line-height:1.9;}
+  #imageArea .iteam li.leader{font-weight:700;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -193,6 +204,7 @@
 
     <div class="actions">
       <button class="btn gold small" id="pdfBtn">دانلود PDF این هفته</button>
+      <button class="btn gold small" id="jpegBtn">دانلود عکس (JPEG)</button>
       <button class="btn ghost small" id="resetBtn">شروع مجدد کامل</button>
     </div>
   </div>
@@ -215,6 +227,7 @@
 </div>
 
 <div id="printArea"></div>
+<div id="imageArea"></div>
 
 <script>
 const PALETTE = ['#de9b35','#4a90d9','#d9524a','#4ad98a','#b24ad9','#3fd0d9','#e0c23c','#e0729c','#7d8a99','#8a5a2c'];
@@ -229,7 +242,6 @@ let leaderSelection = [];
 let draftStarted = false;
 let teams = [];
 let pickOrder = [];
-let pickPointer = 0;
 let champion = null;
 let TEAM_COUNT = 0;
 let history = [];
@@ -246,7 +258,7 @@ function buildParticipants(){
 
 // ---------- persistence ----------
 function saveState(){
-  const state = {participants, leaderCountWanted, leaderSelection, draftStarted, teams, pickOrder, pickPointer, champion, TEAM_COUNT};
+  const state = {participants, leaderCountWanted, leaderSelection, draftStarted, teams, pickOrder, champion, TEAM_COUNT};
   try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){}
 }
 function loadState(){
@@ -261,7 +273,6 @@ function loadState(){
     draftStarted = !!s.draftStarted;
     teams = s.teams || [];
     pickOrder = s.pickOrder || [];
-    pickPointer = s.pickPointer || 0;
     champion = (s.champion===undefined) ? null : s.champion;
     TEAM_COUNT = s.TEAM_COUNT || 0;
     return true;
@@ -409,7 +420,6 @@ function performFullRedraw(){
   const reverse = [...forward].reverse();
   pickOrder = [];
   for(let r=2; r<=TEAM_SIZE; r++) pickOrder.push(...(r % 2 === 0 ? forward : reverse));
-  pickPointer = 0;
   champion = null;
   draftStarted = true;
   dragNum = null; leaderSwapNum = null;
@@ -513,9 +523,20 @@ const turnWho = document.getElementById('turnWho');
 const turnRound = document.getElementById('turnRound');
 const championSelect = document.getElementById('championSelect');
 
+function computeTurnInfo(){
+  if(!pickOrder.length || !teams.length) return null;
+  const neededCounts = new Array(TEAM_COUNT).fill(0);
+  for(let i=0;i<pickOrder.length;i++){
+    const t = pickOrder[i];
+    neededCounts[t]++;
+    const actual = teams[t].members.length - 1; // exclude leader
+    if(actual < neededCounts[t]) return {team:t, round: neededCounts[t]+1};
+  }
+  return null;
+}
 function currentTeamIndex(){
-  if(pickPointer >= pickOrder.length) return null;
-  return pickOrder[pickPointer];
+  const info = computeTurnInfo();
+  return info ? info.team : null;
 }
 function renderChampionSelect(){
   championSelect.innerHTML = '<option value="">-- بعد از بازی‌ها انتخاب کن --</option>';
@@ -566,16 +587,15 @@ function renderDraftBoard(){
     teamsGrid.appendChild(card);
   });
 
-  const ct = currentTeamIndex();
-  if(ct === null){
+  const info = computeTurnInfo();
+  if(info === null){
     turnBanner.classList.add('done');
     turnWho.innerHTML = 'درفت به پایان رسید ✔';
     turnRound.textContent = '';
   } else {
     turnBanner.classList.remove('done');
-    const round = Math.floor(pickPointer / TEAM_COUNT) + 2;
-    turnWho.innerHTML = `<span class="dot" style="background:${colorFor(ct)}; color:${colorFor(ct)}"></span> نوبت انتخاب: ${teamName(ct)}`;
-    turnRound.textContent = `دور ${round} از ${TEAM_SIZE}`;
+    turnWho.innerHTML = `<span class="dot" style="background:${colorFor(info.team)}; color:${colorFor(info.team)}"></span> نوبت انتخاب: ${teamName(info.team)}`;
+    turnRound.textContent = `دور ${info.round} از ${TEAM_SIZE}`;
   }
 }
 
@@ -586,7 +606,6 @@ function assignPick(num){
   if(!p || p.team !== null) return;
   p.team = ct;
   teams[ct].members.push(num);
-  pickPointer++;
   renderDraftBoard();
   renderTeamPoolList();
   saveState();
@@ -672,7 +691,7 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
   buildParticipants();
   leaderCountWanted = 6;
   leaderSelection = [];
-  teams = []; pickOrder = []; pickPointer = 0; champion = null; draftStarted = false; TEAM_COUNT = 0;
+  teams = []; pickOrder = []; champion = null; draftStarted = false; TEAM_COUNT = 0;
   dragNum = null; leaderSwapNum = null;
   document.getElementById('draftCard').style.display = 'none';
   leaderCountInput.value = leaderCountWanted;
@@ -703,6 +722,42 @@ function buildPrintArea(){
   `;
 }
 document.getElementById('pdfBtn').addEventListener('click', ()=>{ buildPrintArea(); window.print(); });
+
+// ---------- JPEG image export ----------
+function buildImageArea(){
+  const dateStr = new Date().toLocaleDateString('fa-IR', {year:'numeric', month:'long', day:'numeric'});
+  let teamsHtml = '';
+  teams.forEach((team, idx)=>{
+    const isChamp = champion===idx;
+    const color = colorFor(idx);
+    let membersHtml = '';
+    team.members.forEach((num,slot)=>{
+      const p = participants.find(pp=>pp.num===num);
+      membersHtml += `<li class="${slot===0?'leader':''}">${slot===0?'🏳 ':''}${p.name}${p.pid?' — '+p.pid:''}</li>`;
+    });
+    teamsHtml += `<div class="iteam${isChamp?' champ':''}" style="--tc:${color}"><h3 style="color:${color}">${isChamp?'🏆 ':''}${teamName(idx)}</h3><ul>${membersHtml}</ul></div>`;
+  });
+  document.getElementById('imageArea').innerHTML = `
+    <h1>مسابقات کانتر استرایک کارن</h1>
+    <div class="idate">کارن گیم سنتر — ${dateStr}</div>
+    <div class="iteams">${teamsHtml}</div>
+  `;
+}
+document.getElementById('jpegBtn').addEventListener('click', async ()=>{
+  if(typeof html2canvas === 'undefined'){ alert('کتابخونه‌ی ساخت عکس لود نشده؛ اتصال اینترنت رو چک کن.'); return; }
+  buildImageArea();
+  try{
+    const el = document.getElementById('imageArea');
+    const canvas = await html2canvas(el, {backgroundColor:'#0b0d0f', scale:2});
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = 'karen-cs2-teams.jpg';
+    a.click();
+  }catch(err){
+    alert('مشکلی توی ساخت عکس پیش اومد.');
+  }
+});
 
 // ---------- history ----------
 const historyList = document.getElementById('historyList');
