@@ -36,6 +36,10 @@
   .add-slot-btn{display:flex; align-items:center; justify-content:center; gap:8px; background:transparent; border:1.5px dashed var(--line); border-radius:6px; padding:10px; color:var(--muted); font-family:'Oswald'; font-size:13px; cursor:pointer; transition:.15s;}
   .add-slot-btn:hover{border-color:var(--orange); color:var(--orange-bright);}
   .add-slot-btn .plus{font-size:18px; line-height:1;}
+  .suggest-box{position:fixed; z-index:200; background:var(--panel-2); border:1px solid var(--orange); border-radius:6px; max-height:200px; overflow-y:auto; box-shadow:0 6px 18px rgba(0,0,0,.5);}
+  .suggest-item{display:flex; justify-content:space-between; gap:10px; padding:8px 12px; font-size:13px; cursor:pointer;}
+  .suggest-item:hover{background:var(--panel);}
+  .suggest-item .sid{color:var(--muted); font-size:11px; direction:ltr;}
 
   .names-toolbar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
   .names-toolbar label{font-size:13.5px;}
@@ -109,6 +113,7 @@
   .history-head .c{font-size:12.5px; color:var(--gold);}
   .history-head .del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 6px;}
   .history-head .del:hover{color:var(--danger);}
+  .history-head .chev{color:var(--muted); font-size:11px; transition:.15s;}
   .history-body{display:none; margin-top:10px; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; font-size:12.5px;}
   .history-body.open{display:grid;}
   .history-team{background:var(--panel); border-radius:6px; padding:8px 10px; border-right:3px solid var(--line);}
@@ -157,12 +162,15 @@
 
   <div class="card" id="regCard">
     <h2>ثبت شرکت‌کنندگان</h2>
-    <p class="hint">اسم و یوزر آیدی شرکت‌کننده‌ها رو وارد کن. اگه به اسلات بیشتر نیاز داشتی، از دکمه‌ی + استفاده کن.</p>
+    <p class="hint">اسم و یوزر آیدی شرکت‌کننده‌ها رو وارد کن. اگه به اسلات بیشتر نیاز داشتی، از دکمه‌ی + استفاده کن. هر اسمی که یه بار وارد کنی برای دفعات بعد ذخیره می‌مونه و موقع تایپ حرف اول، به‌عنوان پیشنهاد نشون داده می‌شه.</p>
     <div class="reg-grid" id="regGrid"></div>
-    <div style="margin-top:10px;">
-      <button class="add-slot-btn" id="addSlotBtn" style="width:100%;"><span class="plus">+</span> افزودن اسلات</button>
+    <div class="actions" style="margin-top:10px;">
+      <button class="add-slot-btn" id="addSlotBtn" style="flex:1;"><span class="plus">+</span> افزودن اسلات</button>
+      <button class="btn ghost small" id="clearNamesBtn">پاک کردن همه‌ی اسامی</button>
     </div>
   </div>
+
+  <div class="suggest-box" id="suggestBox" style="display:none;"></div>
 
   <div class="card" id="leaderCard">
     <h2>قرعه‌کشی لیدرها</h2>
@@ -235,6 +243,9 @@ const TEAM_SIZE = 5;
 const DEFAULT_SLOTS = 20;
 const HISTORY_KEY = 'karen_cs2_history_v1';
 const STATE_KEY = 'karen_cs2_state_v3';
+const PLAYERS_DB_KEY = 'karen_cs2_players_db_v1';
+
+let playersDB = {}; // { name: pid } — remembered across weeks
 
 let participants = [];
 let leaderCountWanted = 6;
@@ -294,13 +305,86 @@ function buildRegistration(){
     regGrid.appendChild(row);
   });
 }
+// ---------- players DB (remembered names/IDs across weeks) ----------
+function loadPlayersDB(){
+  try{ playersDB = JSON.parse(localStorage.getItem(PLAYERS_DB_KEY)) || {}; }
+  catch(e){ playersDB = {}; }
+}
+function savePlayersDB(){
+  try{ localStorage.setItem(PLAYERS_DB_KEY, JSON.stringify(playersDB)); }catch(e){}
+}
+function upsertPlayer(name, pid){
+  if(!name) return;
+  if(pid) playersDB[name] = pid;
+  else if(!(name in playersDB)) playersDB[name] = '';
+  savePlayersDB();
+}
+
+const suggestBox = document.getElementById('suggestBox');
+let activeSuggestInput = null;
+
+function showSuggestions(inputEl){
+  const q = inputEl.value.trim();
+  if(!q){ hideSuggestions(); return; }
+  const matches = Object.keys(playersDB).filter(n => n.startsWith(q) && n !== q).slice(0, 8);
+  if(matches.length === 0){ hideSuggestions(); return; }
+  suggestBox.innerHTML = matches.map(n=>{
+    const safe = n.replace(/</g,'&lt;');
+    return `<div class="suggest-item" data-name="${safe}"><span>${safe}</span><span class="sid">${playersDB[n]||''}</span></div>`;
+  }).join('');
+  const rect = inputEl.getBoundingClientRect();
+  suggestBox.style.left = rect.left + 'px';
+  suggestBox.style.top = (rect.bottom + 4) + 'px';
+  suggestBox.style.width = rect.width + 'px';
+  suggestBox.style.display = 'block';
+  activeSuggestInput = inputEl;
+}
+function hideSuggestions(){
+  suggestBox.style.display = 'none';
+  activeSuggestInput = null;
+}
+suggestBox.addEventListener('mousedown', (e)=>{
+  const item = e.target.closest('.suggest-item');
+  if(!item || !activeSuggestInput) return;
+  const name = item.dataset.name;
+  const pid = playersDB[name] || '';
+  const num = +activeSuggestInput.dataset.num;
+  const p = participants[num - 1];
+  p.name = name; p.pid = pid;
+  const row = activeSuggestInput.closest('.reg-row');
+  activeSuggestInput.value = name;
+  const pidInput = row.querySelector('.id-input');
+  if(pidInput) pidInput.value = pid;
+  hideSuggestions();
+  renderLeaderNamesList();
+  if(draftStarted) renderTeamPoolList();
+  saveState();
+});
+document.addEventListener('click', (e)=>{
+  if(e.target !== activeSuggestInput && !suggestBox.contains(e.target)) hideSuggestions();
+});
+
 regGrid.addEventListener('input', (e)=>{
   const t = e.target;
   if(!t.dataset.num) return;
   const p = participants[+t.dataset.num - 1];
   p[t.dataset.field] = t.value.trim();
+  if(t.dataset.field === 'name') showSuggestions(t);
+  if(p.name) upsertPlayer(p.name, p.pid);
   renderLeaderNamesList();
   if(draftStarted) renderTeamPoolList();
+  saveState();
+});
+document.getElementById('clearNamesBtn').addEventListener('click', ()=>{
+  if(!confirm('همه‌ی اسم و یوزر آیدی‌های ثبت‌شده پاک بشن؟ (تعداد اسلات‌ها همین‌طور می‌مونه)')) return;
+  participants.forEach(p=>{ p.name=''; p.pid=''; p.team=null; p.isLeader=false; });
+  leaderSelection = [];
+  teams = []; pickOrder = []; champion = null; draftStarted = false; TEAM_COUNT = 0;
+  dragNum = null; leaderSwapNum = null;
+  document.getElementById('draftCard').style.display = 'none';
+  buildRegistration();
+  renderLeaderNamesList();
+  updateDragHint();
   saveState();
 });
 document.getElementById('addSlotBtn').addEventListener('click', ()=>{
@@ -784,12 +868,17 @@ function renderHistory(){
       bodyHtml += `<div class="history-team${isChamp?' champ':''}"><div class="tname">${isChamp?'🏆 ':''}${teamName(idx)}</div><ul style="margin:0;padding:0 16px 0 0;">${membersHtml}</ul></div>`;
     });
     item.innerHTML = `
-      <div class="history-head"><span class="d">${entry.date}</span><span class="c">🏆 ${champTeam}</span><button class="del" title="حذف">×</button></div>
+      <div class="history-head"><span class="chev">▾</span><span class="d">${entry.date}</span><span class="c">🏆 ${champTeam}</span><button class="del" title="حذف">×</button></div>
       <div class="history-body">${bodyHtml}</div>
     `;
     const head = item.querySelector('.history-head');
     const body = item.querySelector('.history-body');
-    head.addEventListener('click', (e)=>{ if(e.target.classList.contains('del')) return; body.classList.toggle('open'); });
+    const chev = item.querySelector('.chev');
+    head.addEventListener('click', (e)=>{
+      if(e.target.classList.contains('del')) return;
+      const isOpen = body.classList.toggle('open');
+      chev.textContent = isOpen ? '▴' : '▾';
+    });
     item.querySelector('.del').addEventListener('click', ()=>{
       if(!confirm('این هفته از تاریخچه حذف بشه؟')) return;
       history = history.filter(h=>h.id !== entry.id);
@@ -839,6 +928,7 @@ document.getElementById('importHistInput').addEventListener('change', (e)=>{
 });
 
 // ---------- init ----------
+loadPlayersDB();
 const restored = loadState();
 if(!restored){ buildParticipants(); }
 leaderCountInput.value = leaderCountWanted;
