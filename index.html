@@ -323,14 +323,24 @@ function upsertPlayer(name, pid){
 const suggestBox = document.getElementById('suggestBox');
 let activeSuggestInput = null;
 
-function showSuggestions(inputEl){
+function showSuggestions(inputEl, mode){
   const q = inputEl.value.trim();
   if(!q){ hideSuggestions(); return; }
-  const matches = Object.keys(playersDB).filter(n => n.startsWith(q) && n !== q).slice(0, 8);
+  let matches;
+  if(mode === 'pid'){
+    matches = Object.entries(playersDB)
+      .filter(([n,pid]) => pid && pid.startsWith(q) && pid !== q)
+      .slice(0, 8).map(([n,pid]) => ({name:n, pid}));
+  } else {
+    matches = Object.keys(playersDB)
+      .filter(n => n.startsWith(q) && n !== q)
+      .slice(0, 8).map(n => ({name:n, pid: playersDB[n]||''}));
+  }
   if(matches.length === 0){ hideSuggestions(); return; }
-  suggestBox.innerHTML = matches.map(n=>{
-    const safe = n.replace(/</g,'&lt;');
-    return `<div class="suggest-item" data-name="${safe}"><span>${safe}</span><span class="sid">${playersDB[n]||''}</span></div>`;
+  suggestBox.innerHTML = matches.map(m=>{
+    const safeName = m.name.replace(/</g,'&lt;');
+    const safePid = (m.pid||'').replace(/</g,'&lt;');
+    return `<div class="suggest-item" data-name="${safeName}" data-pid="${safePid}"><span>${safeName}</span><span class="sid">${safePid}</span></div>`;
   }).join('');
   const rect = inputEl.getBoundingClientRect();
   suggestBox.style.left = rect.left + 'px';
@@ -347,13 +357,14 @@ suggestBox.addEventListener('mousedown', (e)=>{
   const item = e.target.closest('.suggest-item');
   if(!item || !activeSuggestInput) return;
   const name = item.dataset.name;
-  const pid = playersDB[name] || '';
+  const pid = item.dataset.pid || '';
   const num = +activeSuggestInput.dataset.num;
   const p = participants[num - 1];
   p.name = name; p.pid = pid;
   const row = activeSuggestInput.closest('.reg-row');
-  activeSuggestInput.value = name;
+  const nameInput = row.querySelector('[data-field="name"]');
   const pidInput = row.querySelector('.id-input');
+  if(nameInput) nameInput.value = name;
   if(pidInput) pidInput.value = pid;
   hideSuggestions();
   renderLeaderNamesList();
@@ -369,7 +380,8 @@ regGrid.addEventListener('input', (e)=>{
   if(!t.dataset.num) return;
   const p = participants[+t.dataset.num - 1];
   p[t.dataset.field] = t.value.trim();
-  if(t.dataset.field === 'name') showSuggestions(t);
+  if(t.dataset.field === 'name') showSuggestions(t, 'name');
+  else if(t.dataset.field === 'pid') showSuggestions(t, 'pid');
   if(p.name) upsertPlayer(p.name, p.pid);
   renderLeaderNamesList();
   if(draftStarted) renderTeamPoolList();
