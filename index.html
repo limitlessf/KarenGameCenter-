@@ -430,11 +430,10 @@ function renderLeaderNamesList(){
 
   if(!draftStarted){
     leaderHint.textContent = `تعداد لیدر رو بالا مشخص کن، بعد روی اسم‌ها بزن تا به همون تعداد لیدر انتخاب بشه؛ در آخر دکمه‌ی قرعه‌کشی رو بزن.`;
-    leaderCountLabel.textContent = `${leaderSelection.length} از ${leaderCountWanted} نفر انتخاب شده`;
   } else {
-    leaderHint.textContent = `همه‌ی اسم‌ها این‌جا هستن. لیدرها با رنگ تیمشون و پرچم مشخصن — روی دو لیدر بزن تا جاشون عوض بشه، یا روی یه لیدر و بعد یه اسم آزاد بزن تا جایگزینش بشه. تغییر و چیدن بازیکن‌های عادی از کادر کنار تیم‌ها انجام می‌شه.`;
-    leaderCountLabel.textContent = '';
+    leaderHint.textContent = `لیدرها با رنگ تیمشون و پرچم مشخصن — روی دو لیدر بزن تا جاشون عوض بشه، یا روی یه لیدر و بعد یه اسم آزاد بزن تا جایگزینش بشه. برای اضافه‌کردن لیدر بیشتر، عدد بالا رو زیاد کن و روی اسم‌های آزاد بزن تا انتخاب بشن، بعد دوباره قرعه‌کشی کن.`;
   }
+  leaderCountLabel.textContent = `${leaderSelection.length} از ${leaderCountWanted} نفر انتخاب شده`;
   drawBtn.disabled = leaderSelection.length !== leaderCountWanted || leaderCountWanted < 2;
 
   leaderNamesList.innerHTML = '';
@@ -461,6 +460,9 @@ function renderLeaderNamesList(){
       chip.className += ' disabled';
       chip.textContent = p.name;
     } else {
+      const picked = leaderSelection.includes(p.num);
+      const atCap = leaderSelection.length >= leaderCountWanted && !picked;
+      chip.className += (picked?' picked':'') + (atCap?' cap-disabled':'');
       chip.textContent = p.name;
     }
     leaderNamesList.appendChild(chip);
@@ -493,9 +495,17 @@ leaderNamesList.addEventListener('click', (e)=>{
     }
     renderLeaderNamesList();
     saveState();
-  } else if(p.team === null && leaderSwapNum !== null){
-    replaceLeader(leaderSwapNum, num);
-    leaderSwapNum = null;
+  } else if(p.team === null){
+    if(leaderSwapNum !== null){
+      replaceLeader(leaderSwapNum, num);
+      leaderSwapNum = null;
+    } else {
+      const picked = leaderSelection.includes(num);
+      if(picked){ leaderSelection = leaderSelection.filter(n=>n!==num); }
+      else if(leaderSelection.length < leaderCountWanted){ leaderSelection.push(num); }
+      renderLeaderNamesList();
+      saveState();
+    }
   }
 });
 
