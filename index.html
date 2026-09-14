@@ -33,6 +33,8 @@
   .reg-row input::placeholder{color:#565d62;}
   .reg-row input:focus{outline:none; border-bottom-color:var(--orange);}
   .reg-row input.id-input{flex:0.9; color:var(--muted); direction:ltr; text-align:right;}
+  .champ-badge{font-size:11px; color:var(--gold); white-space:nowrap; flex-shrink:0;}
+  .champ-badge.top{font-weight:800; font-size:12.5px; text-shadow:0 0 6px var(--gold);}
   .add-slot-btn{display:flex; align-items:center; justify-content:center; gap:8px; background:transparent; border:1.5px dashed var(--line); border-radius:6px; padding:10px; color:var(--muted); font-family:'Oswald'; font-size:13px; cursor:pointer; transition:.15s;}
   .add-slot-btn:hover{border-color:var(--orange); color:var(--orange-bright);}
   .add-slot-btn .plus{font-size:18px; line-height:1;}
@@ -301,8 +303,44 @@ function buildRegistration(){
       <span class="num oswald">${p.num}</span>
       <input type="text" placeholder="اسم بازیکن" data-num="${p.num}" data-field="name" value="${p.name}">
       <input type="text" class="id-input" placeholder="یوزر آیدی" data-num="${p.num}" data-field="pid" value="${p.pid}">
+      <span class="champ-badge" data-badge="${p.num}"></span>
     `;
     regGrid.appendChild(row);
+  });
+  updateChampionBadges();
+}
+
+// ---------- championship counts (derived from history) ----------
+let championCounts = {};
+function recomputeChampionCounts(){
+  const counts = {};
+  history.forEach(entry=>{
+    if(entry.championIndex===null || entry.championIndex===undefined) return;
+    const team = entry.teams[entry.championIndex];
+    if(!team) return;
+    team.members.forEach(m=>{
+      if(!m.name) return;
+      counts[m.name] = (counts[m.name]||0) + 1;
+    });
+  });
+  championCounts = counts;
+  updateChampionBadges();
+}
+function updateChampionBadges(){
+  const values = Object.values(championCounts);
+  const maxCount = values.length ? Math.max(...values) : 0;
+  document.querySelectorAll('.champ-badge').forEach(badge=>{
+    const num = +badge.dataset.badge;
+    const p = participants[num-1];
+    const n = p && p.name ? (championCounts[p.name]||0) : 0;
+    if(n > 0){
+      const isTop = n === maxCount;
+      badge.textContent = (isTop ? '👑 ' : '') + '🏆×' + n;
+      badge.className = 'champ-badge' + (isTop ? ' top' : '');
+    } else {
+      badge.textContent = '';
+      badge.className = 'champ-badge';
+    }
   });
 }
 // ---------- players DB (remembered names/IDs across weeks) ----------
@@ -380,7 +418,7 @@ regGrid.addEventListener('input', (e)=>{
   if(!t.dataset.num) return;
   const p = participants[+t.dataset.num - 1];
   p[t.dataset.field] = t.value.trim();
-  if(t.dataset.field === 'name') showSuggestions(t, 'name');
+  if(t.dataset.field === 'name') { showSuggestions(t, 'name'); updateChampionBadges(); }
   else if(t.dataset.field === 'pid') showSuggestions(t, 'pid');
   if(p.name) upsertPlayer(p.name, p.pid);
   renderLeaderNamesList();
@@ -875,6 +913,7 @@ function persistHistory(){
   try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }catch(e){}
 }
 function renderHistory(){
+  recomputeChampionCounts();
   historyList.innerHTML = '';
   if(history.length === 0){ historyList.innerHTML = '<div class="history-empty">هنوز هفته‌ای ذخیره نشده</div>'; return; }
   history.forEach(entry=>{
