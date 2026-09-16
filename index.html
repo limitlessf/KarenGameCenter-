@@ -347,6 +347,20 @@ function updateChampionBadges(){
 function loadPlayersDB(){
   try{ playersDB = JSON.parse(localStorage.getItem(PLAYERS_DB_KEY)) || {}; }
   catch(e){ playersDB = {}; }
+  cleanupPlayersDB();
+}
+function cleanupPlayersDB(){
+  // one-time cleanup: earlier versions saved on every keystroke, leaving partial
+  // fragments (e.g. "م", "مح", "محم") alongside the real full name. Drop any
+  // saved name that is a strict prefix of another saved name — it's almost
+  // certainly leftover partial typing, not a real second player.
+  const names = Object.keys(playersDB);
+  let changed = false;
+  names.forEach(n=>{
+    const isPrefixOfAnother = names.some(other => other !== n && other.startsWith(n));
+    if(isPrefixOfAnother){ delete playersDB[n]; changed = true; }
+  });
+  if(changed) savePlayersDB();
 }
 function savePlayersDB(){
   try{ localStorage.setItem(PLAYERS_DB_KEY, JSON.stringify(playersDB)); }catch(e){}
@@ -420,10 +434,16 @@ regGrid.addEventListener('input', (e)=>{
   p[t.dataset.field] = t.value.trim();
   if(t.dataset.field === 'name') { showSuggestions(t, 'name'); updateChampionBadges(); }
   else if(t.dataset.field === 'pid') showSuggestions(t, 'pid');
-  if(p.name) upsertPlayer(p.name, p.pid);
   renderLeaderNamesList();
   if(draftStarted) renderTeamPoolList();
   saveState();
+});
+regGrid.addEventListener('focusout', (e)=>{
+  const t = e.target;
+  if(!t.dataset.num) return;
+  const p = participants[+t.dataset.num - 1];
+  if(p.name) upsertPlayer(p.name, p.pid);
+  hideSuggestions();
 });
 document.getElementById('clearNamesBtn').addEventListener('click', ()=>{
   if(!confirm('همه‌ی اسم و یوزر آیدی‌های ثبت‌شده پاک بشن؟ (تعداد اسلات‌ها همین‌طور می‌مونه)')) return;
