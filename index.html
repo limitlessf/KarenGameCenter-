@@ -64,6 +64,21 @@
   .suggest-item:hover{background:rgba(255,255,255,.06);}
   .suggest-item .sid{color:var(--muted); font-size:11px; direction:ltr;}
 
+  .elo-list{display:flex; flex-direction:column; gap:6px; max-height:420px; overflow-y:auto;}
+  .elo-row{display:flex; align-items:center; gap:10px; background:var(--glass-soft); border:1px solid var(--glass-border-soft); border-radius:10px; padding:8px 12px;}
+  .elo-row .elo-name{flex:1; font-size:13.5px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .elo-row .elo-pid{color:var(--muted); font-size:11.5px; direction:ltr; flex-shrink:0; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .elo-row .elo-input{width:72px; background:var(--glass-chip); border:1px solid var(--glass-border); border-radius:8px; color:var(--orange-bright); font-family:'Oswald'; font-size:14px; text-align:center; padding:6px 4px; flex-shrink:0;}
+  .elo-row .elo-input:focus{outline:none; border-color:var(--orange);}
+  .elo-row .elo-del{background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:6px; width:26px; height:26px; font-size:14px; cursor:pointer; flex-shrink:0; transition:.15s;}
+  .elo-row .elo-del:hover{border-color:var(--danger); color:var(--danger);}
+  .elo-empty{color:var(--muted); font-size:13px; text-align:center; padding:14px 0;}
+  .elo-add-form{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; background:var(--glass-soft); border:1px solid var(--glass-border-soft); border-radius:10px; padding:10px;}
+  .elo-add-form input{background:var(--glass-chip); border:1px solid var(--glass-border); border-radius:8px; color:var(--text); font-family:'Vazirmatn'; font-size:13px; padding:7px 10px;}
+  .elo-add-form input.add-name{flex:1; min-width:120px;}
+  .elo-add-form input.add-pid{flex:0.8; min-width:100px; direction:ltr;}
+  .elo-add-form input.add-elo{width:80px; font-family:'Oswald'; text-align:center;}
+
   .names-toolbar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
   .names-toolbar label{font-size:13.5px;}
   .names-toolbar input[type=number]{width:60px; background:var(--glass-soft); border:1px solid var(--glass-border); border-radius:10px; color:var(--text); font-family:'Oswald'; font-size:15px; text-align:center; padding:6px 4px;}
@@ -207,6 +222,16 @@ sjE814iCpB8A/40jKo8DL2eMdrTk2WbAT2LZ2tDM3sm6x8+Au4CJwB+AWRmHl4yjLKvG3/9oZr/Oun6l
   </div>
 
   <div class="suggest-box" id="suggestBox" style="display:none;"></div>
+
+  <div class="card" id="eloCard">
+    <h2>ELO بازیکن‌ها</h2>
+    <p class="hint">این بخش جدا از بقیه‌ست و همه‌ی اسامی‌ای که تا حالا ثبت کردی رو نشون می‌ده. هر وقت خواستی عدد ELO هرکسی رو بنویس یا ویرایش کن، اسامی اشتباه رو با × حذف کن، یا بازیکن جدید با آیدی‌ش اضافه کن.</p>
+    <div id="eloList" class="elo-list"></div>
+    <div class="actions" style="margin-top:12px;">
+      <button class="btn ghost small" id="addEloPlayerBtn">+ افزودن بازیکن جدید</button>
+    </div>
+    <div id="eloAddForm" class="elo-add-form" style="display:none;"></div>
+  </div>
 
   <div class="card" id="leaderCard">
     <h2>قرعه‌کشی لیدرها</h2>
@@ -380,10 +405,19 @@ function updateChampionBadges(){
     }
   });
 }
-// ---------- players DB (remembered names/IDs across weeks) ----------
+// ---------- players DB (remembered names/IDs/ELO across weeks) ----------
+// shape: { name: { pid: string, elo: number|null } }
 function loadPlayersDB(){
   try{ playersDB = JSON.parse(localStorage.getItem(PLAYERS_DB_KEY)) || {}; }
   catch(e){ playersDB = {}; }
+  // migrate old shape (name -> plain pid string) to the new object shape
+  Object.keys(playersDB).forEach(n=>{
+    if(typeof playersDB[n] === 'string'){ playersDB[n] = {pid: playersDB[n], elo: null}; }
+    else if(playersDB[n] && typeof playersDB[n] === 'object'){
+      if(playersDB[n].pid === undefined) playersDB[n].pid = '';
+      if(playersDB[n].elo === undefined) playersDB[n].elo = null;
+    }
+  });
   cleanupPlayersDB();
 }
 function cleanupPlayersDB(){
@@ -404,8 +438,10 @@ function savePlayersDB(){
 }
 function upsertPlayer(name, pid){
   if(!name) return;
-  if(pid) playersDB[name] = pid;
-  else if(!(name in playersDB)) playersDB[name] = '';
+  const existing = playersDB[name];
+  const elo = existing ? existing.elo : null;
+  if(pid) playersDB[name] = {pid, elo};
+  else if(!existing) playersDB[name] = {pid:'', elo:null};
   savePlayersDB();
 }
 
@@ -418,12 +454,12 @@ function showSuggestions(inputEl, mode){
   let matches;
   if(mode === 'pid'){
     matches = Object.entries(playersDB)
-      .filter(([n,pid]) => pid && pid.startsWith(q) && pid !== q)
-      .slice(0, 8).map(([n,pid]) => ({name:n, pid}));
+      .filter(([n,o]) => o.pid && o.pid.startsWith(q) && o.pid !== q)
+      .slice(0, 8).map(([n,o]) => ({name:n, pid:o.pid}));
   } else {
     matches = Object.keys(playersDB)
       .filter(n => n.startsWith(q) && n !== q)
-      .slice(0, 8).map(n => ({name:n, pid: playersDB[n]||''}));
+      .slice(0, 8).map(n => ({name:n, pid: playersDB[n].pid||''}));
   }
   if(matches.length === 0){ hideSuggestions(); return; }
   suggestBox.innerHTML = matches.map(m=>{
@@ -479,7 +515,7 @@ regGrid.addEventListener('focusout', (e)=>{
   const t = e.target;
   if(!t.dataset.num) return;
   const p = participants[+t.dataset.num - 1];
-  if(p.name) upsertPlayer(p.name, p.pid);
+  if(p.name){ upsertPlayer(p.name, p.pid); renderEloList(); }
   hideSuggestions();
 });
 document.getElementById('clearNamesBtn').addEventListener('click', ()=>{
@@ -498,6 +534,92 @@ document.getElementById('addSlotBtn').addEventListener('click', ()=>{
   participants.push({num: participants.length+1, name:'', pid:'', team:null, isLeader:false});
   buildRegistration();
   saveState();
+});
+
+// ---------- ELO list (separate master roster, persists across weeks) ----------
+const eloList = document.getElementById('eloList');
+const eloAddForm = document.getElementById('eloAddForm');
+
+function backfillPlayersDB(){
+  let changed = false;
+  // names from every saved week's team rosters
+  history.forEach(entry=>{
+    (entry.teams||[]).forEach(t=>{
+      (t.members||[]).forEach(m=>{
+        if(!m.name) return;
+        if(!playersDB[m.name]){ playersDB[m.name] = {pid: m.pid||'', elo:null}; changed = true; }
+        else if(!playersDB[m.name].pid && m.pid){ playersDB[m.name].pid = m.pid; changed = true; }
+      });
+    });
+  });
+  // names currently sitting in the registration grid (even if not yet blurred)
+  participants.forEach(p=>{
+    if(!p.name) return;
+    if(!playersDB[p.name]){ playersDB[p.name] = {pid: p.pid||'', elo:null}; changed = true; }
+    else if(!playersDB[p.name].pid && p.pid){ playersDB[p.name].pid = p.pid; changed = true; }
+  });
+  if(changed) savePlayersDB();
+}
+function renderEloList(){
+  backfillPlayersDB();
+  const names = Object.keys(playersDB).sort((a,b)=> a.localeCompare(b,'fa'));
+  eloList.innerHTML = '';
+  if(names.length === 0){
+    eloList.innerHTML = '<div class="elo-empty">هنوز اسمی ثبت نشده</div>';
+    return;
+  }
+  names.forEach(name=>{
+    const o = playersDB[name];
+    const row = document.createElement('div');
+    row.className = 'elo-row';
+    const safeName = name.replace(/</g,'&lt;');
+    row.innerHTML = `
+      <span class="elo-name">${safeName}</span>
+      <span class="elo-pid">${o.pid || ''}</span>
+      <input type="number" class="elo-input" placeholder="—" value="${o.elo===null||o.elo===undefined?'':o.elo}" data-name="${safeName}">
+      <button class="elo-del" title="حذف این اسم">×</button>
+    `;
+    row.querySelector('.elo-input').addEventListener('input', (e)=>{
+      const v = e.target.value.trim();
+      playersDB[name].elo = v === '' ? null : Number(v);
+      savePlayersDB();
+    });
+    row.querySelector('.elo-del').addEventListener('click', ()=>{
+      if(!confirm(`اسم «${name}» از لیست بازیکن‌ها حذف بشه؟`)) return;
+      delete playersDB[name];
+      savePlayersDB();
+      renderEloList();
+    });
+    eloList.appendChild(row);
+  });
+}
+
+document.getElementById('addEloPlayerBtn').addEventListener('click', ()=>{
+  if(eloAddForm.style.display === 'none' || !eloAddForm.style.display){
+    eloAddForm.style.display = 'flex';
+    eloAddForm.innerHTML = `
+      <input type="text" class="add-name" placeholder="اسم بازیکن">
+      <input type="text" class="add-pid" placeholder="یوزر آیدی">
+      <input type="number" class="add-elo" placeholder="ELO">
+      <button class="btn small" id="eloAddConfirm">ثبت</button>
+      <button class="btn ghost small" id="eloAddCancel">انصراف</button>
+    `;
+    document.getElementById('eloAddConfirm').addEventListener('click', ()=>{
+      const name = eloAddForm.querySelector('.add-name').value.trim();
+      const pid = eloAddForm.querySelector('.add-pid').value.trim();
+      const eloVal = eloAddForm.querySelector('.add-elo').value.trim();
+      if(!name){ alert('اسم رو وارد کن.'); return; }
+      playersDB[name] = { pid, elo: eloVal === '' ? null : Number(eloVal) };
+      savePlayersDB();
+      eloAddForm.style.display = 'none';
+      renderEloList();
+    });
+    document.getElementById('eloAddCancel').addEventListener('click', ()=>{
+      eloAddForm.style.display = 'none';
+    });
+  } else {
+    eloAddForm.style.display = 'none';
+  }
 });
 
 // ---------- leader draw list ----------
@@ -1108,6 +1230,7 @@ if(draftStarted){
 }
 loadHistory();
 renderHistory();
+renderEloList();
 </script>
 </body>
 </html>
