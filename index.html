@@ -244,15 +244,33 @@
 
   <div class="card" id="leaderCard">
     <h2>قرعه‌کشی لیدرها</h2>
-    <p class="hint" id="leaderHint"></p>
     <div class="names-toolbar">
-      <label for="leaderCountInput">تعداد لیدر (= تعداد تیم)</label>
-      <input type="number" id="leaderCountInput" min="2" max="12" value="6">
+      <label><input type="radio" name="draftMode" value="manual" id="modeManualRadio" checked> دستی (انتخاب و قرعه‌کشی لیدر)</label>
+      <label><input type="radio" name="draftMode" value="auto" id="modeAutoRadio"> خودکار بر اساس ELO</label>
     </div>
-    <div class="names-list" id="leaderNamesList"></div>
-    <div class="actions">
-      <button class="btn" id="drawBtn" disabled>قرعه‌کشی و چیدن تیم‌ها</button>
-      <span class="empty-note" id="leaderCount"></span>
+
+    <div id="manualDrawBlock">
+      <p class="hint" id="leaderHint"></p>
+      <div class="names-toolbar">
+        <label for="leaderCountInput">تعداد لیدر (= تعداد تیم)</label>
+        <input type="number" id="leaderCountInput" min="2" max="12" value="6">
+      </div>
+      <div class="names-list" id="leaderNamesList"></div>
+      <div class="actions">
+        <button class="btn" id="drawBtn" disabled>قرعه‌کشی و چیدن تیم‌ها</button>
+        <span class="empty-note" id="leaderCount"></span>
+      </div>
+    </div>
+
+    <div id="autoBalanceBlock" style="display:none;">
+      <p class="hint">بر اساس عدد ELO هرکس (برای کسی که ELO نداره، ۱۰۰۰ در نظر گرفته می‌شه)، همه‌ی ثبت‌نام‌شده‌های این هفته رو بین تعداد تیمی که بگی بالانس می‌کنه؛ هر تیم ۵ نفره و از نفر یک (بالاترین ELO تیم) تا پنج مرتب می‌شه، طوری که اختلاف میانگین ELO تیم‌ها حداکثر حدود ۲۰۰ بمونه.</p>
+      <div class="names-toolbar">
+        <label for="autoTeamCountInput">تعداد تیم</label>
+        <input type="number" id="autoTeamCountInput" min="2" max="12" value="6">
+      </div>
+      <div class="actions">
+        <button class="btn" id="autoBalanceBtn">بالانس و چیدن تیم‌ها</button>
+      </div>
     </div>
   </div>
 
@@ -804,6 +822,112 @@ drawBtn.addEventListener('click', ()=>{
   if(draftStarted && !confirm('با قرعه‌کشی دوباره، تیم‌بندی فعلی پاک می‌شه و از اول شروع می‌شه. اسم و یوزر آیدی‌های ثبت‌شده دست نمی‌خوره. ادامه بدم؟')) return;
   performFullRedraw();
   document.getElementById('draftCard').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+// ---------- mode toggle: manual draw vs automatic ELO balance ----------
+const manualDrawBlock = document.getElementById('manualDrawBlock');
+const autoBalanceBlock = document.getElementById('autoBalanceBlock');
+document.getElementById('modeManualRadio').addEventListener('change', ()=>{
+  manualDrawBlock.style.display = 'block';
+  autoBalanceBlock.style.display = 'none';
+});
+document.getElementById('modeAutoRadio').addEventListener('change', ()=>{
+  manualDrawBlock.style.display = 'none';
+  autoBalanceBlock.style.display = 'block';
+});
+
+function eloOf(name){
+  const o = playersDB[name];
+  return (o && o.elo !== null && o.elo !== undefined) ? o.elo : 1000;
+}
+
+function performAutoBalance(teamCountAuto){
+  const named = participants.filter(p=>p.name);
+  const required = teamCountAuto * TEAM_SIZE;
+  if(named.length < required){
+    alert(`برای ${teamCountAuto} تیم به ${required} بازیکن ثبت‌شده نیاز داری؛ فعلاً ${named.length} اسم ثبت شده.`);
+    return;
+  }
+  if(draftStarted && !confirm('تیم‌بندی فعلی پاک می‌شه و بر اساس ELO از نو چیده می‌شه. ادامه بدم؟')) return;
+
+  participants.forEach(p=>{p.team=null; p.isLeader=false;});
+
+  const pool = named.slice(0, required).map(p=>({num:p.num, elo:eloOf(p.name)}));
+  pool.sort((a,b)=> b.elo - a.elo);
+
+  // seed with a snake distribution (classic balanced-draft pattern)
+  const groups = Array.from({length:teamCountAuto}, ()=>[]);
+  const forward = [...Array(teamCountAuto).keys()];
+  const reverse = [...forward].reverse();
+  let idx = 0;
+  for(let round=0; round<TEAM_SIZE; round++){
+    const order = round % 2 === 0 ? forward : reverse;
+    order.forEach(t=>{ groups[t].push(pool[idx]); idx++; });
+  }
+
+  function teamAvg(g){ return g.reduce((s,p)=>s+p.elo,0)/g.length; }
+  function currentSpread(){
+    const avgs = groups.map(teamAvg);
+    return Math.max(...avgs) - Math.min(...avgs);
+  }
+  // local-search refinement: repeatedly swap one player between the
+  // highest- and lowest-average teams if it narrows the gap, until the
+  // spread is within tolerance or no further improving swap exists
+  let guard = 0;
+  while(currentSpread() > 200 && guard < 500){
+    guard++;
+    const avgs = groups.map(teamAvg);
+    const hi = avgs.indexOf(Math.max(...avgs));
+    const lo = avgs.indexOf(Math.min(...avgs));
+    if(hi === lo) break;
+    let bestImprovement = 0, bestI = -1, bestJ = -1;
+    groups[hi].forEach((pi,i)=>{
+      groups[lo].forEach((pj,j)=>{
+        const newHiAvg = teamAvg(groups[hi].map((x,k)=> k===i ? pj : x));
+        const newLoAvg = teamAvg(groups[lo].map((x,k)=> k===j ? pi : x));
+        const improvement = Math.abs(avgs[hi]-avgs[lo]) - Math.abs(newHiAvg-newLoAvg);
+        if(improvement > bestImprovement){ bestImprovement = improvement; bestI = i; bestJ = j; }
+      });
+    });
+    if(bestI === -1) break;
+    const tmp = groups[hi][bestI];
+    groups[hi][bestI] = groups[lo][bestJ];
+    groups[lo][bestJ] = tmp;
+  }
+
+  TEAM_COUNT = teamCountAuto;
+  teams = groups.map((g, tIdx)=>{
+    const sorted = [...g].sort((a,b)=> b.elo - a.elo);
+    sorted.forEach((pl, slot)=>{
+      const p = participants.find(pp=>pp.num===pl.num);
+      p.team = tIdx;
+      p.isLeader = (slot===0);
+    });
+    return { leaderNum: sorted[0].num, members: sorted.map(x=>x.num) };
+  });
+
+  const fwd = [...Array(TEAM_COUNT).keys()];
+  const rev = [...fwd].reverse();
+  pickOrder = [];
+  for(let r=2; r<=TEAM_SIZE; r++) pickOrder.push(...(r % 2 === 0 ? fwd : rev));
+  champion = null; draftStarted = true; leaderSwapNum = null; dragNum = null;
+
+  document.getElementById('draftCard').style.display = 'block';
+  renderLeaderNamesList();
+  renderChampionSelect();
+  renderDraftBoard();
+  renderTeamPoolList();
+  saveState();
+
+  const finalSpread = Math.round(currentSpread());
+  document.getElementById('draftCard').scrollIntoView({behavior:'smooth', block:'start'});
+  alert(`تیم‌ها بر اساس ELO چیده شدن. اختلاف میانگین ELO بین پرتیم‌ترین و کم‌ترین تیم: ${finalSpread}`);
+}
+
+document.getElementById('autoBalanceBtn').addEventListener('click', ()=>{
+  const n = Math.max(2, Math.min(12, parseInt(document.getElementById('autoTeamCountInput').value)||6));
+  document.getElementById('autoTeamCountInput').value = n;
+  performAutoBalance(n);
 });
 
 function swapLeaders(numA, numB){
