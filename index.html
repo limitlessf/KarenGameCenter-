@@ -392,6 +392,12 @@ let leaderSwapNum = null;  // leader selected in leader list for a leader<->lead
 
 function colorFor(idx){ return PALETTE[idx % PALETTE.length]; }
 function teamName(idx){ return `تیم ${idx+1}`; }
+function leaderNameOf(idx){
+  const team = teams[idx];
+  if(!team || !team.members.length) return teamName(idx);
+  const p = participants.find(pp=>pp.num===team.members[0]);
+  return p ? p.name : teamName(idx);
+}
 
 function buildParticipants(){
   participants = Array.from({length: DEFAULT_SLOTS}, (_,i)=>({num:i+1, name:'', pid:'', team:null, isLeader:false}));
@@ -1149,8 +1155,25 @@ function recalcBracket(){
     }
     m.winnerTeam = winner; m.loserTeam = loser;
   });
+  // Grand Final is a best-of-3-maps series, not a single score pair
   const gfMatch = bracketData.gf[0];
-  if(gfMatch && gfMatch.winnerTeam !== null){ champion = gfMatch.winnerTeam; }
+  if(gfMatch){
+    if(gfMatch.teamA!==null && gfMatch.teamB!==null){
+      if(!gfMatch.maps) gfMatch.maps = [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
+      let winsA=0, winsB=0;
+      gfMatch.maps.forEach(mp=>{
+        if(mp.scoreA===null||mp.scoreB===null||mp.scoreA===''||mp.scoreB==='') return;
+        const sa=+mp.scoreA, sb=+mp.scoreB;
+        if(sa===sb) return;
+        if(sa>sb) winsA++; else winsB++;
+      });
+      gfMatch.winnerTeam = winsA>=2 ? gfMatch.teamA : (winsB>=2 ? gfMatch.teamB : null);
+      gfMatch.loserTeam = gfMatch.winnerTeam!==null ? (gfMatch.winnerTeam===gfMatch.teamA ? gfMatch.teamB : gfMatch.teamA) : null;
+    } else {
+      gfMatch.winnerTeam = null; gfMatch.loserTeam = null;
+    }
+    if(gfMatch.winnerTeam !== null){ champion = gfMatch.winnerTeam; }
+  }
 }
 
 function generateLeague(n){
@@ -1220,16 +1243,16 @@ function renderLeagueArea(){
     const aWin = has && +m.scoreA > +m.scoreB;
     const bWin = has && +m.scoreB > +m.scoreA;
     html += `<div class="match-row">
-      <span class="mteam${aWin?' winner':''}">${teamName(m.a)}</span>
-      <input type="number" min="0" class="score-box league-score" data-idx="${idx}" data-side="scoreA" value="${m.scoreA??''}">
+      <span class="mteam${aWin?' winner':''}">${leaderNameOf(m.a)}</span>
+      <input type="text" inputmode="numeric" class="score-box league-score" data-idx="${idx}" data-side="scoreA" value="${m.scoreA??''}">
       <span class="match-sep">-</span>
-      <input type="number" min="0" class="score-box league-score" data-idx="${idx}" data-side="scoreB" value="${m.scoreB??''}">
-      <span class="mteam${bWin?' winner':''}">${teamName(m.b)}</span>
+      <input type="text" inputmode="numeric" class="score-box league-score" data-idx="${idx}" data-side="scoreB" value="${m.scoreB??''}">
+      <span class="mteam${bWin?' winner':''}">${leaderNameOf(m.b)}</span>
     </div>`;
   });
   const stats = computeLeagueStandings();
   html += `<div class="mtitle">جدول رده‌بندی</div><table class="standings"><thead><tr><th>تیم</th><th>Win</th><th>Lose</th><th>Round win</th><th>Round lose</th><th>Point</th></tr></thead><tbody>`;
-  stats.forEach(s=>{ html += `<tr><td class="tname">${teamName(s.idx)}</td><td>${s.win}</td><td>${s.lose}</td><td>${s.roundWin}</td><td>${s.roundLose}</td><td>${s.point}</td></tr>`; });
+  stats.forEach(s=>{ html += `<tr><td class="tname">${leaderNameOf(s.idx)}</td><td>${s.win}</td><td>${s.lose}</td><td>${s.roundWin}</td><td>${s.roundLose}</td><td>${s.point}</td></tr>`; });
   html += `</tbody></table>`;
 
   const fk = getLeagueFinalists(stats);
@@ -1238,14 +1261,14 @@ function renderLeagueArea(){
     const maps = leagueData.finalMapScores[fk.key];
     let winsMin=0, winsMax=0;
     maps.forEach(mp=>{ if(mp.scoreA!==null&&mp.scoreB!==null&&mp.scoreA!==''&&mp.scoreB!==''){ if(+mp.scoreA>+mp.scoreB) winsMin++; else if(+mp.scoreB>+mp.scoreA) winsMax++; } });
-    html += `<div class="mtitle">🏆 فینال (سه مپ): ${teamName(fk.minIdx)} در برابر ${teamName(fk.maxIdx)}</div>`;
+    html += `<div class="mtitle">🏆 فینال (سه مپ): ${leaderNameOf(fk.minIdx)} در برابر ${leaderNameOf(fk.maxIdx)}</div>`;
     maps.forEach((mp,mi)=>{
       html += `<div class="match-row">
-        <span class="mteam">${teamName(fk.minIdx)}</span>
-        <input type="number" min="0" class="score-box final-map-score" data-mi="${mi}" data-min="${fk.minIdx}" data-max="${fk.maxIdx}" data-side="scoreA" value="${mp.scoreA??''}">
+        <span class="mteam">${leaderNameOf(fk.minIdx)}</span>
+        <input type="text" inputmode="numeric" class="score-box final-map-score" data-mi="${mi}" data-min="${fk.minIdx}" data-max="${fk.maxIdx}" data-side="scoreA" value="${mp.scoreA??''}">
         <span class="match-sep">مپ ${mi+1}</span>
-        <input type="number" min="0" class="score-box final-map-score" data-mi="${mi}" data-min="${fk.minIdx}" data-max="${fk.maxIdx}" data-side="scoreB" value="${mp.scoreB??''}">
-        <span class="mteam">${teamName(fk.maxIdx)}</span>
+        <input type="text" inputmode="numeric" class="score-box final-map-score" data-mi="${mi}" data-min="${fk.minIdx}" data-max="${fk.maxIdx}" data-side="scoreB" value="${mp.scoreB??''}">
+        <span class="mteam">${leaderNameOf(fk.maxIdx)}</span>
       </div>`;
     });
     html += `<p class="final-note">برد سری: ${winsMin} - ${winsMax} (اولین تیمی که ۲ مپ ببره قهرمانه). فینالیست‌ها بر اساس جدول فعلی‌ان و ممکنه با نتایج بیشتر عوض بشن.</p>`;
@@ -1279,14 +1302,14 @@ function renderBracketArea(){
   }
   function bmatchHtml(m){
     const aTbd = m.teamA===null, bTbd = m.teamB===null;
-    const aLabel = aTbd ? (m.prelim || m.round>0 ? '؟' : 'در انتظار') : teamName(m.teamA);
-    const bLabel = bTbd ? 'در انتظار' : teamName(m.teamB);
+    const aLabel = aTbd ? (m.prelim || m.round>0 ? '؟' : 'در انتظار') : leaderNameOf(m.teamA);
+    const bLabel = bTbd ? 'در انتظار' : leaderNameOf(m.teamB);
     const disabled = (aTbd||bTbd) ? 'disabled' : '';
     const aWin = m.winnerTeam!==null && m.winnerTeam===m.teamA;
     const bWin = m.winnerTeam!==null && m.winnerTeam===m.teamB;
-    return `<div class="bmatch${m.final?' gf':''}">
-      <div class="brow${aWin?' winner':''}"><span class="bname${aTbd?' tbd':''}">${aLabel}</span><input type="number" min="0" ${disabled} value="${m.scoreA??''}" data-mid="${m.id}" data-side="scoreA" class="score-box bracket-score"></div>
-      <div class="brow${bWin?' winner':''}"><span class="bname${bTbd?' tbd':''}">${bLabel}</span><input type="number" min="0" ${disabled} value="${m.scoreB??''}" data-mid="${m.id}" data-side="scoreB" class="score-box bracket-score"></div>
+    return `<div class="bmatch">
+      <div class="brow${aWin?' winner':''}"><span class="bname${aTbd?' tbd':''}">${aLabel}</span><input type="text" inputmode="numeric" ${disabled} value="${m.scoreA??''}" data-mid="${m.id}" data-side="scoreA" class="score-box bracket-score"></div>
+      <div class="brow${bWin?' winner':''}"><span class="bname${bTbd?' tbd':''}">${bLabel}</span><input type="text" inputmode="numeric" ${disabled} value="${m.scoreB??''}" data-mid="${m.id}" data-side="scoreB" class="score-box bracket-score"></div>
     </div>`;
   }
   function renderGroup(title, list){
@@ -1304,14 +1327,50 @@ function renderBracketArea(){
     html += `</div></div>`;
     return html;
   }
+  function gfMapsHtml(){
+    const gfMatch = bracketData.gf[0];
+    if(gfMatch.teamA===null || gfMatch.teamB===null){
+      return `<div class="bracket-group-title">فینال بزرگ (سه مپ)</div><p class="hint">در انتظار مشخص شدن دو فینالیست...</p>`;
+    }
+    if(!gfMatch.maps) gfMatch.maps = [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
+    const aName = leaderNameOf(gfMatch.teamA), bName = leaderNameOf(gfMatch.teamB);
+    let winsA=0, winsB=0;
+    gfMatch.maps.forEach(mp=>{
+      if(mp.scoreA===null||mp.scoreB===null||mp.scoreA===''||mp.scoreB==='') return;
+      const sa=+mp.scoreA, sb=+mp.scoreB;
+      if(sa>sb) winsA++; else if(sb>sa) winsB++;
+    });
+    let html = `<div class="bracket-group-title">🏆 فینال بزرگ (سه مپ): ${aName} در برابر ${bName}</div>`;
+    gfMatch.maps.forEach((mp,mi)=>{
+      html += `<div class="match-row">
+        <span class="mteam">${aName}</span>
+        <input type="text" inputmode="numeric" class="score-box gf-map-score" data-mi="${mi}" data-side="scoreA" value="${mp.scoreA??''}">
+        <span class="match-sep">مپ ${mi+1}</span>
+        <input type="text" inputmode="numeric" class="score-box gf-map-score" data-mi="${mi}" data-side="scoreB" value="${mp.scoreB??''}">
+        <span class="mteam">${bName}</span>
+      </div>`;
+    });
+    html += `<p class="final-note">برد سری: ${winsA} - ${winsB} (اولین تیمی که ۲ مپ ببره قهرمانه).</p>`;
+    return html;
+  }
   let html = renderGroup('Winners Bracket', bracketData.wb);
   html += renderGroup('Losers Bracket', bracketData.lb);
-  html += renderGroup('فینال بزرگ', bracketData.gf);
+  html += gfMapsHtml();
   area.innerHTML = html;
   area.querySelectorAll('.bracket-score').forEach(inp=>{
     inp.addEventListener('input', ()=>{
       const m = findBracketMatch(inp.dataset.mid);
       m[inp.dataset.side] = inp.value===''?null:inp.value;
+      recalcBracket();
+      renderMatchesArea();
+      renderChampionSelect(); renderDraftBoard(); saveState();
+    });
+  });
+  area.querySelectorAll('.gf-map-score').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const gfMatch = bracketData.gf[0];
+      if(!gfMatch.maps) gfMatch.maps = [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
+      gfMatch.maps[+inp.dataset.mi][inp.dataset.side] = inp.value===''?null:inp.value;
       recalcBracket();
       renderMatchesArea();
       renderChampionSelect(); renderDraftBoard(); saveState();
