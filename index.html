@@ -338,6 +338,10 @@
   <div class="card" id="matchesCard" style="display:none;">
     <h2>مسابقات</h2>
     <p class="hint" id="matchesHint"></p>
+    <div class="names-toolbar">
+      <label><input type="checkbox" id="superCupToggle"> سوپر کاپ</label>
+      <span class="empty-note">فقط وقتی ۴ تیم داری اثر داره: به‌جای لیگ، دو نیمه‌نهایی سه‌مپی و بعد فینال سه‌مپی بین برنده‌ها.</span>
+    </div>
     <div class="actions" style="margin-bottom:14px;">
       <button class="btn" id="buildMatchesBtn">ساخت جدول مسابقات</button>
     </div>
@@ -405,7 +409,7 @@ function buildParticipants(){
 
 // ---------- persistence ----------
 function saveState(){
-  const state = {participants, leaderCountWanted, leaderSelection, draftStarted, teams, pickOrder, champion, TEAM_COUNT, matchFormat, leagueData, bracketData};
+  const state = {participants, leaderCountWanted, leaderSelection, draftStarted, teams, pickOrder, champion, TEAM_COUNT, matchFormat, leagueData, bracketData, supercupData};
   try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){}
 }
 function loadState(){
@@ -425,6 +429,7 @@ function loadState(){
     matchFormat = s.matchFormat || null;
     leagueData = s.leagueData || null;
     bracketData = s.bracketData || null;
+    supercupData = s.supercupData || null;
     return true;
   }catch(e){ return false; }
 }
@@ -867,7 +872,7 @@ function performFullRedraw(){
   champion = null;
   draftStarted = true;
   dragNum = null; leaderSwapNum = null;
-  matchFormat = null; leagueData = null; bracketData = null;
+  matchFormat = null; leagueData = null; bracketData = null; supercupData = null;
 
   document.getElementById('draftCard').style.display = 'block';
   renderLeaderNamesList();
@@ -1017,7 +1022,7 @@ function performAutoBalance(teamCountAuto){
   pickOrder = [];
   for(let r=2; r<=TEAM_SIZE; r++) pickOrder.push(...(r % 2 === 0 ? fwd : rev));
   champion = null; draftStarted = true; leaderSwapNum = null; dragNum = null;
-  matchFormat = null; leagueData = null; bracketData = null;
+  matchFormat = null; leagueData = null; bracketData = null; supercupData = null;
 
   document.getElementById('draftCard').style.display = 'block';
   renderLeaderNamesList();
@@ -1176,6 +1181,89 @@ function recalcBracket(){
   }
 }
 
+// ---------- Super Cup: 4-team bracket, all best-of-3 maps ----------
+let supercupData = null; // {semis:[{id,a,b,maps,winner}, ...], final:{id,a,b,maps,winner}}
+
+function emptyMaps(){ return [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}]; }
+function seriesWinner(teamA, teamB, maps){
+  if(teamA===null || teamB===null) return null;
+  let winsA=0, winsB=0;
+  maps.forEach(mp=>{
+    if(mp.scoreA===null||mp.scoreB===null||mp.scoreA===''||mp.scoreB==='') return;
+    const sa=+mp.scoreA, sb=+mp.scoreB;
+    if(sa===sb) return;
+    if(sa>sb) winsA++; else winsB++;
+  });
+  if(winsA>=2) return teamA;
+  if(winsB>=2) return teamB;
+  return null;
+}
+function generateSuperCup(){
+  const seedOrder = seedTeamsByElo(4);
+  supercupData = {
+    semis: [
+      {id:'S1', a:seedOrder[0], b:seedOrder[3], maps:emptyMaps(), winner:null},
+      {id:'S2', a:seedOrder[1], b:seedOrder[2], maps:emptyMaps(), winner:null},
+    ],
+    final: {id:'F', a:null, b:null, maps:emptyMaps(), winner:null},
+  };
+  recalcSuperCup();
+}
+function findSuperCupMatch(id){
+  if(!supercupData) return null;
+  if(id==='S1') return supercupData.semis[0];
+  if(id==='S2') return supercupData.semis[1];
+  if(id==='F') return supercupData.final;
+  return null;
+}
+function recalcSuperCup(){
+  if(!supercupData) return;
+  supercupData.semis.forEach(s=>{ s.winner = seriesWinner(s.a, s.b, s.maps); });
+  supercupData.final.a = supercupData.semis[0].winner;
+  supercupData.final.b = supercupData.semis[1].winner;
+  supercupData.final.winner = seriesWinner(supercupData.final.a, supercupData.final.b, supercupData.final.maps);
+  if(supercupData.final.winner !== null){ champion = supercupData.final.winner; }
+}
+function renderSuperCupArea(){
+  const area = document.getElementById('matchesArea');
+  function seriesHtml(s, title){
+    const aName = leaderNameOf(s.a), bName = leaderNameOf(s.b);
+    let winsA=0, winsB=0;
+    s.maps.forEach(mp=>{ if(mp.scoreA!==null&&mp.scoreB!==null&&mp.scoreA!==''&&mp.scoreB!==''){ const sa=+mp.scoreA, sb=+mp.scoreB; if(sa>sb) winsA++; else if(sb>sa) winsB++; } });
+    let h = `<div class="mtitle">${title}: ${aName} در برابر ${bName}</div>`;
+    s.maps.forEach((mp,mi)=>{
+      h += `<div class="match-row">
+        <span class="mteam${s.winner===s.a?' winner':''}">${aName}</span>
+        <input type="text" inputmode="numeric" class="score-box sc-score" data-match="${s.id}" data-mi="${mi}" data-side="scoreA" value="${mp.scoreA??''}">
+        <span class="match-sep">مپ ${mi+1}</span>
+        <input type="text" inputmode="numeric" class="score-box sc-score" data-match="${s.id}" data-mi="${mi}" data-side="scoreB" value="${mp.scoreB??''}">
+        <span class="mteam${s.winner===s.b?' winner':''}">${bName}</span>
+      </div>`;
+    });
+    h += `<p class="final-note">برد سری: ${winsA} - ${winsB}</p>`;
+    return h;
+  }
+  let html = '<div class="bracket-group-title">سوپر کاپ — نیمه‌نهایی</div>';
+  html += seriesHtml(supercupData.semis[0], 'نیمه‌نهایی ۱');
+  html += seriesHtml(supercupData.semis[1], 'نیمه‌نهایی ۲');
+  if(supercupData.final.a!==null && supercupData.final.b!==null){
+    html += '<div class="bracket-group-title">🏆 فینال</div>';
+    html += seriesHtml(supercupData.final, 'فینال');
+  } else {
+    html += '<div class="bracket-group-title">فینال</div><p class="hint">در انتظار مشخص شدن دو فینالیست...</p>';
+  }
+  area.innerHTML = html;
+  area.querySelectorAll('.sc-score').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const m = findSuperCupMatch(inp.dataset.match);
+      m.maps[+inp.dataset.mi][inp.dataset.side] = inp.value===''?null:inp.value;
+      recalcSuperCup();
+      renderMatchesArea();
+      renderChampionSelect(); renderDraftBoard(); saveState();
+    });
+  });
+}
+
 function generateLeague(n){
   const matches = [];
   for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) matches.push({a:i,b:j,scoreA:null,scoreB:null});
@@ -1232,6 +1320,7 @@ function renderMatchesArea(){
   const area = document.getElementById('matchesArea');
   if(matchFormat === 'league' && leagueData){ renderLeagueArea(); }
   else if(matchFormat === 'bracket' && bracketData){ renderBracketArea(); }
+  else if(matchFormat === 'supercup' && supercupData){ renderSuperCupArea(); }
   else { area.innerHTML = '<p class="empty-note">بعد از چیدن تیم‌ها، دکمه‌ی «ساخت جدول مسابقات» رو بزن.</p>'; }
 }
 
@@ -1275,14 +1364,14 @@ function renderLeagueArea(){
   }
   area.innerHTML = html;
   area.querySelectorAll('.league-score').forEach(inp=>{
-    inp.addEventListener('input', ()=>{
+    inp.addEventListener('change', ()=>{
       const m = leagueData.matches[+inp.dataset.idx];
       m[inp.dataset.side] = inp.value===''?null:inp.value;
       renderMatchesArea(); saveState();
     });
   });
   area.querySelectorAll('.final-map-score').forEach(inp=>{
-    inp.addEventListener('input', ()=>{
+    inp.addEventListener('change', ()=>{
       const minIdx=+inp.dataset.min, maxIdx=+inp.dataset.max, mi=+inp.dataset.mi;
       const key = minIdx+'-'+maxIdx;
       if(!leagueData.finalMapScores[key]) leagueData.finalMapScores[key]=[{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
@@ -1358,7 +1447,7 @@ function renderBracketArea(){
   html += gfMapsHtml();
   area.innerHTML = html;
   area.querySelectorAll('.bracket-score').forEach(inp=>{
-    inp.addEventListener('input', ()=>{
+    inp.addEventListener('change', ()=>{
       const m = findBracketMatch(inp.dataset.mid);
       m[inp.dataset.side] = inp.value===''?null:inp.value;
       recalcBracket();
@@ -1367,7 +1456,7 @@ function renderBracketArea(){
     });
   });
   area.querySelectorAll('.gf-map-score').forEach(inp=>{
-    inp.addEventListener('input', ()=>{
+    inp.addEventListener('change', ()=>{
       const gfMatch = bracketData.gf[0];
       if(!gfMatch.maps) gfMatch.maps = [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
       gfMatch.maps[+inp.dataset.mi][inp.dataset.side] = inp.value===''?null:inp.value;
@@ -1380,13 +1469,17 @@ function renderBracketArea(){
 
 document.getElementById('buildMatchesBtn').addEventListener('click', ()=>{
   if(!teams.length){ alert('اول تیم‌ها رو بچین.'); return; }
-  const hasExisting = leagueData || bracketData;
+  const hasExisting = leagueData || bracketData || supercupData;
   if(hasExisting && !confirm('با ساخت دوباره‌ی جدول، نتایج قبلی این بخش پاک می‌شن. ادامه بدم؟')) return;
-  if(TEAM_COUNT <= 6){
-    matchFormat = 'league'; bracketData = null;
+  const superCupOn = document.getElementById('superCupToggle').checked;
+  if(TEAM_COUNT === 4 && superCupOn){
+    matchFormat = 'supercup'; leagueData = null; bracketData = null;
+    generateSuperCup();
+  } else if(TEAM_COUNT <= 6){
+    matchFormat = 'league'; bracketData = null; supercupData = null;
     generateLeague(TEAM_COUNT);
   } else {
-    matchFormat = 'bracket'; leagueData = null;
+    matchFormat = 'bracket'; leagueData = null; supercupData = null;
     generateBracket(TEAM_COUNT);
   }
   renderMatchesArea();
@@ -1686,7 +1779,7 @@ document.getElementById('resetBtn').addEventListener('click', ()=>{
   leaderSelection = [];
   teams = []; pickOrder = []; champion = null; draftStarted = false; TEAM_COUNT = 0;
   dragNum = null; leaderSwapNum = null;
-  matchFormat = null; leagueData = null; bracketData = null;
+  matchFormat = null; leagueData = null; bracketData = null; supercupData = null;
   document.getElementById('draftCard').style.display = 'none';
   leaderCountInput.value = leaderCountWanted;
   buildRegistration();
