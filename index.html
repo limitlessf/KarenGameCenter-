@@ -57,6 +57,11 @@
   .champ-badge{font-size:11px; color:var(--gold); white-space:nowrap; flex-shrink:0;}
   .rank-badge-slot{flex-shrink:0; display:flex; align-items:center;}
   .rank-badge{display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px; border-radius:50%; font-family:'Oswald'; font-size:10.5px; font-weight:700; color:#12100a; flex-shrink:0;}
+  .elo-number{font-family:'Oswald'; font-size:10.5px; font-weight:600; flex-shrink:0; margin:0 3px;}
+  .elo-log-box{max-height:260px; overflow-y:auto; background:var(--glass-soft); border:1px solid var(--glass-border-soft); border-radius:10px; padding:10px; margin-top:10px; font-size:11.5px; line-height:1.8;}
+  .elo-log-entry{border-bottom:1px dashed var(--glass-border-soft); padding:5px 0;}
+  .elo-log-entry:last-child{border-bottom:none;}
+  .elo-log-entry .lts{color:var(--muted); font-size:10.5px; direction:ltr; display:block;}
   .team-avg-elo{font-family:'Oswald'; font-size:11.5px; color:var(--muted); font-weight:500; margin-right:4px;}
   .champ-badge.top{font-weight:800; font-size:12.5px; text-shadow:0 0 6px var(--gold);}
   .add-slot-btn{display:flex; align-items:center; justify-content:center; gap:8px; background:var(--glass-soft); border:1.5px dashed var(--glass-border); border-radius:12px; padding:10px; color:var(--muted); font-family:'Oswald'; font-size:13px; cursor:pointer; transition:.15s; backdrop-filter:blur(10px);}
@@ -267,7 +272,9 @@
       <div id="eloList" class="elo-list"></div>
       <div class="actions" style="margin-top:12px;">
         <button class="btn ghost small" id="addEloPlayerBtn">+ افزودن بازیکن جدید</button>
+        <button class="btn ghost small" id="eloLogBtn" style="margin-right:auto;">لاگ</button>
       </div>
+      <div id="eloLogBox" class="elo-log-box" style="display:none;"></div>
       <div id="eloAddForm" class="elo-add-form" style="display:none;"></div>
     </div>
   </div>
@@ -728,6 +735,104 @@ document.getElementById('addEloPlayerBtn').addEventListener('click', ()=>{
   }
 });
 
+// ---------- automatic ELO updates after each scored game ----------
+const ELO_LOG_KEY = 'karen_cs2_elo_log_v1';
+const ELO_K = 32;
+let eloChangeLog = [];
+
+function loadEloLog(){
+  try{ eloChangeLog = JSON.parse(localStorage.getItem(ELO_LOG_KEY)) || []; }
+  catch(e){ eloChangeLog = []; }
+}
+function saveEloLog(){
+  try{ localStorage.setItem(ELO_LOG_KEY, JSON.stringify(eloChangeLog)); }catch(e){}
+}
+function renderEloLog(){
+  const box = document.getElementById('eloLogBox');
+  if(!box) return;
+  if(eloChangeLog.length === 0){
+    box.innerHTML = '<div class="elo-log-entry">هنوز تغییری ثبت نشده.</div>';
+    return;
+  }
+  box.innerHTML = eloChangeLog.map(e=>{
+    const d = new Date(e.ts);
+    const when = d.toLocaleString('fa-IR');
+    const safe = e.text.replace(/</g,'&lt;');
+    return `<div class="elo-log-entry"><span class="lts">${when}</span>${safe}</div>`;
+  }).join('');
+}
+function logEloChange(text){
+  eloChangeLog.unshift({ts:new Date().toISOString(), text});
+  if(eloChangeLog.length > 500) eloChangeLog.length = 500;
+  saveEloLog();
+  renderEloLog();
+}
+
+// symmetric rounding: half away from zero, so +x and -x round to equal magnitudes
+function symmetricRound(x){ return x >= 0 ? Math.floor(x + 0.5) : Math.ceil(x - 0.5); }
+
+function teamMemberNames(teamIdx){
+  const team = teams[teamIdx];
+  if(!team) return [];
+  return team.members.map(num=>{
+    const p = participants.find(pp=>pp.num===num);
+    return p ? p.name : null;
+  }).filter(Boolean);
+}
+
+function afterEloChange(){
+  updateRegRankBadges();
+  renderEloList();
+}
+
+// undo a previously applied update (used when a score is edited or cleared)
+function reverseEloIfApplied(unit, label){
+  if(!unit || !unit.eloApplied) return;
+  const d = unit.eloApplied;
+  d.playersA.forEach(n=>{ if(playersDB[n]) playersDB[n].elo = (playersDB[n].elo ?? 1000) - d.deltaA; });
+  d.playersB.forEach(n=>{ if(playersDB[n]) playersDB[n].elo = (playersDB[n].elo ?? 1000) - d.deltaB; });
+  unit.eloApplied = null;
+  savePlayersDB();
+  logEloChange(`↩ برگشت تغییر قبلی (${label}): بازیکن‌های تیم اول ${d.deltaA>=0?'-':'+'}${Math.abs(d.deltaA)}، بازیکن‌های تیم دوم ${d.deltaB>=0?'-':'+'}${Math.abs(d.deltaB)} چون نتیجه ویرایش یا پاک شد.`);
+  afterEloChange();
+}
+
+// unit = a single match object, or a single map object inside a best-of-3 series
+function applyEloForGame(unit, teamAIdx, teamBIdx, scoreA, scoreB, label){
+  reverseEloIfApplied(unit, label);
+  if(teamAIdx === null || teamAIdx === undefined || teamBIdx === null || teamBIdx === undefined) return;
+  if(scoreA===null || scoreB===null || scoreA==='' || scoreB==='') return;
+  const sa = +scoreA, sb = +scoreB;
+  if(isNaN(sa) || isNaN(sb)) return;
+
+  // averages are taken from ELO values BEFORE this game's change
+  const RA = teamAvgEloExact(teamAIdx), RB = teamAvgEloExact(teamBIdx);
+  const PA = 1 / (1 + Math.pow(10, (RB - RA) / 400));
+  const SA = sa > sb ? 1 : (sa < sb ? 0 : 0.5);
+  const deltaA = symmetricRound(ELO_K * (SA - PA));
+  const deltaB = -deltaA; // exact negation keeps the transfer zero-sum
+
+  const playersA = teamMemberNames(teamAIdx);
+  const playersB = teamMemberNames(teamBIdx);
+  playersA.forEach(n=>{ if(!playersDB[n]) playersDB[n] = {pid:'', elo:1000}; playersDB[n].elo = (playersDB[n].elo ?? 1000) + deltaA; });
+  playersB.forEach(n=>{ if(!playersDB[n]) playersDB[n] = {pid:'', elo:1000}; playersDB[n].elo = (playersDB[n].elo ?? 1000) + deltaB; });
+  unit.eloApplied = { deltaA, deltaB, playersA, playersB, ra:RA, rb:RB };
+  savePlayersDB();
+
+  const fmt = v => (v>0?'+':'') + v;
+  logEloChange(
+    `${label} — ${leaderNameOf(teamAIdx)} (میانگین ${RA.toFixed(1)}) ${sa}-${sb} ${leaderNameOf(teamBIdx)} (میانگین ${RB.toFixed(1)}) | ` +
+    `احتمال برد تیم اول: ${(PA*100).toFixed(1)}٪ | تغییر هر بازیکن تیم اول: ${fmt(deltaA)}، تیم دوم: ${fmt(deltaB)}`
+  );
+  afterEloChange();
+}
+
+document.getElementById('eloLogBtn').addEventListener('click', ()=>{
+  const box = document.getElementById('eloLogBox');
+  if(box.style.display === 'none'){ renderEloLog(); box.style.display = 'block'; }
+  else { box.style.display = 'none'; }
+});
+
 // ---------- ELO password gate ----------
 const ELO_PASSWORD = '125678';
 const eloPassInput = document.getElementById('eloPassInput');
@@ -931,11 +1036,21 @@ function rankInfo(elo){
 }
 function rankBadgeHtml(name){
   if(!hasElo(name)) return '';
-  const info = rankInfo(eloOf(name));
+  const elo = eloOf(name);
+  const info = rankInfo(elo);
   if(!info) return '';
-  return `<span class="rank-badge" style="background:${info.color}" title="ELO ${eloOf(name)}">${info.rank}</span>`;
+  return `<span class="rank-badge" style="background:${info.color}" title="ELO ${elo}">${info.rank}</span><span class="elo-number" style="color:${info.color}">${elo}</span>`;
 }
 
+function teamAvgEloExact(teamIdx){
+  const team = teams[teamIdx];
+  if(!team || !team.members.length) return 1000;
+  const sum = team.members.reduce((s,num)=>{
+    const p = participants.find(pp=>pp.num===num);
+    return s + (p ? eloOf(p.name) : 1000);
+  },0);
+  return sum / team.members.length;
+}
 function teamAvgElo(teamIdx){
   const team = teams[teamIdx];
   if(!team || !team.members.length) return 1000;
@@ -1256,8 +1371,11 @@ function renderSuperCupArea(){
   area.querySelectorAll('.sc-score').forEach(inp=>{
     inp.addEventListener('change', ()=>{
       const m = findSuperCupMatch(inp.dataset.match);
-      m.maps[+inp.dataset.mi][inp.dataset.side] = inp.value===''?null:inp.value;
+      const mi = +inp.dataset.mi;
+      m.maps[mi][inp.dataset.side] = inp.value===''?null:inp.value;
       recalcSuperCup();
+      const mp = m.maps[mi];
+      applyEloForGame(mp, m.a, m.b, mp.scoreA, mp.scoreB, `سوپر کاپ ${m.id==='F'?'فینال':'نیمه‌نهایی '+m.id.slice(1)} مپ ${mi+1}`);
       renderMatchesArea();
       renderChampionSelect(); renderDraftBoard(); saveState();
     });
@@ -1367,7 +1485,8 @@ function renderLeagueArea(){
     inp.addEventListener('change', ()=>{
       const m = leagueData.matches[+inp.dataset.idx];
       m[inp.dataset.side] = inp.value===''?null:inp.value;
-      renderMatchesArea(); saveState();
+      applyEloForGame(m, m.a, m.b, m.scoreA, m.scoreB, 'لیگ');
+      renderMatchesArea(); renderDraftBoard(); saveState();
     });
   });
   area.querySelectorAll('.final-map-score').forEach(inp=>{
@@ -1376,6 +1495,8 @@ function renderLeagueArea(){
       const key = minIdx+'-'+maxIdx;
       if(!leagueData.finalMapScores[key]) leagueData.finalMapScores[key]=[{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
       leagueData.finalMapScores[key][mi][inp.dataset.side] = inp.value===''?null:inp.value;
+      const mp = leagueData.finalMapScores[key][mi];
+      applyEloForGame(mp, minIdx, maxIdx, mp.scoreA, mp.scoreB, `فینال لیگ مپ ${mi+1}`);
       updateChampionFromLeagueFinal();
       renderMatchesArea();
       renderChampionSelect(); renderDraftBoard(); saveState();
@@ -1451,6 +1572,7 @@ function renderBracketArea(){
       const m = findBracketMatch(inp.dataset.mid);
       m[inp.dataset.side] = inp.value===''?null:inp.value;
       recalcBracket();
+      applyEloForGame(m, m.teamA, m.teamB, m.scoreA, m.scoreB, `براکت بازی ${m.id}`);
       renderMatchesArea();
       renderChampionSelect(); renderDraftBoard(); saveState();
     });
@@ -1458,9 +1580,12 @@ function renderBracketArea(){
   area.querySelectorAll('.gf-map-score').forEach(inp=>{
     inp.addEventListener('change', ()=>{
       const gfMatch = bracketData.gf[0];
+      const mi = +inp.dataset.mi;
       if(!gfMatch.maps) gfMatch.maps = [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
-      gfMatch.maps[+inp.dataset.mi][inp.dataset.side] = inp.value===''?null:inp.value;
+      gfMatch.maps[mi][inp.dataset.side] = inp.value===''?null:inp.value;
       recalcBracket();
+      const mp = gfMatch.maps[mi];
+      applyEloForGame(mp, gfMatch.teamA, gfMatch.teamB, mp.scoreA, mp.scoreB, `فینال بزرگ مپ ${mi+1}`);
       renderMatchesArea();
       renderChampionSelect(); renderDraftBoard(); saveState();
     });
@@ -1950,6 +2075,7 @@ document.getElementById('importHistInput').addEventListener('change', (e)=>{
 // ---------- init ----------
 loadPlayersDB();
 loadDeletedPlayerNames();
+loadEloLog();
 const restored = loadState();
 if(!restored){ buildParticipants(); }
 leaderCountInput.value = leaderCountWanted;
