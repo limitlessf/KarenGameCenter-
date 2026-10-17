@@ -346,9 +346,11 @@
     <h2>مسابقات</h2>
     <p class="hint" id="matchesHint"></p>
     <div class="names-toolbar">
-      <label><input type="checkbox" id="superCupToggle"> سوپر کاپ</label>
-      <span class="empty-note">فقط وقتی ۴ تیم داری اثر داره: به‌جای لیگ، دو نیمه‌نهایی سه‌مپی و بعد فینال سه‌مپی بین برنده‌ها.</span>
+      <span>فرمت مسابقات:</span>
+      <label><input type="radio" name="matchFormatChoice" value="league" id="fmtLeagueRadio" checked> لیگی</label>
+      <label><input type="radio" name="matchFormatChoice" value="bracket" id="fmtBracketRadio"> براکتی</label>
     </div>
+    <p class="empty-note" style="margin:-4px 0 12px;">برای ۴ تیم، براکتی یعنی سوپر کاپ: دو نیمه‌نهایی سه‌مپی و بعد فینال سه‌مپی بین برنده‌ها. برای بقیه‌ی تعدادها، براکت دو حذفی (با بخش بازنده‌ها).</p>
     <div class="actions" style="margin-bottom:14px;">
       <button class="btn" id="buildMatchesBtn">ساخت جدول مسابقات</button>
     </div>
@@ -1081,24 +1083,45 @@ function performAutoBalance(teamCountAuto){
   const pool = candidatePool.map(p=>({num:p.num, elo:eloOf(p.name)}));
   pool.sort((a,b)=> b.elo - a.elo);
 
-  // seed with a snake distribution (classic balanced-draft pattern)
-  const groups = Array.from({length:teamCountAuto}, ()=>[]);
-  const forward = [...Array(teamCountAuto).keys()];
-  const reverse = [...forward].reverse();
-  let idx = 0;
-  for(let round=0; round<TEAM_SIZE; round++){
-    const order = round % 2 === 0 ? forward : reverse;
-    order.forEach(t=>{ groups[t].push(pool[idx]); idx++; });
-  }
-
   function teamAvg(g){ return g.reduce((s,p)=>s+p.elo,0)/g.length; }
-  function currentSpread(){
-    const avgs = groups.map(teamAvg);
+  function spreadOf(gs){
+    const avgs = gs.map(teamAvg);
     return Math.max(...avgs) - Math.min(...avgs);
   }
-  // local-search refinement: repeatedly swap one player between the
-  // highest- and lowest-average teams if it narrows the gap, until the
-  // spread is within tolerance or no further improving swap exists
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+  // randomized banded draw: players sorted by ELO are cut into bands of N (one band per
+  // roster slot) and every team gets exactly one player from each band, in random order,
+  // so no team is systematically stronger or weaker and each press gives a new result
+  function randomDraw(){
+    const gs = Array.from({length:teamCountAuto}, ()=>[]);
+    for(let band=0; band<TEAM_SIZE; band++){
+      const bandPlayers = pool.slice(band*teamCountAuto, (band+1)*teamCountAuto);
+      shuffle(bandPlayers).forEach((pl,i)=> gs[i].push(pl));
+    }
+    return gs;
+  }
+  // try random draws, accepting the tightest tolerance that turns up (60 -> 120 -> 200)
+  let groups = null, bestGroups = null, bestSpread = Infinity;
+  for(const tol of [60, 120, 200]){
+    for(let attempt=0; attempt<150 && !groups; attempt++){
+      const gs = randomDraw();
+      const sp = spreadOf(gs);
+      if(sp < bestSpread){ bestSpread = sp; bestGroups = gs; }
+      if(sp <= tol) groups = gs;
+    }
+    if(groups) break;
+  }
+  if(!groups) groups = bestGroups;
+
+  function currentSpread(){ return spreadOf(groups); }
+  // fallback refinement (only if no random draw reached the 200 tolerance): swap one player
+  // between the highest- and lowest-average teams whenever it narrows the gap
   let guard = 0;
   while(currentSpread() > 200 && guard < 500){
     guard++;
@@ -1120,6 +1143,7 @@ function performAutoBalance(teamCountAuto){
     groups[hi][bestI] = groups[lo][bestJ];
     groups[lo][bestJ] = tmp;
   }
+  shuffle(groups); // random team order too, so later team numbers aren't favored or penalized
 
   TEAM_COUNT = teamCountAuto;
   teams = groups.map((g, tIdx)=>{
@@ -1165,6 +1189,46 @@ let leagueData = null;  // {matches:[{a,b,scoreA,scoreB}], finalMapScores:{}}
 let bracketData = null; // {n, seedOrder, wb:[...], lb:[...], gf:[...]} or {unsupported:true,n}
 
 const BRACKET_TEMPLATES = {
+  3: {
+    wb: [
+      {id:'A', round:1, a:{seed:2}, b:{seed:3}},
+      {id:'B', round:2, a:{seed:1}, b:{ref:'A',w:'W'}, final:true},
+    ],
+    lb: [
+      {id:'C', round:1, a:{ref:'A',w:'L'}, b:{ref:'B',w:'L'}, final:true},
+    ],
+    gf: [{id:'D', round:1, a:{ref:'B',w:'W'}, b:{ref:'C',w:'W'}}],
+  },
+  5: {
+    wb: [
+      {id:'A', round:0, a:{seed:4}, b:{seed:5}, prelim:true},
+      {id:'B', round:1, a:{seed:1}, b:{ref:'A',w:'W'}},
+      {id:'C', round:1, a:{seed:2}, b:{seed:3}},
+      {id:'D', round:2, a:{ref:'B',w:'W'}, b:{ref:'C',w:'W'}, final:true},
+    ],
+    lb: [
+      {id:'E', round:1, a:{ref:'B',w:'L'}, b:{ref:'C',w:'L'}},
+      {id:'F', round:2, a:{ref:'E',w:'W'}, b:{ref:'A',w:'L'}},
+      {id:'G', round:3, a:{ref:'F',w:'W'}, b:{ref:'D',w:'L'}, final:true},
+    ],
+    gf: [{id:'H', round:1, a:{ref:'D',w:'W'}, b:{ref:'G',w:'W'}}],
+  },
+  6: {
+    wb: [
+      {id:'A', round:0, a:{seed:5}, b:{seed:6}, prelim:true},
+      {id:'B', round:0, a:{seed:3}, b:{seed:4}, prelim:true},
+      {id:'C', round:1, a:{seed:1}, b:{ref:'A',w:'W'}},
+      {id:'D', round:1, a:{seed:2}, b:{ref:'B',w:'W'}},
+      {id:'E', round:2, a:{ref:'C',w:'W'}, b:{ref:'D',w:'W'}, final:true},
+    ],
+    lb: [
+      {id:'F', round:1, a:{ref:'A',w:'L'}, b:{ref:'B',w:'L'}},
+      {id:'G', round:1, a:{ref:'C',w:'L'}, b:{ref:'D',w:'L'}},
+      {id:'H', round:2, a:{ref:'F',w:'W'}, b:{ref:'G',w:'W'}},
+      {id:'I', round:3, a:{ref:'H',w:'W'}, b:{ref:'E',w:'L'}, final:true},
+    ],
+    gf: [{id:'J', round:1, a:{ref:'E',w:'W'}, b:{ref:'I',w:'W'}}],
+  },
   7: {
     wb: [
       {id:'A', round:1, a:{seed:2}, b:{seed:7}},
@@ -1267,9 +1331,7 @@ function recalcBracket(){
     const ta = resolveSpec(m.a), tb = resolveSpec(m.b);
     m.teamA = ta; m.teamB = tb;
     let winner=null, loser=null;
-    if(ta!==null && tb===null){ winner = ta; }
-    else if(tb!==null && ta===null){ winner = tb; }
-    else if(ta!==null && tb!==null && m.scoreA!==null && m.scoreB!==null && m.scoreA!=='' && m.scoreB!=='' && +m.scoreA !== +m.scoreB){
+    if(ta!==null && tb!==null && m.scoreA!==null && m.scoreB!==null && m.scoreA!=='' && m.scoreB!=='' && +m.scoreA !== +m.scoreB){
       winner = (+m.scoreA > +m.scoreB) ? ta : tb;
       loser = winner===ta ? tb : ta;
     }
@@ -1421,17 +1483,34 @@ function updateChampionFromLeagueFinal(){
   else if(winsMax>=2) champion = fk.maxIdx;
 }
 
+let matchChoiceTouched = false;
 function updateMatchesVisibility(){
   document.getElementById('matchesCard').style.display = teams.length>0 ? 'block' : 'none';
+  if(!matchChoiceTouched && TEAM_COUNT>0){
+    // default suggestion by team count; the user can switch freely
+    const preferBracket = TEAM_COUNT >= 7;
+    document.getElementById('fmtBracketRadio').checked = preferBracket;
+    document.getElementById('fmtLeagueRadio').checked = !preferBracket;
+  }
   refreshMatchesHint();
 }
+document.querySelectorAll('input[name="matchFormatChoice"]').forEach(r=>{
+  r.addEventListener('change', ()=>{ matchChoiceTouched = true; refreshMatchesHint(); });
+});
 function refreshMatchesHint(){
   const el = document.getElementById('matchesHint');
   if(!el) return;
-  if(TEAM_COUNT>=2 && TEAM_COUNT<=6) el.textContent = `با ${TEAM_COUNT} تیم، مسابقات به‌صورت لیگی برگزار می‌شه و دو تیم برتر جدول فینال سه‌مپی رو بازی می‌کنن.`;
-  else if(TEAM_COUNT>=7 && TEAM_COUNT<=9) el.textContent = `با ${TEAM_COUNT} تیم، مسابقات به‌صورت دو حذفی (براکت برنده‌ها/بازنده‌ها) برگزار می‌شه؛ چیدمان اولیه بر اساس رتبه‌ی ELO هر تیمه.`;
-  else if(TEAM_COUNT>0) el.textContent = `با ${TEAM_COUNT} تیم، چارت دو حذفی فعلاً فقط برای ۷ تا ۹ تیم آماده‌ست.`;
-  else el.textContent = '';
+  if(!TEAM_COUNT){ el.textContent = ''; return; }
+  const bracketChosen = document.getElementById('fmtBracketRadio').checked;
+  if(!bracketChosen){
+    el.textContent = `لیگی برای ${TEAM_COUNT} تیم: همه با همه بازی می‌کنن و دو تیم برتر جدول فینال سه‌مپی رو برگزار می‌کنن.`;
+  } else if(TEAM_COUNT === 4){
+    el.textContent = 'براکتی برای ۴ تیم (سوپر کاپ): دو نیمه‌نهایی سه‌مپی بر اساس رتبه‌ی ELO و بعد فینال سه‌مپی.';
+  } else if(BRACKET_TEMPLATES[TEAM_COUNT]){
+    el.textContent = `براکتی برای ${TEAM_COUNT} تیم: دو حذفی (براکت برنده‌ها/بازنده‌ها) با چیدمان بر اساس رتبه‌ی ELO؛ فینال بزرگ سه‌مپیه.`;
+  } else {
+    el.textContent = `چارت براکتی فعلاً برای ${TEAM_COUNT} تیم آماده نیست (۳ تا ۹ تیم پشتیبانی می‌شه) — از لیگی استفاده کن.`;
+  }
 }
 
 function renderMatchesArea(){
@@ -1507,7 +1586,7 @@ function renderLeagueArea(){
 function renderBracketArea(){
   const area = document.getElementById('matchesArea');
   if(bracketData.unsupported){
-    area.innerHTML = `<p class="hint">چارت دو حذفی فعلاً فقط برای ۷ تا ۹ تیم آماده‌ست. برای ${bracketData.n} تیم پشتیبانی نمی‌شه — تعداد تیم رو به بازه‌ی ۷ تا ۹ تغییر بده یا از حالت لیگی استفاده کن (تا ۶ تیم).</p>`;
+    area.innerHTML = `<p class="hint">چارت براکتی فعلاً فقط برای ۳ تا ۹ تیم آماده‌ست و برای ${bracketData.n} تیم پشتیبانی نمی‌شه — فرمت رو روی «لیگی» بذار و دوباره جدول رو بساز.</p>`;
     return;
   }
   function bmatchHtml(m){
@@ -1596,16 +1675,16 @@ document.getElementById('buildMatchesBtn').addEventListener('click', ()=>{
   if(!teams.length){ alert('اول تیم‌ها رو بچین.'); return; }
   const hasExisting = leagueData || bracketData || supercupData;
   if(hasExisting && !confirm('با ساخت دوباره‌ی جدول، نتایج قبلی این بخش پاک می‌شن. ادامه بدم؟')) return;
-  const superCupOn = document.getElementById('superCupToggle').checked;
-  if(TEAM_COUNT === 4 && superCupOn){
+  const bracketChosen = document.getElementById('fmtBracketRadio').checked;
+  if(bracketChosen && TEAM_COUNT === 4){
     matchFormat = 'supercup'; leagueData = null; bracketData = null;
     generateSuperCup();
-  } else if(TEAM_COUNT <= 6){
-    matchFormat = 'league'; bracketData = null; supercupData = null;
-    generateLeague(TEAM_COUNT);
-  } else {
+  } else if(bracketChosen){
     matchFormat = 'bracket'; leagueData = null; supercupData = null;
     generateBracket(TEAM_COUNT);
+  } else {
+    matchFormat = 'league'; bracketData = null; supercupData = null;
+    generateLeague(TEAM_COUNT);
   }
   renderMatchesArea();
   renderChampionSelect();
