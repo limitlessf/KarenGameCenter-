@@ -81,6 +81,14 @@
   .elo-pass-input{background:var(--glass-chip); border:1px solid var(--glass-border); border-radius:8px; color:var(--text); font-family:'Oswald'; font-size:14px; text-align:center; padding:8px 12px; letter-spacing:2px;}
   .elo-pass-error{color:var(--danger); font-size:12px; margin:8px 0 0;}
 
+  .elo-head{display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap; margin-bottom:12px;}
+  .elo-head .hint{flex:1; min-width:220px; margin:0;}
+  .elo-search{position:relative; width:230px; flex-shrink:0;}
+  .elo-search input{width:100%; background:var(--glass-chip); border:1px solid var(--glass-border); border-radius:12px; color:var(--text); font-family:'Pinar','Vazirmatn',sans-serif; font-size:13px; padding:9px 12px; padding-inline-end:36px;}
+  .elo-search input:focus{outline:none; border-color:var(--orange);}
+  .elo-search-icon{position:absolute; inset-inline-end:11px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none;}
+  .elo-search input:focus + .elo-search-icon{color:var(--orange-bright);}
+  .elo-row .elo-rank-slot{display:flex; align-items:center; flex-shrink:0; min-width:19px;}
   .elo-list{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; max-height:360px; overflow-y:auto;}
   @media(max-width:900px){.elo-list{grid-template-columns:repeat(2,1fr);}}
   @media(max-width:560px){.elo-list{grid-template-columns:1fr;}}
@@ -274,7 +282,13 @@
       <p class="elo-pass-error" id="eloPassError" style="display:none;">رمز اشتباهه.</p>
     </div>
     <div id="eloUnlocked" style="display:none;">
-      <p class="hint">همه‌ی اسامی‌ای که تا حالا ثبت کردی رو نشون می‌ده. هر وقت خواستی عدد ELO هرکسی رو بنویس یا ویرایش کن، اسامی اشتباه رو با × حذف کن، یا بازیکن جدید با آیدی‌ش اضافه کن.</p>
+      <div class="elo-head">
+        <p class="hint">همه‌ی اسامی‌ای که تا حالا ثبت کردی رو نشون می‌ده. هر وقت خواستی عدد ELO هرکسی رو بنویس یا ویرایش کن، اسامی اشتباه رو با × حذف کن، یا بازیکن جدید با آیدی‌ش اضافه کن.</p>
+        <div class="elo-search">
+          <input type="text" id="eloSearchInput" autocomplete="off" aria-label="جستجو بر اساس اسم، ELO یا آیدی">
+          <svg class="elo-search-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        </div>
+      </div>
       <div id="eloList" class="elo-list"></div>
       <div class="actions" style="margin-top:12px;">
         <button class="btn ghost small" id="addEloPlayerBtn">+ افزودن بازیکن جدید</button>
@@ -732,12 +746,51 @@ function backfillPlayersDB(){
   });
   if(changed) savePlayersDB();
 }
+// ELO box accepts digits only (Persian/Arabic digits are converted), with an optional leading minus
+function sanitizeEloInput(v){
+  v = String(v)
+    .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776))
+    .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632));
+  const neg = v.trim().startsWith('-');
+  v = v.replace(/[^\d]/g, '');
+  return (neg ? '-' : '') + v;
+}
+function eloRankCircleHtml(elo){
+  if(elo === null || elo === undefined || isNaN(elo)) return '';
+  const info = rankInfo(elo);
+  if(!info) return '';
+  return `<span class="rank-badge" style="background:${info.color}" title="رنک ${info.rank}">${info.rank}</span>`;
+}
+// search: matches player name, ELO number or user ID (digits typed in Persian also work)
+let eloSearchQuery = '';
+function normalizeSearchText(s){
+  return String(s)
+    .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776))
+    .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632))
+    .replace(/ي/g,'ی').replace(/ك/g,'ک')
+    .toLowerCase().trim();
+}
+function eloRowMatchesSearch(name){
+  const q = normalizeSearchText(eloSearchQuery);
+  if(!q) return true;
+  const o = playersDB[name] || {};
+  const elo = (o.elo === null || o.elo === undefined) ? '' : String(o.elo);
+  return normalizeSearchText(name).includes(q)
+      || normalizeSearchText(o.pid || '').includes(q)
+      || elo.includes(q);
+}
+
 function renderEloList(){
   backfillPlayersDB();
-  const names = Object.keys(playersDB).sort((a,b)=> a.localeCompare(b,'fa'));
+  const allNames = Object.keys(playersDB).sort((a,b)=> a.localeCompare(b,'fa'));
+  const names = allNames.filter(eloRowMatchesSearch);
   eloList.innerHTML = '';
-  if(names.length === 0){
+  if(allNames.length === 0){
     eloList.innerHTML = '<div class="elo-empty">هنوز اسمی ثبت نشده</div>';
+    return;
+  }
+  if(names.length === 0){
+    eloList.innerHTML = '<div class="elo-empty">نتیجه‌ای پیدا نشد</div>';
     return;
   }
   names.forEach(name=>{
@@ -748,13 +801,17 @@ function renderEloList(){
     row.innerHTML = `
       <span class="elo-name" title="${o.pid || ''}">${safeName}</span>
       <span class="elo-pid">${o.pid || ''}</span>
-      <input type="number" class="elo-input" placeholder="—" value="${o.elo===null||o.elo===undefined?'':o.elo}" data-name="${safeName}">
+      <input type="text" inputmode="numeric" autocomplete="off" class="elo-input" placeholder="—" value="${o.elo===null||o.elo===undefined?'':o.elo}" data-name="${safeName}">
+      <span class="elo-rank-slot">${eloRankCircleHtml(o.elo)}</span>
       <button class="elo-del" title="حذف این اسم">×</button>
     `;
     row.querySelector('.elo-input').addEventListener('input', (e)=>{
-      const v = e.target.value.trim();
-      playersDB[name].elo = v === '' ? null : Number(v);
+      const v = sanitizeEloInput(e.target.value);
+      if(v !== e.target.value) e.target.value = v;
+      const n = (v === '' || v === '-') ? null : Number(v);
+      playersDB[name].elo = n;
       savePlayersDB();
+      row.querySelector('.elo-rank-slot').innerHTML = eloRankCircleHtml(n);
       updateRegRankBadges();
       if(draftStarted) renderDraftBoard();
     });
@@ -776,18 +833,18 @@ document.getElementById('addEloPlayerBtn').addEventListener('click', ()=>{
     eloAddForm.innerHTML = `
       <input type="text" class="add-name" placeholder="اسم بازیکن">
       <input type="text" class="add-pid" placeholder="یوزر آیدی">
-      <input type="number" class="add-elo" placeholder="ELO">
+      <input type="text" inputmode="numeric" autocomplete="off" class="add-elo" placeholder="ELO">
       <button class="btn small" id="eloAddConfirm">ثبت</button>
       <button class="btn ghost small" id="eloAddCancel">انصراف</button>
     `;
     document.getElementById('eloAddConfirm').addEventListener('click', ()=>{
       const name = eloAddForm.querySelector('.add-name').value.trim();
       const pid = eloAddForm.querySelector('.add-pid').value.trim();
-      const eloVal = eloAddForm.querySelector('.add-elo').value.trim();
+      const eloVal = sanitizeEloInput(eloAddForm.querySelector('.add-elo').value);
       if(!name){ alert('اسم رو وارد کن.'); return; }
       deletedPlayerNames.delete(name);
       saveDeletedPlayerNames();
-      playersDB[name] = { pid, elo: eloVal === '' ? null : Number(eloVal) };
+      playersDB[name] = { pid, elo: (eloVal === '' || eloVal === '-') ? null : Number(eloVal) };
       savePlayersDB();
       eloAddForm.style.display = 'none';
       renderEloList();
@@ -997,6 +1054,10 @@ function rebuildActiveCompetitionElo(){
   afterEloChange();
 }
 
+document.getElementById('eloSearchInput').addEventListener('input', (e)=>{
+  eloSearchQuery = e.target.value;
+  renderEloList();
+});
 document.getElementById('eloLogBtn').addEventListener('click', ()=>{
   const box = document.getElementById('eloLogBox');
   if(box.style.display === 'none'){ renderEloLog(); box.style.display = 'block'; }
