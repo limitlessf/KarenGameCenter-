@@ -200,6 +200,12 @@
   .bmatch .brow .bname{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;}
   .bmatch .brow .bname.tbd{color:var(--muted); font-style:italic;}
   .bmatch .score-box{width:34px; font-size:12px; padding:3px 2px;}
+  .bmatch .brow .bname.tbd{opacity:.5;}
+  .bracket-col.has-bo3{min-width:250px;}
+  .bmatch.bo3 .bname{max-width:86px;}
+  .bmatch.bo3 .bmaps{display:flex; gap:3px; flex-shrink:0;}
+  .bmatch.bo3 .score-box{width:27px; padding:3px 0;}
+  .bmatch .bseries{color:var(--muted); font-size:11px; text-align:center; margin-top:3px;}
 
   .champion-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--glass-soft); backdrop-filter:blur(16px); border:1px solid var(--gold); border-radius:14px; padding:12px 16px; margin-bottom:16px;}
   .champion-row label{font-family:'Pinar','Vazirmatn',sans-serif; font-weight:700; font-size:14px; color:var(--gold);}
@@ -370,7 +376,10 @@
       <label><input type="radio" name="matchFormatChoice" value="league" id="fmtLeagueRadio" checked> لیگی</label>
       <label><input type="radio" name="matchFormatChoice" value="bracket" id="fmtBracketRadio"> براکتی</label>
     </div>
-    <p class="empty-note" style="margin:-4px 0 12px;">برای ۴ تیم، براکتی یعنی سوپر کاپ: دو نیمه‌نهایی سه‌مپی و بعد فینال سه‌مپی بین برنده‌ها. برای بقیه‌ی تعدادها، براکت دو حذفی (با بخش بازنده‌ها).</p>
+    <div class="names-toolbar" style="margin-top:-2px;">
+      <label><input type="checkbox" id="superCupToggle"> سوپر کاپ</label>
+      <span class="empty-note">فقط برای براکتی: اگه فعال باشه همه‌ی بازی‌های براکت (نه فقط گرند فاینال) سه‌مپی می‌شن. قبل از «ساخت جدول» تنظیمش کن.</span>
+    </div>
     <div class="actions" style="margin-bottom:14px;">
       <button class="btn" id="buildMatchesBtn">ساخت جدول مسابقات</button>
     </div>
@@ -981,16 +990,19 @@ function getActiveEloUnits(){
   } else if(matchFormat === 'bracket' && bracketData && !bracketData.unsupported){
     // Fallback order for old saves: round first, then winners bracket before losers bracket.
     // Once a match has an eloOrder, its real result-entry order is retained across edits/restarts.
-    allBracketMatches().filter(m=>m.group!=='GF').sort((a,b)=>a.round-b.round).forEach(m=>addMap(m,m.teamA,m.teamB,`براکت بازی ${m.id}`));
+    allBracketMatches().filter(m=>m.group!=='GF').sort((a,b)=>a.round-b.round).forEach(m=>{
+      if(m.bo3){
+        if(!m.maps) m.maps = emptyMaps();
+        m.maps.forEach((mp,mi)=>addMap(mp,m.teamA,m.teamB,`براکت بازی ${m.id} مپ ${mi+1}`));
+      } else {
+        addMap(m,m.teamA,m.teamB,`براکت بازی ${m.id}`);
+      }
+    });
     const gf = bracketData.gf && bracketData.gf[0];
     if(gf){
       if(!gf.maps) gf.maps = emptyMaps();
       gf.maps.forEach((mp,mi)=>addMap(mp,gf.teamA,gf.teamB,`فینال بزرگ مپ ${mi+1}`));
     }
-  } else if(matchFormat === 'supercup' && supercupData){
-    supercupData.semis.forEach(m=>{ (m.maps || []).forEach((mp,mi)=>addMap(mp,m.a,m.b,`سوپرکاپ ${m.id} مپ ${mi+1}`)); });
-    const f=supercupData.final;
-    if(f) (f.maps || []).forEach((mp,mi)=>addMap(mp,f.a,f.b,`سوپرکاپ فینال مپ ${mi+1}`));
   }
   return {all, replay};
 }
@@ -1426,7 +1438,23 @@ const BRACKET_TEMPLATES = {
     lb: [
       {id:'C', round:1, a:{ref:'A',w:'L'}, b:{ref:'B',w:'L'}, final:true},
     ],
-    gf: [{id:'D', round:1, a:{ref:'B',w:'W'}, b:{ref:'C',w:'W'}}],
+    gf: [
+      {id:'D', round:1, a:{ref:'B',w:'W'}, b:{ref:'C',w:'W'}},
+    ],
+  },
+  4: {
+    wb: [
+      {id:'A', round:1, a:{seed:1}, b:{seed:4}},
+      {id:'B', round:1, a:{seed:2}, b:{seed:3}},
+      {id:'C', round:2, a:{ref:'A',w:'W'}, b:{ref:'B',w:'W'}, final:true},
+    ],
+    lb: [
+      {id:'D', round:1, a:{ref:'A',w:'L'}, b:{ref:'B',w:'L'}},
+      {id:'E', round:2, a:{ref:'D',w:'W'}, b:{ref:'C',w:'L'}, final:true},
+    ],
+    gf: [
+      {id:'F', round:1, a:{ref:'C',w:'W'}, b:{ref:'E',w:'W'}},
+    ],
   },
   5: {
     wb: [
@@ -1436,16 +1464,18 @@ const BRACKET_TEMPLATES = {
       {id:'D', round:2, a:{ref:'B',w:'W'}, b:{ref:'C',w:'W'}, final:true},
     ],
     lb: [
-      {id:'E', round:1, a:{ref:'B',w:'L'}, b:{ref:'C',w:'L'}},
-      {id:'F', round:2, a:{ref:'E',w:'W'}, b:{ref:'A',w:'L'}},
+      {id:'E', round:1, a:{ref:'A',w:'L'}, b:{ref:'C',w:'L'}},
+      {id:'F', round:2, a:{ref:'E',w:'W'}, b:{ref:'B',w:'L'}},
       {id:'G', round:3, a:{ref:'F',w:'W'}, b:{ref:'D',w:'L'}, final:true},
     ],
-    gf: [{id:'H', round:1, a:{ref:'D',w:'W'}, b:{ref:'G',w:'W'}}],
+    gf: [
+      {id:'H', round:1, a:{ref:'D',w:'W'}, b:{ref:'G',w:'W'}},
+    ],
   },
   6: {
     wb: [
-      {id:'A', round:0, a:{seed:5}, b:{seed:6}, prelim:true},
-      {id:'B', round:0, a:{seed:3}, b:{seed:4}, prelim:true},
+      {id:'A', round:0, a:{seed:3}, b:{seed:6}, prelim:true},
+      {id:'B', round:0, a:{seed:4}, b:{seed:5}, prelim:true},
       {id:'C', round:1, a:{seed:1}, b:{ref:'A',w:'W'}},
       {id:'D', round:1, a:{seed:2}, b:{ref:'B',w:'W'}},
       {id:'E', round:2, a:{ref:'C',w:'W'}, b:{ref:'D',w:'W'}, final:true},
@@ -1456,7 +1486,9 @@ const BRACKET_TEMPLATES = {
       {id:'H', round:2, a:{ref:'F',w:'W'}, b:{ref:'G',w:'W'}},
       {id:'I', round:3, a:{ref:'H',w:'W'}, b:{ref:'E',w:'L'}, final:true},
     ],
-    gf: [{id:'J', round:1, a:{ref:'E',w:'W'}, b:{ref:'I',w:'W'}}],
+    gf: [
+      {id:'J', round:1, a:{ref:'E',w:'W'}, b:{ref:'I',w:'W'}},
+    ],
   },
   7: {
     wb: [
@@ -1469,12 +1501,14 @@ const BRACKET_TEMPLATES = {
     ],
     lb: [
       {id:'G', round:1, a:{ref:'B',w:'L'}, b:{ref:'C',w:'L'}},
-      {id:'H', round:2, a:{ref:'G',w:'W'}, b:{ref:'D',w:'L'}},
-      {id:'I', round:2, a:{ref:'A',w:'L'}, b:{ref:'E',w:'L'}},
+      {id:'H', round:1, a:{ref:'A',w:'L'}, b:{ref:'D',w:'L'}},
+      {id:'I', round:2, a:{ref:'G',w:'W'}, b:{ref:'E',w:'L'}},
       {id:'J', round:3, a:{ref:'H',w:'W'}, b:{ref:'I',w:'W'}},
       {id:'K', round:4, a:{ref:'J',w:'W'}, b:{ref:'F',w:'L'}, final:true},
     ],
-    gf: [{id:'L', round:1, a:{ref:'F',w:'W'}, b:{ref:'K',w:'W'}}],
+    gf: [
+      {id:'L', round:1, a:{ref:'F',w:'W'}, b:{ref:'K',w:'W'}},
+    ],
   },
   8: {
     wb: [
@@ -1494,7 +1528,9 @@ const BRACKET_TEMPLATES = {
       {id:'L', round:3, a:{ref:'J',w:'W'}, b:{ref:'K',w:'W'}},
       {id:'M', round:4, a:{ref:'L',w:'W'}, b:{ref:'G',w:'L'}, final:true},
     ],
-    gf: [{id:'N', round:1, a:{ref:'G',w:'W'}, b:{ref:'M',w:'W'}}],
+    gf: [
+      {id:'N', round:1, a:{ref:'G',w:'W'}, b:{ref:'M',w:'W'}},
+    ],
   },
   9: {
     wb: [
@@ -1508,15 +1544,43 @@ const BRACKET_TEMPLATES = {
       {id:'H', round:3, a:{ref:'F',w:'W'}, b:{ref:'G',w:'W'}, final:true},
     ],
     lb: [
-      {id:'I', round:1, a:{ref:'B',w:'L'}, b:{ref:'C',w:'L'}},
+      {id:'I', round:1, a:{ref:'A',w:'L'}, b:{ref:'C',w:'L'}},
       {id:'J', round:1, a:{ref:'D',w:'L'}, b:{ref:'E',w:'L'}},
-      {id:'K', round:2, a:{ref:'I',w:'W'}, b:{ref:'A',w:'L'}},
-      {id:'L', round:2, a:{ref:'J',w:'W'}, b:{ref:'K',w:'W'}},
-      {id:'M', round:3, a:{ref:'L',w:'W'}, b:{ref:'F',w:'L'}},
-      {id:'N', round:3, a:{ref:'M',w:'W'}, b:{ref:'G',w:'L'}},
-      {id:'O', round:4, a:{ref:'N',w:'W'}, b:{ref:'H',w:'L'}, final:true},
+      {id:'K', round:2, a:{ref:'I',w:'W'}, b:{ref:'B',w:'L'}},
+      {id:'L', round:2, a:{ref:'J',w:'W'}, b:{ref:'F',w:'L'}},
+      {id:'M', round:3, a:{ref:'K',w:'W'}, b:{ref:'L',w:'W'}},
+      {id:'N', round:4, a:{ref:'M',w:'W'}, b:{ref:'G',w:'L'}},
+      {id:'O', round:5, a:{ref:'N',w:'W'}, b:{ref:'H',w:'L'}, final:true},
     ],
-    gf: [{id:'P', round:1, a:{ref:'H',w:'W'}, b:{ref:'O',w:'W'}}],
+    gf: [
+      {id:'P', round:1, a:{ref:'H',w:'W'}, b:{ref:'O',w:'W'}},
+    ],
+  },
+  10: {
+    wb: [
+      {id:'A', round:0, a:{seed:8}, b:{seed:9}, prelim:true},
+      {id:'B', round:0, a:{seed:7}, b:{seed:10}, prelim:true},
+      {id:'C', round:1, a:{seed:1}, b:{ref:'A',w:'W'}},
+      {id:'D', round:1, a:{seed:4}, b:{seed:5}},
+      {id:'E', round:1, a:{seed:2}, b:{ref:'B',w:'W'}},
+      {id:'F', round:1, a:{seed:3}, b:{seed:6}},
+      {id:'G', round:2, a:{ref:'C',w:'W'}, b:{ref:'D',w:'W'}},
+      {id:'H', round:2, a:{ref:'E',w:'W'}, b:{ref:'F',w:'W'}},
+      {id:'I', round:3, a:{ref:'G',w:'W'}, b:{ref:'H',w:'W'}, final:true},
+    ],
+    lb: [
+      {id:'J', round:1, a:{ref:'A',w:'L'}, b:{ref:'B',w:'L'}},
+      {id:'K', round:1, a:{ref:'C',w:'L'}, b:{ref:'D',w:'L'}},
+      {id:'L', round:1, a:{ref:'E',w:'L'}, b:{ref:'F',w:'L'}},
+      {id:'M', round:2, a:{ref:'G',w:'L'}, b:{ref:'H',w:'L'}},
+      {id:'N', round:2, a:{ref:'J',w:'W'}, b:{ref:'K',w:'W'}},
+      {id:'O', round:3, a:{ref:'L',w:'W'}, b:{ref:'M',w:'W'}},
+      {id:'P', round:3, a:{ref:'N',w:'W'}, b:{ref:'I',w:'L'}},
+      {id:'Q', round:4, a:{ref:'O',w:'W'}, b:{ref:'P',w:'W'}, final:true},
+    ],
+    gf: [
+      {id:'R', round:1, a:{ref:'I',w:'W'}, b:{ref:'Q',w:'W'}},
+    ],
   },
 };
 
@@ -1532,18 +1596,24 @@ function allBracketMatches(){
 }
 function findBracketMatch(id){ return allBracketMatches().find(m=>m.id===id); }
 
-function generateBracket(n){
+// every bracket game is a single game, except the Grand Final (3 maps) — or every game
+// when Super Cup mode is on
+function generateBracket(n, superCup){
   if(!BRACKET_TEMPLATES[n]){
     bracketData = {unsupported:true, n};
     return;
   }
   const seedOrder = seedTeamsByElo(n);
   const tpl = BRACKET_TEMPLATES[n];
-  const clone = (list, group)=> list.map(m=>({
-    id:m.id, round:m.round, a:m.a, b:m.b, final:!!m.final, prelim:!!m.prelim, group,
-    scoreA:null, scoreB:null, winnerTeam:null, loserTeam:null, teamA:null, teamB:null,
-  }));
-  bracketData = { n, seedOrder, wb: clone(tpl.wb,'WB'), lb: clone(tpl.lb,'LB'), gf: clone(tpl.gf,'GF') };
+  const clone = (list, group)=> list.map(m=>{
+    const bo3 = group==='GF' || !!superCup;
+    return {
+      id:m.id, round:m.round, a:m.a, b:m.b, final:!!m.final, prelim:!!m.prelim, group, bo3,
+      maps: bo3 ? emptyMaps() : null,
+      scoreA:null, scoreB:null, winnerTeam:null, loserTeam:null, teamA:null, teamB:null,
+    };
+  });
+  bracketData = { n, superCup:!!superCup, seedOrder, wb: clone(tpl.wb,'WB'), lb: clone(tpl.lb,'LB'), gf: clone(tpl.gf,'GF') };
   recalcBracket();
 }
 
@@ -1558,6 +1628,7 @@ function recalcBracket(){
     return null;
   };
   allBracketMatches().forEach(m=>{
+    if(m.bo3 === undefined) m.bo3 = (m.group === 'GF');
     const previousA = m.teamA;
     const previousB = m.teamB;
     const ta = resolveSpec(m.a), tb = resolveSpec(m.b);
@@ -1569,35 +1640,23 @@ function recalcBracket(){
     }
     m.teamA = ta; m.teamB = tb;
     let winner=null, loser=null;
-    if(ta!==null && tb!==null && m.scoreA!==null && m.scoreB!==null && m.scoreA!=='' && m.scoreB!=='' && +m.scoreA !== +m.scoreB){
-      winner = (+m.scoreA > +m.scoreB) ? ta : tb;
-      loser = winner===ta ? tb : ta;
+    if(ta!==null && tb!==null){
+      if(m.bo3){
+        if(!m.maps) m.maps = emptyMaps();
+        winner = seriesWinner(ta, tb, m.maps); // first to 2 maps
+      } else if(m.scoreA!==null && m.scoreB!==null && m.scoreA!=='' && m.scoreB!=='' && +m.scoreA !== +m.scoreB){
+        winner = (+m.scoreA > +m.scoreB) ? ta : tb;
+      }
+      if(winner !== null) loser = winner===ta ? tb : ta;
     }
     m.winnerTeam = winner; m.loserTeam = loser;
   });
-  // Grand Final is a best-of-3-maps series, not a single score pair
   const gfMatch = bracketData.gf[0];
-  if(gfMatch){
-    if(gfMatch.teamA!==null && gfMatch.teamB!==null){
-      if(!gfMatch.maps) gfMatch.maps = [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
-      let winsA=0, winsB=0;
-      gfMatch.maps.forEach(mp=>{
-        if(mp.scoreA===null||mp.scoreB===null||mp.scoreA===''||mp.scoreB==='') return;
-        const sa=+mp.scoreA, sb=+mp.scoreB;
-        if(sa===sb) return;
-        if(sa>sb) winsA++; else winsB++;
-      });
-      gfMatch.winnerTeam = winsA>=2 ? gfMatch.teamA : (winsB>=2 ? gfMatch.teamB : null);
-      gfMatch.loserTeam = gfMatch.winnerTeam!==null ? (gfMatch.winnerTeam===gfMatch.teamA ? gfMatch.teamB : gfMatch.teamA) : null;
-    } else {
-      gfMatch.winnerTeam = null; gfMatch.loserTeam = null;
-    }
-    if(gfMatch.winnerTeam !== null){ champion = gfMatch.winnerTeam; }
-  }
+  if(gfMatch && gfMatch.winnerTeam !== null){ champion = gfMatch.winnerTeam; }
 }
 
-// ---------- Super Cup: 4-team bracket, all best-of-3 maps ----------
-let supercupData = null; // {semis:[{id,a,b,maps,winner}, ...], final:{id,a,b,maps,winner}}
+// ---------- shared best-of-3 helpers ----------
+let supercupData = null; // legacy field, no longer used (kept so old saves load)
 
 function emptyMaps(){ return [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}]; }
 function seriesWinner(teamA, teamB, maps){
@@ -1612,80 +1671,6 @@ function seriesWinner(teamA, teamB, maps){
   if(winsA>=2) return teamA;
   if(winsB>=2) return teamB;
   return null;
-}
-function generateSuperCup(){
-  const seedOrder = seedTeamsByElo(4);
-  supercupData = {
-    semis: [
-      {id:'S1', a:seedOrder[0], b:seedOrder[3], maps:emptyMaps(), winner:null},
-      {id:'S2', a:seedOrder[1], b:seedOrder[2], maps:emptyMaps(), winner:null},
-    ],
-    final: {id:'F', a:null, b:null, maps:emptyMaps(), winner:null},
-  };
-  recalcSuperCup();
-}
-function findSuperCupMatch(id){
-  if(!supercupData) return null;
-  if(id==='S1') return supercupData.semis[0];
-  if(id==='S2') return supercupData.semis[1];
-  if(id==='F') return supercupData.final;
-  return null;
-}
-function recalcSuperCup(){
-  if(!supercupData) return;
-  champion = null;
-  if(!supercupData.final.maps) supercupData.final.maps = emptyMaps();
-  const oldFinalA = supercupData.final.a, oldFinalB = supercupData.final.b;
-  supercupData.semis.forEach(s=>{ s.winner = seriesWinner(s.a, s.b, s.maps); });
-  supercupData.final.a = supercupData.semis[0].winner;
-  supercupData.final.b = supercupData.semis[1].winner;
-  if(oldFinalA !== supercupData.final.a || oldFinalB !== supercupData.final.b){
-    supercupData.final.maps.forEach(mp=>{ mp.scoreA=null; mp.scoreB=null; });
-  }
-  supercupData.final.winner = seriesWinner(supercupData.final.a, supercupData.final.b, supercupData.final.maps);
-  if(supercupData.final.winner !== null){ champion = supercupData.final.winner; }
-}
-function renderSuperCupArea(){
-  const area = document.getElementById('matchesArea');
-  function seriesHtml(s, title){
-    const aName = leaderNameOf(s.a), bName = leaderNameOf(s.b);
-    let winsA=0, winsB=0;
-    s.maps.forEach(mp=>{ if(mp.scoreA!==null&&mp.scoreB!==null&&mp.scoreA!==''&&mp.scoreB!==''){ const sa=+mp.scoreA, sb=+mp.scoreB; if(sa>sb) winsA++; else if(sb>sa) winsB++; } });
-    let h = `<div class="mtitle">${title}: ${aName} در برابر ${bName}</div>`;
-    s.maps.forEach((mp,mi)=>{
-      h += `<div class="match-row">
-        <span class="mteam${s.winner===s.a?' winner':''}">${aName}</span>
-        <input type="text" inputmode="numeric" class="score-box sc-score" data-match="${s.id}" data-mi="${mi}" data-side="scoreA" value="${mp.scoreA??''}">
-        <span class="match-sep">مپ ${mi+1}</span>
-        <input type="text" inputmode="numeric" class="score-box sc-score" data-match="${s.id}" data-mi="${mi}" data-side="scoreB" value="${mp.scoreB??''}">
-        <span class="mteam${s.winner===s.b?' winner':''}">${bName}</span>
-      </div>`;
-    });
-    h += `<p class="final-note">برد سری: ${winsA} - ${winsB}</p>`;
-    return h;
-  }
-  let html = '<div class="bracket-group-title">سوپر کاپ — نیمه‌نهایی</div>';
-  html += seriesHtml(supercupData.semis[0], 'نیمه‌نهایی ۱');
-  html += seriesHtml(supercupData.semis[1], 'نیمه‌نهایی ۲');
-  if(supercupData.final.a!==null && supercupData.final.b!==null){
-    html += '<div class="bracket-group-title">🏆 فینال</div>';
-    html += seriesHtml(supercupData.final, 'فینال');
-  } else {
-    html += '<div class="bracket-group-title">فینال</div><p class="hint">در انتظار مشخص شدن دو فینالیست...</p>';
-  }
-  area.innerHTML = html;
-  area.querySelectorAll('.sc-score').forEach(inp=>{
-    inp.addEventListener('change', ()=>{
-      const m = findSuperCupMatch(inp.dataset.match);
-      const mi = +inp.dataset.mi;
-      m.maps[mi][inp.dataset.side] = inp.value===''?null:inp.value;
-      recalcSuperCup();
-      const mp = m.maps[mi];
-      rebuildActiveCompetitionElo();
-      renderMatchesArea();
-      renderChampionSelect(); renderDraftBoard(); saveState();
-    });
-  });
 }
 
 function generateLeague(n){
@@ -1749,12 +1734,10 @@ function refreshMatchesHint(){
   const bracketChosen = document.getElementById('fmtBracketRadio').checked;
   if(!bracketChosen){
     el.textContent = `لیگی برای ${TEAM_COUNT} تیم: همه با همه بازی می‌کنن و دو تیم برتر جدول فینال سه‌مپی رو برگزار می‌کنن.`;
-  } else if(TEAM_COUNT === 4){
-    el.textContent = 'براکتی برای ۴ تیم (سوپر کاپ): دو نیمه‌نهایی سه‌مپی بر اساس رتبه‌ی ELO و بعد فینال سه‌مپی.';
   } else if(BRACKET_TEMPLATES[TEAM_COUNT]){
-    el.textContent = `براکتی برای ${TEAM_COUNT} تیم: دو حذفی (براکت برنده‌ها/بازنده‌ها) با چیدمان بر اساس رتبه‌ی ELO؛ فینال بزرگ سه‌مپیه.`;
+    el.textContent = `براکتی برای ${TEAM_COUNT} تیم: دو حذفی (براکت برنده‌ها/بازنده‌ها) با چیدمان بر اساس رتبه‌ی ELO؛ همه‌ی بازی‌ها تک‌بازیه و گرند فاینال سه‌مپیه (با سوپر کاپ همه‌ی بازی‌ها سه‌مپی می‌شن).`;
   } else {
-    el.textContent = `چارت براکتی فعلاً برای ${TEAM_COUNT} تیم آماده نیست (۳ تا ۹ تیم پشتیبانی می‌شه) — از لیگی استفاده کن.`;
+    el.textContent = `چارت براکتی فعلاً برای ${TEAM_COUNT} تیم آماده نیست (۳ تا ۱۰ تیم پشتیبانی می‌شه) — از لیگی استفاده کن.`;
   }
 }
 
@@ -1762,7 +1745,6 @@ function renderMatchesArea(){
   const area = document.getElementById('matchesArea');
   if(matchFormat === 'league' && leagueData){ renderLeagueArea(); }
   else if(matchFormat === 'bracket' && bracketData){ renderBracketArea(); }
-  else if(matchFormat === 'supercup' && supercupData){ renderSuperCupArea(); }
   else { area.innerHTML = '<p class="empty-note">بعد از چیدن تیم‌ها، دکمه‌ی «ساخت جدول مسابقات» رو بزن.</p>'; }
 }
 
@@ -1832,16 +1814,28 @@ function renderLeagueArea(){
 function renderBracketArea(){
   const area = document.getElementById('matchesArea');
   if(bracketData.unsupported){
-    area.innerHTML = `<p class="hint">چارت براکتی فعلاً فقط برای ۳ تا ۹ تیم آماده‌ست و برای ${bracketData.n} تیم پشتیبانی نمی‌شه — فرمت رو روی «لیگی» بذار و دوباره جدول رو بساز.</p>`;
+    area.innerHTML = `<p class="hint">چارت براکتی فعلاً فقط برای ۳ تا ۱۰ تیم آماده‌ست و برای ${bracketData.n} تیم پشتیبانی نمی‌شه — فرمت رو روی «لیگی» بذار و دوباره جدول رو بساز.</p>`;
     return;
   }
   function bmatchHtml(m){
     const aTbd = m.teamA===null, bTbd = m.teamB===null;
-    const aLabel = aTbd ? (m.prelim || m.round>0 ? '؟' : 'در انتظار') : leaderNameOf(m.teamA);
-    const bLabel = bTbd ? 'در انتظار' : leaderNameOf(m.teamB);
+    // a slot stays empty until the earlier game that feeds it has a result
+    const aLabel = aTbd ? '—' : leaderNameOf(m.teamA);
+    const bLabel = bTbd ? '—' : leaderNameOf(m.teamB);
     const disabled = (aTbd||bTbd) ? 'disabled' : '';
     const aWin = m.winnerTeam!==null && m.winnerTeam===m.teamA;
     const bWin = m.winnerTeam!==null && m.winnerTeam===m.teamB;
+    if(m.bo3){
+      if(!m.maps) m.maps = emptyMaps();
+      const boxes = (side)=> m.maps.map((mp,mi)=>`<input type="text" inputmode="numeric" ${disabled} value="${mp[side]??''}" data-mid="${m.id}" data-mi="${mi}" data-side="${side}" class="score-box bracket-map-score" title="مپ ${mi+1}">`).join('');
+      let winsA=0, winsB=0;
+      m.maps.forEach(mp=>{ if(mp.scoreA!==null&&mp.scoreB!==null&&mp.scoreA!==''&&mp.scoreB!==''){ if(+mp.scoreA>+mp.scoreB) winsA++; else if(+mp.scoreB>+mp.scoreA) winsB++; } });
+      return `<div class="bmatch bo3">
+      <div class="brow${aWin?' winner':''}"><span class="bname${aTbd?' tbd':''}">${aLabel}</span><span class="bmaps">${boxes('scoreA')}</span></div>
+      <div class="brow${bWin?' winner':''}"><span class="bname${bTbd?' tbd':''}">${bLabel}</span><span class="bmaps">${boxes('scoreB')}</span></div>
+      <div class="bseries">سری: ${winsA} - ${winsB}</div>
+    </div>`;
+    }
     return `<div class="bmatch">
       <div class="brow${aWin?' winner':''}"><span class="bname${aTbd?' tbd':''}">${aLabel}</span><input type="text" inputmode="numeric" ${disabled} value="${m.scoreA??''}" data-mid="${m.id}" data-side="scoreA" class="score-box bracket-score"></div>
       <div class="brow${bWin?' winner':''}"><span class="bname${bTbd?' tbd':''}">${bLabel}</span><input type="text" inputmode="numeric" ${disabled} value="${m.scoreB??''}" data-mid="${m.id}" data-side="scoreB" class="score-box bracket-score"></div>
@@ -1855,7 +1849,7 @@ function renderBracketArea(){
     roundNums.forEach(rn=>{
       const roundMatches = byRound[rn];
       const colTitle = roundMatches.some(m=>m.final) ? 'فینال' : (rn===0 ? 'مقدماتی' : `دور ${rn}`);
-      html += `<div class="bracket-col"><div class="bracket-col-title">${colTitle}</div>`;
+      html += `<div class="bracket-col${roundMatches.some(m=>m.bo3)?' has-bo3':''}"><div class="bracket-col-title">${colTitle}</div>`;
       roundMatches.forEach(m=>{ html += bmatchHtml(m); });
       html += `</div>`;
     });
@@ -1902,6 +1896,17 @@ function renderBracketArea(){
       renderChampionSelect(); renderDraftBoard(); saveState();
     });
   });
+  area.querySelectorAll('.bracket-map-score').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const m = findBracketMatch(inp.dataset.mid);
+      if(!m.maps) m.maps = emptyMaps();
+      m.maps[+inp.dataset.mi][inp.dataset.side] = inp.value===''?null:inp.value;
+      recalcBracket();
+      rebuildActiveCompetitionElo();
+      renderMatchesArea();
+      renderChampionSelect(); renderDraftBoard(); saveState();
+    });
+  });
   area.querySelectorAll('.gf-map-score').forEach(inp=>{
     inp.addEventListener('change', ()=>{
       const gfMatch = bracketData.gf[0];
@@ -1919,15 +1924,12 @@ function renderBracketArea(){
 
 document.getElementById('buildMatchesBtn').addEventListener('click', ()=>{
   if(!teams.length){ alert('اول تیم‌ها رو بچین.'); return; }
-  const hasExisting = leagueData || bracketData || supercupData;
+  const hasExisting = leagueData || bracketData;
   if(hasExisting && !confirm('با ساخت دوباره‌ی جدول، نتایج قبلی این بخش پاک می‌شن. ادامه بدم؟')) return;
   const bracketChosen = document.getElementById('fmtBracketRadio').checked;
-  if(bracketChosen && TEAM_COUNT === 4){
-    matchFormat = 'supercup'; leagueData = null; bracketData = null;
-    generateSuperCup();
-  } else if(bracketChosen){
+  if(bracketChosen){
     matchFormat = 'bracket'; leagueData = null; supercupData = null;
-    generateBracket(TEAM_COUNT);
+    generateBracket(TEAM_COUNT, document.getElementById('superCupToggle').checked);
   } else {
     matchFormat = 'league'; bracketData = null; supercupData = null;
     generateLeague(TEAM_COUNT);
@@ -2407,8 +2409,8 @@ if(!restored){ buildParticipants(); }
 leaderCountInput.value = leaderCountWanted;
 buildRegistration();
 // Reconcile restored tournament state and ELO on startup as well as after edits.
+if(matchFormat === 'supercup'){ matchFormat = null; supercupData = null; } // old 4-team Super Cup structure was replaced
 if(matchFormat === 'bracket' && bracketData) recalcBracket();
-else if(matchFormat === 'supercup' && supercupData) recalcSuperCup();
 else if(matchFormat === 'league' && leagueData) updateChampionFromLeagueFinal();
 rebuildActiveCompetitionElo();
 // Persist any migrated ELO order metadata and the reconciled tournament state.
