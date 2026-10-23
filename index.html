@@ -105,6 +105,35 @@
   .elo-add-form input.add-name{flex:1; min-width:120px;}
   .elo-add-form input.add-pid{flex:0.8; min-width:100px; direction:ltr;}
   .elo-add-form input.add-elo{width:80px; font-family:'Oswald'; text-align:center;}
+  .tag-chip{display:inline-block; font-size:9px; line-height:1.55; padding:0 6px; border-radius:8px; border:1px solid; font-family:'Oswald','Pinar',sans-serif; letter-spacing:.2px;}
+  .tag-chip.tag-CS2{color:var(--orange-bright); border-color:rgba(242,179,72,.5); background:rgba(222,155,53,.1);}
+  .tag-chip.tag-Dota2{color:#e68a80; border-color:rgba(217,82,74,.55); background:rgba(217,82,74,.1);}
+  .elo-namecol{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .elo-row .elo-namecol .elo-name{flex:none;}
+  .elo-tags{display:flex; flex-wrap:wrap; gap:3px;}
+  .elo-games{display:flex; gap:7px; align-items:center; flex-shrink:0;}
+  .elo-g{display:flex; align-items:center; gap:3px;}
+  .elo-g .gl{font-size:8.5px; color:var(--muted); font-family:'Oswald',sans-serif;}
+  .elo-notag{font-size:10.5px; color:var(--muted); white-space:nowrap;}
+  .elo-row .elo-edit{background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:5px; width:18px; height:18px; font-size:11px; line-height:1; cursor:pointer; flex-shrink:0; transition:.15s; padding:0;}
+  .elo-row .elo-edit:hover{border-color:var(--orange); color:var(--orange-bright);}
+  .elo-row.editing{grid-column:1/-1; padding:8px 10px;}
+  .elo-editform{display:flex; gap:8px; flex-wrap:wrap; align-items:center; width:100%;}
+  .elo-editform input{background:var(--glass-chip); border:1px solid var(--glass-border); border-radius:8px; color:var(--text); font-family:'Pinar','Vazirmatn',sans-serif; font-size:13px; padding:7px 10px; flex:1; min-width:120px;}
+  .elo-editform input:focus{outline:none; border-color:var(--orange);}
+  .elo-editform input.ed-pid{direction:ltr;}
+  .ed-tags{display:flex; gap:6px;}
+  .tag-toggle{background:var(--glass-chip); border:1px solid var(--glass-border); color:var(--muted); border-radius:14px; padding:4px 13px; font-size:12px; font-family:'Oswald','Pinar',sans-serif; cursor:pointer; transition:.15s;}
+  .tag-toggle:hover{border-color:var(--orange);}
+  .tag-toggle.on{background:linear-gradient(135deg, rgba(222,155,53,.95), rgba(242,179,72,.8)); color:#1a1300; border-color:rgba(255,255,255,.3); font-weight:700;}
+  .add-elos{display:flex; gap:10px; flex-wrap:wrap; width:100%;}
+  .add-g .add-elo-in{width:150px; background:var(--glass-chip); border:1px solid var(--glass-border); border-radius:8px; color:var(--orange-bright); font-family:'Oswald','Pinar',sans-serif; font-size:13px; text-align:center; padding:7px 8px;}
+  .add-g .add-elo-in:focus{outline:none; border-color:var(--orange);}
+  .add-g .gl{font-size:11px;}
+  .reg-row .reg-namecol{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .reg-row .reg-namecol input{flex:none; width:100%;}
+  .reg-tags{display:flex; flex-wrap:wrap; gap:3px;}
+  .elo-number.dota{color:var(--text); opacity:.85;}
 
   .names-toolbar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
   .names-toolbar label{font-size:13.5px;}
@@ -289,7 +318,7 @@
     </div>
     <div id="eloUnlocked" style="display:none;">
       <div class="elo-head">
-        <p class="hint">همه‌ی اسامی‌ای که تا حالا ثبت کردی رو نشون می‌ده. هر وقت خواستی عدد ELO هرکسی رو بنویس یا ویرایش کن، اسامی اشتباه رو با × حذف کن، یا بازیکن جدید با آیدی‌ش اضافه کن.</p>
+        <p class="hint">همه‌ی اسامی‌ای که تا حالا ثبت کردی رو نشون می‌ده. با ✎ کنار هر اسم می‌تونی اسم، آیدی و تگ بازی‌ها (CS2 / Dota2) رو ویرایش کنی؛ برای هر تگ یه باکس ELO جدا داره. اسامی اشتباه رو با × حذف کن یا بازیکن جدید اضافه کن.</p>
         <div class="elo-search">
           <input type="text" id="eloSearchInput" autocomplete="off" aria-label="جستجو بر اساس اسم، ELO یا آیدی">
           <svg class="elo-search-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
@@ -307,6 +336,12 @@
 
   <div class="card" id="leaderCard">
     <h2>قرعه‌کشی لیدرها</h2>
+    <div class="names-toolbar">
+      <span>بازی مسابقه:</span>
+      <label><input type="radio" name="tournamentGameChoice" value="CS2" checked> CS2</label>
+      <label><input type="radio" name="tournamentGameChoice" value="Dota2"> Dota2</label>
+      <span class="empty-note">ELO همین بازی برای بالانس، میانگین تیم‌ها و کم و زیاد شدن بعد از بازی‌ها استفاده می‌شه.</span>
+    </div>
     <div class="names-toolbar">
       <label><input type="radio" name="draftMode" value="manual" id="modeManualRadio" checked> دستی (انتخاب و قرعه‌کشی لیدر)</label>
       <label><input type="radio" name="draftMode" value="auto" id="modeAutoRadio"> خودکار بر اساس ELO</label>
@@ -378,7 +413,7 @@
     </div>
     <div class="names-toolbar" style="margin-top:-2px;">
       <label><input type="checkbox" id="superCupToggle"> سوپر کاپ</label>
-      <span class="empty-note">فقط برای براکتی: اگه فعال باشه همه‌ی بازی‌های براکت (نه فقط گرند فاینال) سه‌مپی می‌شن. قبل از «ساخت جدول» تنظیمش کن.</span>
+      <span class="empty-note">فقط برای براکتی: همه‌ی بازی‌های براکت (نه فقط فینال) سه‌مپی می‌شن؛ با ۴ تیم هم تک‌حذفی می‌شه (دو نیمه‌نهایی + فینال). قبل از «ساخت جدول» تنظیمش کن.</span>
     </div>
     <div class="actions" style="margin-bottom:14px;">
       <button class="btn" id="buildMatchesBtn">ساخت جدول مسابقات</button>
@@ -447,7 +482,7 @@ function buildParticipants(){
 
 // ---------- persistence ----------
 function saveState(){
-  const state = {participants, leaderCountWanted, leaderSelection, draftStarted, teams, pickOrder, champion, TEAM_COUNT, matchFormat, leagueData, bracketData, supercupData};
+  const state = {participants, leaderCountWanted, leaderSelection, draftStarted, teams, pickOrder, champion, TEAM_COUNT, matchFormat, leagueData, bracketData, supercupData, tournamentGame};
   try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){}
 }
 function loadState(){
@@ -464,6 +499,7 @@ function loadState(){
     pickOrder = s.pickOrder || [];
     champion = (s.champion===undefined) ? null : s.champion;
     TEAM_COUNT = s.TEAM_COUNT || 0;
+    tournamentGame = GAMES.includes(s.tournamentGame) ? s.tournamentGame : 'CS2';
     matchFormat = s.matchFormat || null;
     leagueData = s.leagueData || null;
     bracketData = s.bracketData || null;
@@ -481,7 +517,10 @@ function buildRegistration(){
     row.className = 'reg-row';
     row.innerHTML = `
       <span class="num oswald">${p.num}</span>
-      <input type="text" placeholder="اسم بازیکن" data-num="${p.num}" data-field="name" value="${p.name}">
+      <div class="reg-namecol">
+        <input type="text" placeholder="اسم بازیکن" data-num="${p.num}" data-field="name" value="${p.name}">
+        <div class="reg-tags" data-regtags="${p.num}"></div>
+      </div>
       <span class="rank-badge-slot" data-rankbadge="${p.num}"></span>
       <input type="text" class="id-input" placeholder="یوزر آیدی" data-num="${p.num}" data-field="pid" value="${p.pid}">
       <span class="champ-badge" data-badge="${p.num}"></span>
@@ -496,7 +535,11 @@ function updateRegRankBadges(){
   document.querySelectorAll('.rank-badge-slot').forEach(slot=>{
     const num = +slot.dataset.rankbadge;
     const p = participants[num-1];
-    slot.innerHTML = (p && p.name) ? rankBadgeHtml(p.name) : '';
+    slot.innerHTML = (p && p.name) ? regEloBadgesHtml(p.name) : '';
+  });
+  document.querySelectorAll('.reg-tags').forEach(el=>{
+    const p = participants[+el.dataset.regtags - 1];
+    el.innerHTML = (p && p.name) ? tagsLineHtml(p.name) : '';
   });
   document.querySelectorAll('.reg-row').forEach(row=>{
     const inp = row.querySelector('[data-field="name"]');
@@ -588,31 +631,51 @@ function updateChampionBadges(){
     }
   });
 }
-// ---------- players DB (remembered names/IDs/ELO across weeks) ----------
-// shape: { name: { pid: string, elo: number|null } }
+// ---------- players DB (remembered names / IDs / game tags / ELO per game) ----------
+// shape: { name: { pid: string, tags: ['CS2','Dota2'], elos: { CS2: number|null, Dota2: number|null } } }
+const GAMES = ['CS2','Dota2'];
+let tournamentGame = 'CS2'; // which game's ELO the current competition uses (chosen in the leader-draw card)
+
+function newPlayerRecord(pid){ return { pid: pid || '', tags: [], elos: { CS2: null, Dota2: null } }; }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
 function loadPlayersDB(){
   try{ playersDB = JSON.parse(localStorage.getItem(PLAYERS_DB_KEY)) || {}; }
   catch(e){ playersDB = {}; }
-  // migrate old shape (name -> plain pid string) to the new object shape
+  // migrate every older shape to { pid, tags, elos }
   Object.keys(playersDB).forEach(n=>{
-    if(typeof playersDB[n] === 'string'){ playersDB[n] = {pid: playersDB[n], elo: null}; }
-    else if(playersDB[n] && typeof playersDB[n] === 'object'){
-      if(playersDB[n].pid === undefined) playersDB[n].pid = '';
-      if(playersDB[n].elo === undefined) playersDB[n].elo = null;
+    let o = playersDB[n];
+    if(typeof o === 'string') o = { pid: o };
+    if(!o || typeof o !== 'object'){ delete playersDB[n]; return; }
+    if(o.pid === undefined) o.pid = '';
+    if(!o.elos || typeof o.elos !== 'object'){
+      const legacy = (o.elo === undefined || o.elo === null) ? null : o.elo;
+      o.elos = { CS2: legacy, Dota2: null };
+      // players who already had an ELO were CS2 players
+      if(!Array.isArray(o.tags)) o.tags = legacy !== null ? ['CS2'] : [];
     }
+    if(!Array.isArray(o.tags)) o.tags = [];
+    GAMES.forEach(g=>{
+      if(o.elos[g] === undefined) o.elos[g] = null;
+      if(o.elos[g] !== null && !o.tags.includes(g)) o.tags.push(g);
+    });
+    delete o.elo;
+    playersDB[n] = o;
   });
   cleanupPlayersDB();
+  savePlayersDB();
 }
 function cleanupPlayersDB(){
-  // one-time cleanup: earlier versions saved on every keystroke, leaving partial
-  // fragments (e.g. "م", "مح", "محم") alongside the real full name. Drop any
-  // saved name that is a strict prefix of another saved name — it's almost
-  // certainly leftover partial typing, not a real second player.
+  // Earlier versions saved on every keystroke, leaving partial fragments (e.g. "م", "مح")
+  // next to the real name. Drop a name that is a strict prefix of another saved name ONLY if
+  // it carries no data at all (no ID, no tag, no ELO) — real players are never removed.
   const names = Object.keys(playersDB);
   let changed = false;
   names.forEach(n=>{
+    const o = playersDB[n];
+    const empty = !o.pid && (!o.tags || !o.tags.length) && GAMES.every(g=> o.elos[g] === null || o.elos[g] === undefined);
     const isPrefixOfAnother = names.some(other => other !== n && other.startsWith(n));
-    if(isPrefixOfAnother){ delete playersDB[n]; changed = true; }
+    if(empty && isPrefixOfAnother){ delete playersDB[n]; changed = true; }
   });
   if(changed) savePlayersDB();
 }
@@ -623,10 +686,32 @@ function upsertPlayer(name, pid){
   if(!name) return;
   if(deletedPlayerNames.has(name)){ deletedPlayerNames.delete(name); saveDeletedPlayerNames(); }
   const existing = playersDB[name];
-  const elo = existing ? existing.elo : null;
-  if(pid) playersDB[name] = {pid, elo};
-  else if(!existing) playersDB[name] = {pid:'', elo:null};
+  if(!existing) playersDB[name] = newPlayerRecord(pid);
+  else if(pid) existing.pid = pid;
   savePlayersDB();
+}
+
+// per-game accessors
+function getPlayerElo(name, game){
+  const o = playersDB[name];
+  if(!o || !o.elos) return null;
+  const v = o.elos[game || tournamentGame];
+  return (v === undefined || v === null) ? null : v;
+}
+function setPlayerElo(name, game, v){
+  const o = playersDB[name];
+  if(!o) return;
+  if(!o.elos) o.elos = { CS2: null, Dota2: null };
+  o.elos[game] = v;
+}
+function adjustPlayerElo(name, game, delta){
+  if(!playersDB[name]) return;
+  const cur = getPlayerElo(name, game);
+  setPlayerElo(name, game, (cur === null ? 1000 : cur) + delta);
+}
+function hasTag(name, game){
+  const o = playersDB[name];
+  return !!(o && Array.isArray(o.tags) && o.tags.includes(game || tournamentGame));
 }
 
 const suggestBox = document.getElementById('suggestBox');
@@ -742,7 +827,7 @@ function backfillPlayersDB(){
     (entry.teams||[]).forEach(t=>{
       (t.members||[]).forEach(m=>{
         if(!m.name || deletedPlayerNames.has(m.name)) return;
-        if(!playersDB[m.name]){ playersDB[m.name] = {pid: m.pid||'', elo:null}; changed = true; }
+        if(!playersDB[m.name]){ playersDB[m.name] = newPlayerRecord(m.pid); changed = true; }
         else if(!playersDB[m.name].pid && m.pid){ playersDB[m.name].pid = m.pid; changed = true; }
       });
     });
@@ -750,7 +835,7 @@ function backfillPlayersDB(){
   // names currently sitting in the registration grid (even if not yet blurred)
   participants.forEach(p=>{
     if(!p.name || deletedPlayerNames.has(p.name)) return;
-    if(!playersDB[p.name]){ playersDB[p.name] = {pid: p.pid||'', elo:null}; changed = true; }
+    if(!playersDB[p.name]){ playersDB[p.name] = newPlayerRecord(p.pid); changed = true; }
     else if(!playersDB[p.name].pid && p.pid){ playersDB[p.name].pid = p.pid; changed = true; }
   });
   if(changed) savePlayersDB();
@@ -783,10 +868,49 @@ function eloRowMatchesSearch(name){
   const q = normalizeSearchText(eloSearchQuery);
   if(!q) return true;
   const o = playersDB[name] || {};
-  const elo = (o.elo === null || o.elo === undefined) ? '' : String(o.elo);
+  const elos = GAMES.map(g=> (o.elos && o.elos[g] !== null && o.elos[g] !== undefined) ? String(o.elos[g]) : '');
   return normalizeSearchText(name).includes(q)
       || normalizeSearchText(o.pid || '').includes(q)
-      || elo.includes(q);
+      || normalizeSearchText((o.tags || []).join(' ')).includes(q)
+      || elos.some(e=>e.includes(q));
+}
+
+function tagChipHtml(g){ return `<span class="tag-chip tag-${g}">${g}</span>`; }
+function tagsLineHtml(name){
+  const o = playersDB[name];
+  if(!o || !o.tags || !o.tags.length) return '';
+  return GAMES.filter(g=>o.tags.includes(g)).map(tagChipHtml).join('');
+}
+function eloGameBoxHtml(name, g){
+  const v = getPlayerElo(name, g);
+  const label = g === 'CS2' ? 'CS2' : 'D2';
+  const rank = g === 'CS2' ? `<span class="elo-rank-slot">${eloRankCircleHtml(v)}</span>` : '';
+  return `<label class="elo-g" title="ELO ${g}"><span class="gl">${label}</span><input type="text" inputmode="numeric" autocomplete="off" class="elo-input" data-game="${g}" placeholder="—" value="${v === null ? '' : v}">${rank}</label>`;
+}
+
+let eloEditingName = null; // the row currently being edited (name / ID / tags)
+
+function renamePlayer(oldName, newName){
+  playersDB[newName] = playersDB[oldName];
+  delete playersDB[oldName];
+  deletedPlayerNames.delete(newName); saveDeletedPlayerNames();
+  participants.forEach(p=>{ if(p.name === oldName) p.name = newName; });
+  // past weeks' rosters keep the corrected name too
+  history.forEach(entry=>(entry.teams || []).forEach(t=>(t.members || []).forEach(m=>{ if(m.name === oldName) m.name = newName; })));
+  // ELO changes already applied in the active competition remember players by name
+  try{
+    getActiveEloUnits().all.forEach(u=>{
+      const d = u && u.eloApplied;
+      if(!d) return;
+      ['playersA','playersB'].forEach(k=>{ if(Array.isArray(d[k])) d[k] = d[k].map(n=> n === oldName ? newName : n); });
+    });
+  }catch(err){}
+  savePlayersDB(); persistHistory(); saveState();
+  buildRegistration();
+  renderLeaderNamesList();
+  if(draftStarted){ renderDraftBoard(); renderTeamPoolList(); }
+  renderMatchesArea();
+  renderHistory();
 }
 
 function renderEloList(){
@@ -806,24 +930,75 @@ function renderEloList(){
     const o = playersDB[name];
     const row = document.createElement('div');
     row.className = 'elo-row';
-    const safeName = name.replace(/</g,'&lt;');
+
+    if(eloEditingName === name){
+      // ----- edit mode: name, user ID and game tags -----
+      row.classList.add('editing');
+      const draftTags = new Set(o.tags || []);
+      row.innerHTML = `<div class="elo-editform">
+        <input type="text" class="ed-name" value="${escHtml(name)}" placeholder="اسم بازیکن">
+        <input type="text" class="ed-pid" value="${escHtml(o.pid || '')}" placeholder="یوزر آیدی">
+        <span class="ed-tags">${GAMES.map(g=>`<button type="button" class="tag-toggle${draftTags.has(g)?' on':''}" data-game="${g}">${g}</button>`).join('')}</span>
+        <button type="button" class="btn small ed-save">ذخیره</button>
+        <button type="button" class="btn ghost small ed-cancel">انصراف</button>
+      </div>`;
+      row.querySelectorAll('.tag-toggle').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const g = b.dataset.game;
+          if(draftTags.has(g)) draftTags.delete(g); else draftTags.add(g);
+          b.classList.toggle('on', draftTags.has(g));
+        });
+      });
+      row.querySelector('.ed-cancel').addEventListener('click', ()=>{ eloEditingName = null; renderEloList(); });
+      row.querySelector('.ed-save').addEventListener('click', ()=>{
+        const newName = row.querySelector('.ed-name').value.trim();
+        const newPid = row.querySelector('.ed-pid').value.trim();
+        if(!newName){ alert('اسم نمی‌تونه خالی باشه.'); return; }
+        if(newName !== name && playersDB[newName]){ alert('یه بازیکن دیگه با همین اسم هست.'); return; }
+        o.pid = newPid;
+        o.tags = GAMES.filter(g=>draftTags.has(g));
+        if(newName !== name) renamePlayer(name, newName);
+        else {
+          participants.forEach(p=>{ if(p.name === name) p.pid = newPid; });
+          savePlayersDB(); saveState(); buildRegistration();
+        }
+        eloEditingName = null;
+        renderEloList();
+        updateRegRankBadges();
+        if(draftStarted) renderDraftBoard();
+        refreshSkippedElo();
+      });
+      eloList.appendChild(row);
+      return;
+    }
+
+    // ----- normal row: name + small tags under it, one ELO box per tag -----
+    const tagList = GAMES.filter(g=>(o.tags || []).includes(g));
     row.innerHTML = `
-      <span class="elo-name" title="${o.pid || ''}">${safeName}</span>
-      <span class="elo-pid">${o.pid || ''}</span>
-      <input type="text" inputmode="numeric" autocomplete="off" class="elo-input" placeholder="—" value="${o.elo===null||o.elo===undefined?'':o.elo}" data-name="${safeName}">
-      <span class="elo-rank-slot">${eloRankCircleHtml(o.elo)}</span>
+      <div class="elo-namecol">
+        <span class="elo-name" title="${escHtml(o.pid || '')}">${escHtml(name)}</span>
+        ${tagList.length ? `<span class="elo-tags">${tagsLineHtml(name)}</span>` : ''}
+      </div>
+      <div class="elo-games">${tagList.length ? tagList.map(g=>eloGameBoxHtml(name,g)).join('') : '<span class="elo-notag">بدون تگ</span>'}</div>
+      <button class="elo-edit" title="ویرایش اسم، آیدی و تگ‌ها">✎</button>
       <button class="elo-del" title="حذف این اسم">×</button>
     `;
-    row.querySelector('.elo-input').addEventListener('input', (e)=>{
-      const v = sanitizeEloInput(e.target.value);
-      if(v !== e.target.value) e.target.value = v;
-      const n = (v === '' || v === '-') ? null : Number(v);
-      playersDB[name].elo = n;
-      savePlayersDB();
-      row.querySelector('.elo-rank-slot').innerHTML = eloRankCircleHtml(n);
-      updateRegRankBadges();
-      if(draftStarted) renderDraftBoard();
+    row.querySelectorAll('.elo-input').forEach(inp=>{
+      const g = inp.dataset.game;
+      inp.addEventListener('input', (e)=>{
+        const v = sanitizeEloInput(e.target.value);
+        if(v !== e.target.value) e.target.value = v;
+        const n = (v === '' || v === '-') ? null : Number(v);
+        setPlayerElo(name, g, n);
+        savePlayersDB();
+        const slot = inp.parentElement.querySelector('.elo-rank-slot');
+        if(slot) slot.innerHTML = eloRankCircleHtml(n);
+        updateRegRankBadges();
+        if(draftStarted) renderDraftBoard();
+      });
+      inp.addEventListener('change', ()=> refreshSkippedElo());
     });
+    row.querySelector('.elo-edit').addEventListener('click', ()=>{ eloEditingName = name; renderEloList(); });
     row.querySelector('.elo-del').addEventListener('click', ()=>{
       if(!confirm(`اسم «${name}» از لیست بازیکن‌ها حذف بشه؟ (نتایج هفته‌های قبلی توی تاریخچه دست‌نخورده می‌مونه)`)) return;
       delete playersDB[name];
@@ -836,34 +1011,67 @@ function renderEloList(){
   });
 }
 
-document.getElementById('addEloPlayerBtn').addEventListener('click', ()=>{
-  if(eloAddForm.style.display === 'none' || !eloAddForm.style.display){
-    eloAddForm.style.display = 'flex';
-    eloAddForm.innerHTML = `
-      <input type="text" class="add-name" placeholder="اسم بازیکن">
-      <input type="text" class="add-pid" placeholder="یوزر آیدی">
-      <input type="text" inputmode="numeric" autocomplete="off" class="add-elo" placeholder="ELO">
-      <button class="btn small" id="eloAddConfirm">ثبت</button>
-      <button class="btn ghost small" id="eloAddCancel">انصراف</button>
-    `;
-    document.getElementById('eloAddConfirm').addEventListener('click', ()=>{
-      const name = eloAddForm.querySelector('.add-name').value.trim();
-      const pid = eloAddForm.querySelector('.add-pid').value.trim();
-      const eloVal = sanitizeEloInput(eloAddForm.querySelector('.add-elo').value);
-      if(!name){ alert('اسم رو وارد کن.'); return; }
-      deletedPlayerNames.delete(name);
-      saveDeletedPlayerNames();
-      playersDB[name] = { pid, elo: (eloVal === '' || eloVal === '-') ? null : Number(eloVal) };
-      savePlayersDB();
-      eloAddForm.style.display = 'none';
-      renderEloList();
+// ----- add a new player: pick game tags first, then the ELO box for each tag appears -----
+function openEloAddForm(){
+  eloAddForm.style.display = 'flex';
+  const selected = new Set();
+  const typed = { CS2:'', Dota2:'' };
+  eloAddForm.innerHTML = `
+    <input type="text" class="add-name" placeholder="اسم بازیکن">
+    <input type="text" class="add-pid" placeholder="یوزر آیدی">
+    <span class="ed-tags add-tags">${GAMES.map(g=>`<button type="button" class="tag-toggle" data-game="${g}">${g}</button>`).join('')}</span>
+    <div class="add-elos" style="display:none;"></div>
+    <button class="btn small" id="eloAddConfirm">ثبت</button>
+    <button class="btn ghost small" id="eloAddCancel">انصراف</button>
+  `;
+  const elosBox = eloAddForm.querySelector('.add-elos');
+  function renderElos(focusGame){
+    elosBox.querySelectorAll('.add-elo-in').forEach(i=>{ typed[i.dataset.game] = i.value; });
+    const chosen = GAMES.filter(g=>selected.has(g));
+    elosBox.style.display = chosen.length ? 'flex' : 'none';
+    elosBox.innerHTML = chosen.map(g=>`<label class="elo-g add-g"><span class="gl">${g}</span><input type="text" inputmode="numeric" autocomplete="off" class="add-elo-in" data-game="${g}" placeholder="ELO ${g} رو بنویس" value="${escHtml(typed[g] || '')}"></label>`).join('');
+    elosBox.querySelectorAll('.add-elo-in').forEach(i=>{
+      i.addEventListener('input', ()=>{ const v = sanitizeEloInput(i.value); if(v !== i.value) i.value = v; });
     });
-    document.getElementById('eloAddCancel').addEventListener('click', ()=>{
-      eloAddForm.style.display = 'none';
-    });
-  } else {
-    eloAddForm.style.display = 'none';
+    if(focusGame){ const f = elosBox.querySelector(`.add-elo-in[data-game="${focusGame}"]`); if(f) f.focus(); }
   }
+  eloAddForm.querySelectorAll('.add-tags .tag-toggle').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const g = b.dataset.game;
+      const nowOn = !selected.has(g);
+      if(nowOn) selected.add(g); else selected.delete(g);
+      b.classList.toggle('on', nowOn);
+      renderElos(nowOn ? g : null);
+    });
+  });
+  document.getElementById('eloAddConfirm').addEventListener('click', ()=>{
+    const name = eloAddForm.querySelector('.add-name').value.trim();
+    const pid = eloAddForm.querySelector('.add-pid').value.trim();
+    if(!name){ alert('اسم رو وارد کن.'); return; }
+    if(playersDB[name]){ alert('این اسم از قبل هست؛ با ✎ کنار اسمش ویرایشش کن.'); return; }
+    const chosen = GAMES.filter(g=>selected.has(g));
+    const rec = newPlayerRecord(pid);
+    for(const g of chosen){
+      const inp = elosBox.querySelector(`.add-elo-in[data-game="${g}"]`);
+      const v = sanitizeEloInput(inp ? inp.value : '');
+      if(v === '' || v === '-'){ alert(`برای تگ ${g} باید ELO بنویسی.`); if(inp) inp.focus(); return; }
+      rec.elos[g] = Number(v);
+    }
+    rec.tags = chosen;
+    deletedPlayerNames.delete(name);
+    saveDeletedPlayerNames();
+    playersDB[name] = rec;
+    savePlayersDB();
+    eloAddForm.style.display = 'none';
+    renderEloList();
+    updateRegRankBadges();
+    refreshSkippedElo();
+  });
+  document.getElementById('eloAddCancel').addEventListener('click', ()=>{ eloAddForm.style.display = 'none'; });
+}
+document.getElementById('addEloPlayerBtn').addEventListener('click', ()=>{
+  if(eloAddForm.style.display === 'none' || !eloAddForm.style.display) openEloAddForm();
+  else eloAddForm.style.display = 'none';
 });
 
 // ---------- automatic ELO updates after each scored game ----------
@@ -930,8 +1138,9 @@ function afterEloChange(){
 function reverseEloIfApplied(unit, label){
   if(!unit || !unit.eloApplied) return;
   const d = unit.eloApplied;
-  d.playersA.forEach(n=>{ if(playersDB[n]) playersDB[n].elo = (playersDB[n].elo ?? 1000) - d.deltaA; });
-  d.playersB.forEach(n=>{ if(playersDB[n]) playersDB[n].elo = (playersDB[n].elo ?? 1000) - d.deltaB; });
+  const g = d.game || 'CS2'; // older records were always CS2
+  d.playersA.forEach(n=> adjustPlayerElo(n, g, -d.deltaA));
+  d.playersB.forEach(n=> adjustPlayerElo(n, g, -d.deltaB));
   unit.eloApplied = null;
   savePlayersDB();
   logEloChange(`↩ برگشت تغییر قبلی (${label}): بازیکن‌های تیم اول ${d.deltaA>=0?'-':'+'}${Math.abs(d.deltaA)}، بازیکن‌های تیم دوم ${d.deltaB>=0?'-':'+'}${Math.abs(d.deltaB)} چون نتیجه ویرایش یا پاک شد.`);
@@ -946,6 +1155,17 @@ function applyEloForGame(unit, teamAIdx, teamBIdx, scoreA, scoreB, label){
   const sa = +scoreA, sb = +scoreB;
   if(isNaN(sa) || isNaN(sb)) return;
 
+  // every player must have this game's tag AND an ELO for it; otherwise nothing is changed
+  const game = tournamentGame;
+  const involved = [...teamMemberNames(teamAIdx), ...teamMemberNames(teamBIdx)];
+  const blockers = involved.filter(n=> !(hasTag(n, game) && getPlayerElo(n, game) !== null));
+  if(blockers.length){
+    eloSkippedPending = true;
+    blockers.forEach(n=> eloSkipInfo.names.add(n));
+    eloSkipInfo.game = game;
+    return;
+  }
+
   // averages are taken from ELO values BEFORE this game's change
   const RA = teamAvgEloExact(teamAIdx), RB = teamAvgEloExact(teamBIdx);
   const PA = 1 / (1 + Math.pow(10, (RB - RA) / 400));
@@ -955,14 +1175,14 @@ function applyEloForGame(unit, teamAIdx, teamBIdx, scoreA, scoreB, label){
 
   const playersA = teamMemberNames(teamAIdx);
   const playersB = teamMemberNames(teamBIdx);
-  playersA.forEach(n=>{ if(!playersDB[n]) playersDB[n] = {pid:'', elo:1000}; playersDB[n].elo = (playersDB[n].elo ?? 1000) + deltaA; });
-  playersB.forEach(n=>{ if(!playersDB[n]) playersDB[n] = {pid:'', elo:1000}; playersDB[n].elo = (playersDB[n].elo ?? 1000) + deltaB; });
-  unit.eloApplied = { deltaA, deltaB, playersA, playersB, ra:RA, rb:RB };
+  playersA.forEach(n=> adjustPlayerElo(n, game, deltaA));
+  playersB.forEach(n=> adjustPlayerElo(n, game, deltaB));
+  unit.eloApplied = { deltaA, deltaB, playersA, playersB, ra:RA, rb:RB, game };
   savePlayersDB();
 
   const fmt = v => (v>0?'+':'') + v;
   logEloChange(
-    `${label} — ${leaderNameOf(teamAIdx)} (میانگین ${RA.toFixed(1)}) ${sa}-${sb} ${leaderNameOf(teamBIdx)} (میانگین ${RB.toFixed(1)}) | ` +
+    `[${game}] ${label} — ${leaderNameOf(teamAIdx)} (میانگین ${RA.toFixed(1)}) ${sa}-${sb} ${leaderNameOf(teamBIdx)} (میانگین ${RB.toFixed(1)}) | ` +
     `احتمال برد تیم اول: ${(PA*100).toFixed(1)}٪ | تغییر هر بازیکن تیم اول: ${fmt(deltaA)}، تیم دوم: ${fmt(deltaB)}`
   );
   afterEloChange();
@@ -1019,9 +1239,56 @@ function unitHasEloOrder(unit){
 // For the active competition, reverse its old deltas and replay every currently
 // valid result in the order the results were first completed. Editing a score keeps
 // that match's position; clearing it removes the position, and re-entering gets a new one.
-function rebuildActiveCompetitionElo(){
+let eloSkippedPending = false;      // some results were not applied because a player lacks the tag/ELO
+let eloSkipInfo = { names: new Set(), game: 'CS2' };
+let eloInitDone = false;           // no warning pop-ups while the page is still loading
+// Applies ONLY results that have a score but no ELO change recorded yet (for example results
+// that were skipped because a player had no tag/ELO at that time). It never undoes or
+// recalculates anything that was already applied, and it is never run on page load, so
+// refreshing the page cannot change anyone's ELO.
+function applyUnappliedEloUnits(opts){
+  const silent = !!(opts && opts.silent);
+  let data;
+  try{ data = getActiveEloUnits(); }catch(e){ return; }
+  const {all, replay} = data;
+  if(!all.length) return;
+  const pending = replay.filter(({unit,teamA,teamB})=>
+    unit && !unit.eloApplied && unitHasEnteredScore(unit) &&
+    teamA !== null && teamA !== undefined && teamB !== null && teamB !== undefined);
+  eloSkippedPending = false;
+  eloSkipInfo = { names: new Set(), game: tournamentGame };
+  if(!pending.length) return;
+  pending.forEach(({unit})=>{
+    if(!unitHasEloOrder(unit)) unit.eloOrder = ++eloSequenceCounter;
+    else eloSequenceCounter = Math.max(eloSequenceCounter, Number(unit.eloOrder));
+  });
+  saveEloSequence();
+  pending.sort((a,b)=> Number(a.unit.eloOrder) - Number(b.unit.eloOrder));
+  rebuildingElo = true;
+  try{
+    pending.forEach(({unit,teamA,teamB,label})=>{
+      applyEloForGame(unit, teamA, teamB, Number(unit.scoreA), Number(unit.scoreB), label);
+    });
+  } finally {
+    rebuildingElo = false;
+  }
+  afterEloChange();
+  saveState();
+  if(eloSkippedPending && !silent && eloInitDone){
+    alert(`ELO بازی ${eloSkipInfo.game} برای بعضی نتیجه‌ها هنوز آپدیت نشده، چون این بازیکن‌ها تگ یا ELO ${eloSkipInfo.game} ندارن:\n${[...eloSkipInfo.names].join('، ')}`);
+  }
+}
+// after tags / ELO are completed or edited, apply the results that were still waiting
+function refreshSkippedElo(){
+  applyUnappliedEloUnits({silent:true});
+}
+
+function rebuildActiveCompetitionElo(opts){
+  const silent = !!(opts && opts.silent);
   const {all, replay} = getActiveEloUnits();
   if(!all.length) return;
+  eloSkippedPending = false;
+  eloSkipInfo = { names: new Set(), game: tournamentGame };
 
   // Migrate older saves which don't have ordering metadata and allocate an order to
   // newly completed results. Incomplete results never affect ELO.
@@ -1049,8 +1316,9 @@ function rebuildActiveCompetitionElo(){
     all.forEach(unit=>{
       const d=unit && unit.eloApplied;
       if(!d) return;
-      (d.playersA || []).forEach(n=>{ if(playersDB[n]) playersDB[n].elo=(playersDB[n].elo ?? 1000)-d.deltaA; });
-      (d.playersB || []).forEach(n=>{ if(playersDB[n]) playersDB[n].elo=(playersDB[n].elo ?? 1000)-d.deltaB; });
+      const g = d.game || 'CS2';
+      (d.playersA || []).forEach(n=> adjustPlayerElo(n, g, -d.deltaA));
+      (d.playersB || []).forEach(n=> adjustPlayerElo(n, g, -d.deltaB));
       unit.eloApplied=null;
     });
     savePlayersDB();
@@ -1064,6 +1332,9 @@ function rebuildActiveCompetitionElo(){
     rebuildingElo = false;
   }
   afterEloChange();
+  if(eloSkippedPending && !silent && eloInitDone){
+    alert(`ELO بازی ${eloSkipInfo.game} برای بعضی نتیجه‌ها آپدیت نشد، چون این بازیکن‌ها تگ یا ELO ${eloSkipInfo.game} ندارن:\n${[...eloSkipInfo.names].join('، ')}\nاز بخش ELO تکمیلشون کن؛ بعدش خودکار محاسبه می‌شه.`);
+  }
 }
 
 document.getElementById('eloSearchInput').addEventListener('input', (e)=>{
@@ -1251,14 +1522,30 @@ document.getElementById('modeAutoRadio').addEventListener('change', ()=>{
   autoBalanceBlock.style.display = 'block';
 });
 
-function hasElo(name){
-  const o = playersDB[name];
-  return !!(o && o.elo !== null && o.elo !== undefined);
+document.querySelectorAll('input[name="tournamentGameChoice"]').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    if(!r.checked) return;
+    const next = r.value;
+    if(next === tournamentGame) return;
+    let results = false;
+    try{ results = getActiveEloUnits().all.some(u=> u && (u.eloApplied || unitHasEnteredScore(u))); }catch(e){}
+    if(results && !confirm(`توی جدول مسابقه‌ی فعلی نتیجه ثبت شده. با عوض کردن بازی به ${next}، تغییرهای ELO بازی قبلی برگردونده می‌شه و نتیجه‌ها دوباره روی ELO ${next} اعمال می‌شن. ادامه بدم؟`)){
+      document.querySelectorAll('input[name="tournamentGameChoice"]').forEach(x=>{ x.checked = (x.value === tournamentGame); });
+      return;
+    }
+    tournamentGame = next;
+    saveState();
+    if(results) rebuildActiveCompetitionElo();
+    if(draftStarted){ renderDraftBoard(); renderTeamPoolList(); }
+  });
+});
+
+function hasElo(name, game){ return getPlayerElo(name, game) !== null; }
+function eloOf(name, game){
+  const v = getPlayerElo(name, game);
+  return v === null ? 1000 : v;
 }
-function eloOf(name){
-  const o = playersDB[name];
-  return hasElo(name) ? o.elo : 1000;
-}
+function eligibleForElo(name, game){ return hasTag(name, game) && hasElo(name, game); }
 const RANK_TIERS = [
   [100,500,1,'var(--good)'],
   [501,750,2,'var(--good)'],
@@ -1277,12 +1564,28 @@ function rankInfo(elo){
   for(const [lo,hi,rank,color] of RANK_TIERS){ if(elo>=lo && elo<=hi) return {rank,color}; }
   return {rank:10, color:'var(--danger)'};
 }
+// team cards: the competition game's ELO — CS2 shows the rank circle + number, Dota2 just the number
 function rankBadgeHtml(name){
-  if(!hasElo(name)) return '';
-  const elo = eloOf(name);
+  const g = tournamentGame;
+  if(!hasElo(name, g)) return '';
+  const elo = eloOf(name, g);
+  if(g !== 'CS2') return `<span class="elo-number dota" title="ELO ${g}">${elo}</span>`;
   const info = rankInfo(elo);
   if(!info) return '';
   return `<span class="rank-badge" style="background:${info.color}" title="ELO ${elo}">${info.rank}</span><span class="elo-number" style="color:${info.color}">${elo}</span>`;
+}
+// registration rows: every game the player has a tag AND an ELO for, shown separately
+function regEloBadgesHtml(name){
+  let html = '';
+  if(hasTag(name,'CS2') && hasElo(name,'CS2')){
+    const elo = eloOf(name,'CS2');
+    const info = rankInfo(elo);
+    if(info) html += `<span class="rank-badge" style="background:${info.color}" title="CS2 — ELO ${elo}">${info.rank}</span><span class="elo-number" style="color:${info.color}" title="CS2">${elo}</span>`;
+  }
+  if(hasTag(name,'Dota2') && hasElo(name,'Dota2')){
+    html += `<span class="elo-number dota" title="Dota2">${eloOf(name,'Dota2')}</span>`;
+  }
+  return html;
 }
 
 function teamAvgEloExact(teamIdx){
@@ -1312,9 +1615,9 @@ function performAutoBalance(teamCountAuto){
     return;
   }
   const candidatePool = named.slice(0, required);
-  const missingElo = candidatePool.filter(p => !hasElo(p.name)).map(p=>p.name);
+  const missingElo = candidatePool.filter(p => !eligibleForElo(p.name, tournamentGame)).map(p=>p.name);
   if(missingElo.length > 0){
-    alert(`این بازیکن‌ها هنوز ELO ندارن، اول براشون تعریف کن:\n${missingElo.join('، ')}`);
+    alert(`این بازیکن‌ها تگ یا ELO بازی ${tournamentGame} رو ندارن، اول از بخش ELO براشون ثبت کن:\n${missingElo.join('، ')}`);
     return;
   }
   if(draftStarted && !confirm('تیم‌بندی فعلی پاک می‌شه و بر اساس ELO از نو چیده می‌شه. ادامه بدم؟')) return;
@@ -1430,6 +1733,17 @@ let leagueData = null;  // {matches:[{a,b,scoreA,scoreB}], finalMapScores:{}}
 let bracketData = null; // {n, seedOrder, wb:[...], lb:[...], gf:[...]} or {unsupported:true,n}
 
 const BRACKET_TEMPLATES = {
+  SC4: { // Super Cup, 4 teams: single elimination — losers are out, winners play the final
+    single: true,
+    wb: [
+      {id:'A', round:1, a:{seed:1}, b:{seed:4}},
+      {id:'B', round:1, a:{seed:2}, b:{seed:3}},
+    ],
+    lb: [],
+    gf: [
+      {id:'C', round:1, a:{ref:'A',w:'W'}, b:{ref:'B',w:'W'}},
+    ],
+  },
   3: {
     wb: [
       {id:'A', round:1, a:{seed:2}, b:{seed:3}},
@@ -1599,12 +1913,13 @@ function findBracketMatch(id){ return allBracketMatches().find(m=>m.id===id); }
 // every bracket game is a single game, except the Grand Final (3 maps) — or every game
 // when Super Cup mode is on
 function generateBracket(n, superCup){
-  if(!BRACKET_TEMPLATES[n]){
+  const tplKey = (n === 4 && superCup) ? 'SC4' : n;
+  if(!BRACKET_TEMPLATES[tplKey]){
     bracketData = {unsupported:true, n};
     return;
   }
   const seedOrder = seedTeamsByElo(n);
-  const tpl = BRACKET_TEMPLATES[n];
+  const tpl = BRACKET_TEMPLATES[tplKey];
   const clone = (list, group)=> list.map(m=>{
     const bo3 = group==='GF' || !!superCup;
     return {
@@ -1613,7 +1928,7 @@ function generateBracket(n, superCup){
       scoreA:null, scoreB:null, winnerTeam:null, loserTeam:null, teamA:null, teamB:null,
     };
   });
-  bracketData = { n, superCup:!!superCup, seedOrder, wb: clone(tpl.wb,'WB'), lb: clone(tpl.lb,'LB'), gf: clone(tpl.gf,'GF') };
+  bracketData = { n, superCup:!!superCup, single:!!tpl.single, seedOrder, wb: clone(tpl.wb,'WB'), lb: clone(tpl.lb,'LB'), gf: clone(tpl.gf,'GF') };
   recalcBracket();
 }
 
@@ -1724,6 +2039,7 @@ function updateMatchesVisibility(){
   }
   refreshMatchesHint();
 }
+document.getElementById('superCupToggle').addEventListener('change', ()=> refreshMatchesHint());
 document.querySelectorAll('input[name="matchFormatChoice"]').forEach(r=>{
   r.addEventListener('change', ()=>{ matchChoiceTouched = true; refreshMatchesHint(); });
 });
@@ -1734,6 +2050,8 @@ function refreshMatchesHint(){
   const bracketChosen = document.getElementById('fmtBracketRadio').checked;
   if(!bracketChosen){
     el.textContent = `لیگی برای ${TEAM_COUNT} تیم: همه با همه بازی می‌کنن و دو تیم برتر جدول فینال سه‌مپی رو برگزار می‌کنن.`;
+  } else if(TEAM_COUNT === 4 && document.getElementById('superCupToggle').checked){
+    el.textContent = 'سوپر کاپ با ۴ تیم: تک‌حذفی — دو نیمه‌نهایی سه‌مپی بر اساس رتبه‌ی ELO (بازنده‌ها حذف می‌شن) و بعد فینال سه‌مپی بین برنده‌ها.';
   } else if(BRACKET_TEMPLATES[TEAM_COUNT]){
     el.textContent = `براکتی برای ${TEAM_COUNT} تیم: دو حذفی (براکت برنده‌ها/بازنده‌ها) با چیدمان بر اساس رتبه‌ی ELO؛ همه‌ی بازی‌ها تک‌بازیه و گرند فاینال سه‌مپیه (با سوپر کاپ همه‌ی بازی‌ها سه‌مپی می‌شن).`;
   } else {
@@ -1848,7 +2166,7 @@ function renderBracketArea(){
     let html = `<div class="bracket-group-title">${title}</div><div class="bracket-wrap"><div class="bracket-rounds">`;
     roundNums.forEach(rn=>{
       const roundMatches = byRound[rn];
-      const colTitle = roundMatches.some(m=>m.final) ? 'فینال' : (rn===0 ? 'مقدماتی' : `دور ${rn}`);
+      const colTitle = bracketData.single ? 'نیمه‌نهایی' : (roundMatches.some(m=>m.final) ? 'فینال' : (rn===0 ? 'مقدماتی' : `دور ${rn}`));
       html += `<div class="bracket-col${roundMatches.some(m=>m.bo3)?' has-bo3':''}"><div class="bracket-col-title">${colTitle}</div>`;
       roundMatches.forEach(m=>{ html += bmatchHtml(m); });
       html += `</div>`;
@@ -1859,7 +2177,7 @@ function renderBracketArea(){
   function gfMapsHtml(){
     const gfMatch = bracketData.gf[0];
     if(gfMatch.teamA===null || gfMatch.teamB===null){
-      return `<div class="bracket-group-title">فینال بزرگ (سه مپ)</div><p class="hint">در انتظار مشخص شدن دو فینالیست...</p>`;
+      return `<div class="bracket-group-title">${bracketData.single ? 'فینال (سه مپ)' : 'فینال بزرگ (سه مپ)'}</div><p class="hint">در انتظار مشخص شدن دو فینالیست...</p>`;
     }
     if(!gfMatch.maps) gfMatch.maps = [{scoreA:null,scoreB:null},{scoreA:null,scoreB:null},{scoreA:null,scoreB:null}];
     const aName = leaderNameOf(gfMatch.teamA), bName = leaderNameOf(gfMatch.teamB);
@@ -1869,7 +2187,7 @@ function renderBracketArea(){
       const sa=+mp.scoreA, sb=+mp.scoreB;
       if(sa>sb) winsA++; else if(sb>sa) winsB++;
     });
-    let html = `<div class="bracket-group-title">🏆 فینال بزرگ (سه مپ): ${aName} در برابر ${bName}</div>`;
+    let html = `<div class="bracket-group-title">🏆 ${bracketData.single ? 'فینال' : 'فینال بزرگ'} (سه مپ): ${aName} در برابر ${bName}</div>`;
     gfMatch.maps.forEach((mp,mi)=>{
       html += `<div class="match-row">
         <span class="mteam">${aName}</span>
@@ -1882,8 +2200,8 @@ function renderBracketArea(){
     html += `<p class="final-note">برد سری: ${winsA} - ${winsB} (اولین تیمی که ۲ مپ ببره قهرمانه).</p>`;
     return html;
   }
-  let html = renderGroup('Winners Bracket', bracketData.wb);
-  html += renderGroup('Losers Bracket', bracketData.lb);
+  let html = renderGroup(bracketData.single ? 'نیمه‌نهایی‌ها (بازنده‌ها حذف می‌شن)' : 'Winners Bracket', bracketData.wb);
+  if(bracketData.lb.length) html += renderGroup('Losers Bracket', bracketData.lb);
   html += gfMapsHtml();
   area.innerHTML = html;
   area.querySelectorAll('.bracket-score').forEach(inp=>{
@@ -2406,13 +2724,14 @@ loadEloLog();
 loadEloSequence();
 const restored = loadState();
 if(!restored){ buildParticipants(); }
+document.querySelectorAll('input[name="tournamentGameChoice"]').forEach(r=>{ r.checked = (r.value === tournamentGame); });
 leaderCountInput.value = leaderCountWanted;
 buildRegistration();
 // Reconcile restored tournament state and ELO on startup as well as after edits.
 if(matchFormat === 'supercup'){ matchFormat = null; supercupData = null; } // old 4-team Super Cup structure was replaced
 if(matchFormat === 'bracket' && bracketData) recalcBracket();
 else if(matchFormat === 'league' && leagueData) updateChampionFromLeagueFinal();
-rebuildActiveCompetitionElo();
+// (no ELO recalculation on load: stored ELO values are used exactly as saved)
 // Persist any migrated ELO order metadata and the reconciled tournament state.
 saveState();
 renderLeaderNamesList();
@@ -2428,6 +2747,7 @@ renderMatchesArea();
 loadHistory();
 renderHistory();
 renderEloList();
+eloInitDone = true;
 </script>
 </body>
 </html>
