@@ -648,7 +648,9 @@ function loadPlayersDB(){
     if(typeof o === 'string') o = { pid: o };
     if(!o || typeof o !== 'object'){ delete playersDB[n]; return; }
     if(o.pid === undefined) o.pid = '';
+    let migratedOldRecord = false;
     if(!o.elos || typeof o.elos !== 'object'){
+      migratedOldRecord = true;
       const legacy = (o.elo === undefined || o.elo === null) ? null : o.elo;
       o.elos = { CS2: legacy, Dota2: null };
       // players who already had an ELO were CS2 players
@@ -657,7 +659,9 @@ function loadPlayersDB(){
     if(!Array.isArray(o.tags)) o.tags = [];
     GAMES.forEach(g=>{
       if(o.elos[g] === undefined) o.elos[g] = null;
-      if(o.elos[g] !== null && !o.tags.includes(g)) o.tags.push(g);
+      // only while converting an old record: an ELO means the tag. For current records the tag list
+      // is exactly what the user chose, so a tag they removed is never put back on refresh.
+      if(migratedOldRecord && o.elos[g] !== null && !o.tags.includes(g)) o.tags.push(g);
     });
     delete o.elo;
     playersDB[n] = o;
@@ -2004,7 +2008,8 @@ function computeLeagueStandings(){
     else if(sb>sa){ B.win++; A.lose++; B.point+=3; }
     else { A.point+=1; B.point+=1; }
   });
-  stats.sort((x,y)=> y.point-x.point || (y.roundWin-y.roundLose)-(x.roundWin-x.roundLose));
+  // order: more points -> more round wins -> fewer round losses (then team number, so it is stable)
+  stats.sort((x,y)=> (y.point-x.point) || (y.roundWin-x.roundWin) || (x.roundLose-y.roundLose) || (x.idx-y.idx));
   return stats;
 }
 function getLeagueFinalists(stats){
